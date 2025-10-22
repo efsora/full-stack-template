@@ -1,0 +1,17 @@
+{
+  "name": "@full-stack-template/shared",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared OpenAPI contracts and generated types",
+  "scripts": {
+    "generate:types": "npm run generate:ts-types",
+    "generate:ts-types": "openapi-typescript contracts/frontend-backend-api.yaml -o types/frontend-backend-api.ts && openapi-typescript contracts/backend-ai-api.yaml -o types/backend-ai-api.ts",
+    "lint": "spectral lint contracts/*.yaml",
+    "format": "prettier --write contracts/*.yaml"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.11.0",
+    "openapi-typescript": "^7.0.0",
+    "prettier": "^3.2.5"
+  }
+}

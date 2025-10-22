@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: full-stack-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  weaviate:
+    image: semitechnologies/weaviate:1.24.1
+    container_name: full-stack-weaviate
+    restart: unless-stopped
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'none'
+      ENABLE_MODULES: 'text2vec-openai,text2vec-cohere,text2vec-huggingface'
+      CLUSTER_HOSTNAME: 'node1'
+    ports:
+      - "${WEAVIATE_PORT:-8080}:8080"
+      - "${WEAVIATE_GRPC_PORT:-50051}:50051"
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # Backend service (Express + TypeScript)
+  # Uncomment when backend is implemented
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: full-stack-backend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${BACKEND_PORT:-3000}:3000"
+  #   environment:
+  #     NODE_ENV: ${NODE_ENV:-development}
+  #     POSTGRES_HOST: postgres
+  #     POSTGRES_PORT: 5432
+  #     POSTGRES_DB: ${POSTGRES_DB:-app_db}
+  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  #     BACKEND_SCHEMA: ${BACKEND_SCHEMA:-backend_schema}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - app-network
+
+  # Frontend service (React + TypeScript)
+  # Uncomment when frontend is implemented
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: full-stack-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${FRONTEND_PORT:-5173}:5173"
+  #   environment:
+  #     VITE_BACKEND_URL: http://localhost:${BACKEND_PORT:-3000}
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+
+  # AI Service (FastAPI)
+  # Uncomment when ai-service is implemented
+  # ai-service:
+  #   build:
+  #     context: ./ai-service
+  #     dockerfile: Dockerfile
+  #   container_name: full-stack-ai-service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${AI_SERVICE_PORT:-8000}:8000"
+  #   environment:
+  #     POSTGRES_HOST: postgres
+  #     POSTGRES_PORT: 5432
+  #     POSTGRES_DB: ${POSTGRES_DB:-app_db}
+  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  #     AI_SCHEMA: ${AI_SCHEMA:-ai_schema}
+  #     BACKEND_SCHEMA: ${BACKEND_SCHEMA:-backend_schema}
+  #     WEAVIATE_HOST: weaviate
+  #     WEAVIATE_PORT: 8080
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     weaviate:
+  #       condition: service_healthy
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  weaviate_data:
+    driver: local

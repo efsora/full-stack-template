@@ -1,0 +1,15 @@
+extends: ["spectral:oas"]
+
+rules:
+  # OpenAPI rules
+  info-contact: warn
+  info-description: warn
+  operation-description: warn
+  operation-operationId: warn
+  operation-tags: warn
+  no-$ref-siblings: error
+  openapi-tags: warn
+  operation-tag-defined: error
+
+  # Relaxed rules for development
+  info-license: off

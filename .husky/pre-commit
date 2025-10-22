@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# Run lint-staged to check only modified files
+npx lint-staged
