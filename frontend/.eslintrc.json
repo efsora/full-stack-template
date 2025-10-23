@@ -1,0 +1,28 @@
+{
+    "extends": ["plugin:prettier/recommended"],
+    "plugins": ["import"],
+    "rules": {
+        "prettier/prettier": "error",
+        "import/order": [
+            "error",
+            {
+                "groups": [
+                    ["builtin", "external"],
+                    "internal",
+                    ["parent", "sibling", "index"]
+                ],
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ],
+        "import/no-cycle": [
+            "error",
+            {
+                "maxDepth": 9999
+            }
+        ]
+    }
+}

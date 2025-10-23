@@ -3,16 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Full-stack + AI project template with monorepo architecture",
-  "workspaces": [
-    "backend",
-    "frontend",
-    "shared",
-    "packages/*"
-  ],
   "scripts": {
     "generate:types": "./scripts/generate-types.sh",
-    "lint:contracts": "npm run lint --workspace=shared",
-    "format:contracts": "npm run format --workspace=shared",
+    "lint:contracts": "cd shared && npm run lint --workspace=shared",
+    "format:contracts": "cd shared && npm run format --workspace=shared",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -21,8 +15,8 @@
   },
   "lint-staged": {
     "shared/contracts/*.yaml": [
-      "npm run lint:contracts",
-      "npm run format:contracts"
+      "cd shared && npm run lint:contracts",
+      "cd shared && npm run format:contracts"
     ],
     "backend/**/*.{ts,tsx,js,jsx}": [
       "cd backend && npm run lint",

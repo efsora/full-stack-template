@@ -1,0 +1,20 @@
+{
+    "files": [],
+    "references": [
+        { "path": "./tsconfig.app.json" },
+        { "path": "./tsconfig.node.json" }
+    ],
+    "compilerOptions": {
+        "types": [
+            "node"
+        ],
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "Node",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "allowImportingTsExtensions": true,
+        "forceConsistentCasingInFileNames": true
+    }
+}
