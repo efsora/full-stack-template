@@ -8,13 +8,27 @@ Runs in http://localhost:5173
 
 The `Makefile` contains scripts to simplify common development tasks:
 
-- `make dev`: Starts the development server using Vite.
-- `make build`: Builds the project by compiling TypeScript and bundling assets.
-- `make lint`: Runs ESLint to check for code quality issues.
-- `make format`: Formats the codebase using Prettier and fixes linting issues.
-- `make generate:types`: Generates TypeScript types from the OpenAPI schema.
-- `make prepare`: Sets up Husky for managing Git hooks.
-- `make preview`: Serves the production build locally for testing.
+* `make dev`: Starts the development server using Vite.
+* `make build`: Builds the project by compiling TypeScript and bundling assets.
+* `make lint`: Runs ESLint to check for code quality issues.
+* `make format`: Formats the codebase using Prettier and fixes linting issues.
+* `make generate:types`: Generates TypeScript types from the OpenAPI schema.
+* `make prepare`: Sets up Husky for managing Git hooks.
+* `make preview`: Serves the production build locally for testing.
+* `make translate`: Syncs the `translation.csv` under the root directory to the `translation.json` under `locales/raw`.
+
+### Environment Variables
+
+You need to create an `.env` file in your root directory.
+You can find an example of the `.env` in `.env.example`.
+
+To create a new environment variable:
+
+1. add the environment variable to your `.env` file, with a `VITE_` prefix.
+2. add under ImportMetaEnv interface in `env.d.ts`. This is for type safety and enabling autocompletion.
+3. finally, export from `env.ts` with a desired name, conventionally without the `VITE` prefix.
+
+After these steps, you will be able to use your environment variables by importing from `env.ts`.
 
 ### OpenAPI Type Generation
 
@@ -37,7 +51,7 @@ under `src/presentation/pages` and are consist of components.
 
 Wrappers or providers are located under `src/presentation/view`.
 
-Do not delete any essential components such as
+**Do not** delete any essential components such as
 rightbar, leftbar, header, footer. Just emptying its content should be enough.
 
 ### Hook Layer
@@ -52,13 +66,17 @@ derived from `schema.d.ts`.
 
 ### Localization
 
-`npx tsx scripts/translate-sync.ts ./translations.csv`
+`npm run translate`
 
-This script, `npx tsx scripts/translate-sync.ts <INPUT-FILE>`,  
+This script, `npm run translate`,  
 synchronizes translations from a CSV file into a JSON file used for localization.
-It reads the provided CSV file, parses its content,
-and converts it into a structured JSON format.
-The resulting JSON file is saved to `src/locales/translation.json`,
-ensuring the application has up-to-date translations for all supported languages.
-This process helps maintain consistency and simplifies managing translations across
-the project.
+It reads the provided CSV file, parses its content, and converts it into a structured JSON format.
+
+The resulting JSON file is saved to `src/locales/raw/translation.json`. The file here
+**won't be added to git**, it needs to be checked and changes should be added manually to
+`src/locales/processed/translation.json`, by copying raw translation file or altering the
+processed file.
+
+### State Management
+
+State management will be handled with Zustand.

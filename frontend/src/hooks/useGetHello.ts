@@ -1,19 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import type { AppResponse_HelloResponse_ } from '../api/models.ts';
 import { getHello } from '../api/helloApi.ts';
+import QUERY_KEYS from '../config/queryKeys.ts';
+import { FIVE_MINUTES_IN_MS } from '../config/constants.ts';
 
-interface UseGetHelloOptions {
-    showToast?: boolean;
-}
-
-export function useGetHello({ showToast = false }: UseGetHelloOptions) {
-    return useQuery<AppResponse_HelloResponse_, Error>({
-        queryKey: ['hello'],
+export function useGetHello() {
+    return useQuery({
+        queryKey: [QUERY_KEYS.HELLO],
         queryFn: getHello,
-        staleTime: 1000 * 60 * 5,
+        staleTime: FIVE_MINUTES_IN_MS,
         retry: 2,
-        meta: {
-            showToast: showToast,
-        },
     });
 }

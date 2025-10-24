@@ -1,0 +1,14 @@
+{
+    "response-list": {
+        "en": "Response List",
+        "tr": "Cevap Listesi"
+    },
+    "user-details": {
+        "en": "User Details",
+        "tr": "Kullanıcı Detayları"
+    },
+    "user-summary": {
+        "en": "User Summary",
+        "tr": "Kullanıcı Özeti"
+    }
+}

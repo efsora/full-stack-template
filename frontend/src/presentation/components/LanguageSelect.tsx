@@ -1,14 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES } from '../../config/languages.ts';
+import { LANGUAGES } from '../../config/constants.ts';
 
 export default function LanguageSelect() {
     const { i18n } = useTranslation();
     const [language, setLanguage] = useState(i18n.language);
-
-    useEffect(() => {
-        setLanguage(i18n.language);
-    }, [i18n.language]);
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = event.target.value;
@@ -22,6 +18,7 @@ export default function LanguageSelect() {
                 id="language-select"
                 value={language}
                 onChange={handleChange}
+                className="select"
             >
                 {LANGUAGES.map(({ code, label }) => (
                     <option key={code} value={code}>

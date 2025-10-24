@@ -4,12 +4,7 @@ import { useGetHello } from '../../hooks/useGetHello';
 export function ResponseList() {
     const { t } = useTranslation();
 
-    const {
-        data: hello,
-        isLoading,
-        isError,
-        error,
-    } = useGetHello({ showToast: true });
+    const { data: hello, isLoading, isError, error } = useGetHello();
 
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Error: {error?.message}</p>;

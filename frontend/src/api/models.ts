@@ -10,7 +10,21 @@ export type AppResponse<T> = {
 };
 
 export type CreateUserResponse = components['schemas']['CreateUserResponse'];
-export type ValidationError = components['schemas']['ValidationError'][];
+
+export type CreateUserRequest = components['schemas']['CreateUserRequest'];
+
+export type ValidationError = components['schemas']['ValidationError'];
+
 export type HelloResponse = components['schemas']['HelloResponse'];
+
 export type AppResponse_HelloResponse_ =
     components['schemas']['AppResponse_HelloResponse_'];
+
+export type AppResponse_CreateUserResponse_ = AppResponse<CreateUserResponse>;
+
+export type UserSummaryResponse_ = AppResponse<SummaryUser>;
+
+export type SummaryUser = {
+    user_name: string;
+    user_surname: string;
+};

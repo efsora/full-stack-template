@@ -13,12 +13,17 @@
         "type-check": "npx tsc -b --noEmit --verbose"
     },
     "dependencies": {
+        "@hookform/resolvers": "^5.2.2",
         "@tanstack/react-query": "^5.90.2",
+        "axios": "^1.12.2",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
+        "react-hook-form": "^7.65.0",
         "react-hot-toast": "^2.6.0",
         "react-i18next": "^16.0.0",
-        "react-router-dom": "^7.9.3"
+        "react-router-dom": "^7.9.3",
+        "zod": "^4.1.12",
+        "zustand": "^5.0.8"
     },
     "devDependencies": {
         "@eslint/js": "^9.36.0",
