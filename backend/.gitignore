@@ -1,0 +1,23 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Typescript output
+/dist
+
+# Test coverage
+/coverage
+
+# OS generated files
+.DS_Store
+.DS_Store?
+
+# Claude
+*CLAUDE.md
+.claude/
+.specify/
