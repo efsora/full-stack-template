@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 
-import Home from '../../pages/Home.tsx';
-import User from '../../pages/User.tsx';
-import Layout from '../layout/Layout/Layout.tsx';
+import Layout from '#layout/Layout/Layout';
+import Home from '#pages/Home';
+import User from '#pages/User';
 
 export default function Router() {
     return (

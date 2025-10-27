@@ -24,7 +24,23 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        /* Path Aliases */
+        "baseUrl": ".",
+        "paths": {
+            "#store": ["src/store/index"],
+            "#store/*": ["src/store/*"],
+            "#components": ["src/presentation/components/index"],
+            "#components/*": ["src/presentation/components/*"],
+            "#pages": ["src/presentation/pages/index"],
+            "#pages/*": ["src/presentation/pages/*"],
+            "#layout/*": ["src/presentation/view/layout/*"],
+            "#api/*": ["src/api/*"],
+            "#hooks/*": ["src/hooks/*"],
+            "#config/*": ["src/config/*"],
+            "#utils/*": ["src/utils/*"],
+            "#models/*": ["src/api/models/*"]
+        }
     },
     "include": ["src"],
     "exclude": ["node_modules", "dist"]

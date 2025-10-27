@@ -2,7 +2,7 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 
-import type { AppResponse } from '../api/models.ts';
+import type { AppResponse } from '../api/models/base.types';
 
 function useToast<T>(
     data: AppResponse<T> | undefined,

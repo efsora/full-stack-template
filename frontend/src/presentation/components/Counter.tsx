@@ -1,4 +1,4 @@
-import { useCountStore } from '../../store';
+import { useCountStore } from '#store/index';
 
 export default function Counter() {
     const count = useCountStore((state) => state.count);

@@ -27,13 +27,14 @@ export default defineConfig([
             'import/resolver': {
                 typescript: {
                     alwaysTryTypes: true,
-                    project: './tsconfig.json',
+                    project: ['./tsconfig.json', './tsconfig.app.json'],
                 },
                 node: true,
             },
             'import/parsers': {
                 '@typescript-eslint/parser': ['.ts', '.tsx'],
             },
+            'import/internal-regex': '^#',
         },
         rules: {
             // Import order
