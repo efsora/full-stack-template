@@ -29,6 +29,7 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.9.1",
     "@types/swagger-ui-express": "^4.1.8",
+    "drizzle-kit": "^0.31.5",
     "eslint": "^9.38.0",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
