@@ -9,14 +9,14 @@ import {
   authResponseSchema,
   loginBodySchema,
   registerBodySchema,
-} from "../routes/auth/schemas.js";
-import { helloResponseSchema } from "../routes/hello/schemas.js";
+} from "../src/routes/auth/schemas.js";
+import { helloResponseSchema } from "../src/routes/hello/schemas.js";
 import {
   createUserBodySchema,
   createUserResponseSchema,
   getUserParamsSchema,
   userDataSchema,
-} from "../routes/users/schemas.js";
+} from "../src/routes/users/schemas.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
