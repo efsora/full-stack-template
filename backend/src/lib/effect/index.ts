@@ -29,13 +29,13 @@ export {
     matchResponse,
     pipe,
     tap,
-  } from "#shared/effect/combinators.js";
+  } from "#lib/effect/combinators.js";
   
   // --- Factories ---
-  export { commandEffect, failure, success } from "#shared/effect/factories";
+  export { commandEffect, failure, success } from "#lib/effect/factories";
   
   // --- Interpreter ---
-  export { runEffect } from "#shared/effect/interpreter";
+  export { runEffect } from "#lib/effect/interpreter";
   
   // --- Metadata Utilities (Advanced Usage) ---
   export {
@@ -43,7 +43,7 @@ export {
     extractDomainFromFilePath,
     extractFilenameStem,
     inferActionFromFunctionName,
-  } from "#shared/effect/metadata";
+  } from "#lib/effect/metadata";
   
   // --- Types ---
-  export type { CommandEffect, Effect, EffectMetadata, Failure, Success } from "#shared/effect/types";
+  export type { CommandEffect, Effect, EffectMetadata, Failure, Success } from "#lib/effect/types";

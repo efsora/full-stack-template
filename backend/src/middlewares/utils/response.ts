@@ -2,7 +2,7 @@
  * Standard response formatters for API responses
  */
 
-import type { PaginationMeta } from "#shared/types/pagination.js";
+import type { PaginationMeta } from "#lib/types/pagination.js";
 
 export interface ErrorResponse {
   code: string;

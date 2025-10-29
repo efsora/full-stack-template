@@ -3,7 +3,7 @@ import type { User } from "#db/schema.js";
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import first from "lodash/fp/first.js";
 
-import { commandEffect, Effect, failure, success } from "#shared/effect/index";
+import { commandEffect, Effect, failure, success } from "#lib/effect/index";
 import { UserData } from "./types/outputs.js";
 import { Email } from "./value-objects/Email.js";
 

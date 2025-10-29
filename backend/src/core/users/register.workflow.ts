@@ -1,7 +1,7 @@
 
 import type { RegisterBody } from "#routes/auth/schemas";
 
-import { type Effect, pipe, success } from "#shared/effect/index";
+import { type Effect, pipe, success } from "#lib/effect/index";
 import { generateAuthToken } from "#infrastructure/auth/index";
 
 import {

@@ -24,11 +24,11 @@ import {
   logStart,
   logSuccess,
   withSpanContext,
-} from "#shared/effect/instrumentation.js";
+} from "#lib/effect/instrumentation.js";
 
 import type { CommandEffect, Effect, Failure } from "./types.js";
 
-import { failure } from "#shared/effect/factories.js";
+import { failure } from "#lib/effect/factories.js";
 
 /**
  * Internal context for command execution tracking

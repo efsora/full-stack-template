@@ -1,6 +1,6 @@
 import type { LoginBody } from "#routes/auth/schemas.js";
 
-import { type Effect, pipe, success } from "#shared/effect/index";
+import { type Effect, pipe, success } from "#lib/effect/index";
 import { generateAuthToken } from "#infrastructure/auth/index.js";
 
 import { findUserByEmail, validateLogin, verifyPassword } from "./login.operations.js";

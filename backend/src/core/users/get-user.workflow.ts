@@ -1,4 +1,4 @@
-import { type Effect, pipe, failure } from "#shared/effect/index";
+import { type Effect, pipe, failure } from "#lib/effect/index";
 
 import { findUserById } from "#core/users/find.operations";
 import { checkUserOwnership } from "#core/users/get-user.operations";

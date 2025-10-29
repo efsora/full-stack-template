@@ -4,7 +4,7 @@ import { userRepository } from "#infrastructure/repositories/drizzle";
 import bcrypt from "bcrypt";
 import first from "lodash/fp/first.js";
 
-import { allNamed, chain, commandEffect, Effect, failure, pipe, success } from "#shared/effect/index";
+import { allNamed, chain, commandEffect, Effect, failure, pipe, success } from "#lib/effect/index";
 import { RegisterInput } from "#core/users/types/inputs";
 import { ValidatedRegistrationData } from "#core/users/types/internal";
 import { Email } from "#core/users/value-objects/Email";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Effect, failure, success } from "#shared/effect/index";
+import { Effect, failure, success } from "#lib/effect/index";
 
 /**
  * Email Value Object (opaque branded type)

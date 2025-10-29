@@ -1,5 +1,5 @@
-import type { Effect } from "#shared/effect/index";
-import type { AppError } from "#shared/effect/types/errors";
+import type { Effect } from "#lib/effect/index";
+import type { AppError } from "#lib/effect/types/errors";
 import type { NextFunction, Request, Response } from "express";
 
 import { errorResponse, successResponse } from "#middlewares/utils/response";

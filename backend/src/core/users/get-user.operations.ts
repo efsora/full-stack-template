@@ -1,4 +1,4 @@
-import { type Effect, failure, success } from "#shared/effect/index";
+import { type Effect, failure, success } from "#lib/effect/index";
 
 import { UserData } from "./types/outputs.js";
 

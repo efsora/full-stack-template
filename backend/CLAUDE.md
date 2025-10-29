@@ -55,7 +55,7 @@ src/
 ├── routes/                  # HTTP layer (Express routes)
 │   └── [domain]/            # Each domain has: routes.ts, handlers.ts, schemas.ts
 ├── middlewares/             # Express middleware
-├── shared/                  # Shared utilities
+├── lib/                     # Library modules
 │   ├── effect/              # Custom Effect system (functional programming)
 │   └── types/               # Shared type definitions
 └── db/                      # Database schemas and client

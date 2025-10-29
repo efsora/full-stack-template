@@ -5,15 +5,15 @@
  * These factories construct Success, Failure, and CommandEffect types.
  */
 
-import type { CommandEffect, Effect, EffectMetadata, Failure, Success } from "#shared/effect/types";
-import type { AppError } from "#shared/effect/types/errors";
+import type { CommandEffect, Effect, EffectMetadata, Failure, Success } from "#lib/effect/types";
+import type { AppError } from "#lib/effect/types/errors";
 
 import {
   extractCallerInfo,
   extractDomainFromFilePath,
   extractFilenameStem,
   inferActionFromFunctionName,
-} from "#shared/effect/metadata";
+} from "#lib/effect/metadata";
 
 /**
  * Creates a CommandEffect - a deferred side-effectful computation.

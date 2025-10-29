@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { commandEffect, Effect, failure, success } from "#shared/effect/index";
+import { commandEffect, Effect, failure, success } from "#lib/effect/index";
 
 /**
  * HashedPassword Value Object (opaque branded type)
