@@ -9,14 +9,14 @@ import {
   authResponseSchema,
   loginBodySchema,
   registerBodySchema,
-} from "../src/routes/auth/schemas.js";
-import { helloResponseSchema } from "../src/routes/hello/schemas.js";
+} from "../src/routes/auth/schemas";
+import { helloResponseSchema } from "../src/routes/hello/schemas";
 import {
   createUserBodySchema,
   createUserResponseSchema,
   getUserParamsSchema,
   userDataSchema,
-} from "../src/routes/users/schemas.js";
+} from "../src/routes/users/schemas";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -286,6 +286,11 @@ const document = generator.generateDocument({
 
 // Write to file
 const outputPath = path.join(__dirname, "../../_docs/openapi.json");
+const outputDir = path.dirname(outputPath);
+
+// Ensure the directory exists
+fs.mkdirSync(outputDir, { recursive: true });
+
 fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
 
 console.log(`✅ OpenAPI spec generated at: ${outputPath}`);
