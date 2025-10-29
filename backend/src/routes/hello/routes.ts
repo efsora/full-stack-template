@@ -1,7 +1,7 @@
 import { handleEffect } from "#middlewares/effectHandler";
 import { Router } from "express";
 
-import { handleGetHello } from "./handlers.js";
+import { handleGetHello } from "./handlers";
 
 const router = Router();
 

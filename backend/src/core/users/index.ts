@@ -4,15 +4,15 @@
  */
 
 // Workflows
-export { login } from "./login.workflow.js";
-export { register } from "./register.workflow.js";
-export { getUserById } from "./get-user.workflow.js";
+export { login } from "./login.workflow";
+export { register } from "./register.workflow";
+export { getUserById } from "./get-user.workflow";
 
 // Public types - Inputs
-export type { LoginInput, RegisterInput, UpdateUserInput } from "./types/inputs.js";
+export type { LoginInput, RegisterInput, UpdateUserInput } from "./types/inputs";
 
 // Public types - Outputs
-export type { LoginResult, RegisterResult, UserData } from "./types/outputs.js";
+export type { LoginResult, RegisterResult, UserData } from "./types/outputs";
 
 // Public types - Errors
 export type {
@@ -22,11 +22,11 @@ export type {
   UserForbiddenError,
   UserValidationError,
   UserError,
-} from "./types/errors.js";
+} from "./types/errors";
 
 // Value objects
-export { Email } from "./value-objects/Email.js";
-export { Password } from "./value-objects/Password.js";
+export { Email } from "./value-objects/Email";
+export { Password } from "./value-objects/Password";
 
 // Note: operations, internal types, and other implementation details are intentionally NOT exported
 // Handlers should only use workflows from this barrel file

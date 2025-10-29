@@ -1,11 +1,11 @@
-import { User, users } from "#db/schema.js";
+import { User, users } from "#db/schema";
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import bcrypt from "bcrypt";
 import first from "lodash/fp/first";
 import { z } from "zod";
 
 import { commandEffect, Effect, failure, success } from "#lib/effect/index";
-import { LoginInput } from "#core/users/types/inputs.js";
+import { LoginInput } from "#core/users/types/inputs";
 import { LoginResult } from "#core/users/types/outputs";
 
 /**

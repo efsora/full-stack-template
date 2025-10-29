@@ -8,7 +8,7 @@ import { createUserRepository } from "#infrastructure/repositories/drizzle/UserR
 export { createUserRepository, type UserRepository } from "#infrastructure/repositories/drizzle/UserRepository";
 
 // Singleton Instances
-import { db } from "#db/client.js";
+import { db } from "#db/client";
 /**
  * Singleton user repository instance
  */

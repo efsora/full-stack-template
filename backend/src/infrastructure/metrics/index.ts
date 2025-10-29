@@ -1,4 +1,4 @@
-import { env } from "#infrastructure/config/env.js";
+import { env } from "#infrastructure/config/env";
 import { Counter, Histogram, Registry } from "prom-client";
 /**
  * Prometheus metrics registry

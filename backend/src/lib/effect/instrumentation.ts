@@ -55,10 +55,10 @@ export async function loadInstrumentationContext(): Promise<InstrumentationConte
   let endSpanWithError: ((span: Span, error: Error | string) => void) | null = null;
 
   try {
-    const loggerModule = await import("#infrastructure/logger/index.js");
-    const contextModule = await import("#infrastructure/logger/context.js");
-    const metricsModule = await import("#infrastructure/metrics/index.js");
-    const tracingModule = await import("#infrastructure/tracing/index.js");
+    const loggerModule = await import("#infrastructure/logger/index");
+    const contextModule = await import("#infrastructure/logger/context");
+    const metricsModule = await import("#infrastructure/metrics/index");
+    const tracingModule = await import("#infrastructure/tracing/index");
 
     logger = loggerModule.logger;
     getRequestId = contextModule.getRequestId;

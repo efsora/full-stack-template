@@ -2,8 +2,8 @@ import { handleEffect } from "#middlewares/effectHandler";
 import { validate } from "#middlewares/validate";
 import { Router } from "express";
 
-import { handleLogin, handleRegister } from "./handlers.js";
-import { loginSchema, registerSchema } from "./schemas.js";
+import { handleLogin, handleRegister } from "./handlers";
+import { loginSchema, registerSchema } from "./schemas";
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import { errorResponse } from "#middlewares/utils/response.js";
+import { errorResponse } from "#middlewares/utils/response";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 

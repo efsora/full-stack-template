@@ -1,10 +1,10 @@
-import type { LoginBody } from "#routes/auth/schemas.js";
+import type { LoginBody } from "#routes/auth/schemas";
 
 import { type Effect, pipe, success } from "#lib/effect/index";
-import { generateAuthToken } from "#infrastructure/auth/index.js";
+import { generateAuthToken } from "#infrastructure/auth/index";
 
-import { findUserByEmail, validateLogin, verifyPassword } from "./login.operations.js";
-import { LoginResult } from "./types/outputs.js";
+import { findUserByEmail, validateLogin, verifyPassword } from "./login.operations";
+import { LoginResult } from "./types/outputs";
 
 /**
  * Complete login workflow

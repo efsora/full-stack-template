@@ -1,9 +1,9 @@
 import type { Request } from "express";
 
-import { runEffect } from "#lib/effect/index.js";
-import { login, register } from "#core/users/index.js";
+import { runEffect } from "#lib/effect/index";
+import { login, register } from "#core/users/index";
 
-import { LoginBody, RegisterBody } from "./schemas.js";
+import { LoginBody, RegisterBody } from "./schemas";
 
 /**
  * POST /auth/login

@@ -1,5 +1,5 @@
 import { success } from "#lib/effect/factories";
-import { runEffect } from "#lib/effect/index.js";
+import { runEffect } from "#lib/effect/index";
 
 /**
  * GET /hello

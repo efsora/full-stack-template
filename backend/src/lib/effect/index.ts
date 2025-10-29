@@ -29,7 +29,7 @@ export {
     matchResponse,
     pipe,
     tap,
-  } from "#lib/effect/combinators.js";
+  } from "#lib/effect/combinators";
   
   // --- Factories ---
   export { commandEffect, failure, success } from "#lib/effect/factories";

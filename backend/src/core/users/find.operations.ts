@@ -1,11 +1,11 @@
-import type { User } from "#db/schema.js";
+import type { User } from "#db/schema";
 
 import { userRepository } from "#infrastructure/repositories/drizzle";
-import first from "lodash/fp/first.js";
+import first from "lodash/fp/first";
 
 import { commandEffect, Effect, failure, success } from "#lib/effect/index";
-import { UserData } from "./types/outputs.js";
-import { Email } from "./value-objects/Email.js";
+import { UserData } from "./types/outputs";
+import { Email } from "./value-objects/Email";
 
 /**
  * Finds all users

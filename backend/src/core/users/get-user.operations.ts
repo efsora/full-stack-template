@@ -1,6 +1,6 @@
 import { type Effect, failure, success } from "#lib/effect/index";
 
-import { UserData } from "./types/outputs.js";
+import { UserData } from "./types/outputs";
 
 /**
  * Checks if the requesting user is the owner of the resource

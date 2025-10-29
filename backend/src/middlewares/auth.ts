@@ -1,5 +1,5 @@
-import { env } from "#infrastructure/config/env.js";
-import { errorResponse } from "#middlewares/utils/response.js";
+import { env } from "#infrastructure/config/env";
+import { errorResponse } from "#middlewares/utils/response";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 

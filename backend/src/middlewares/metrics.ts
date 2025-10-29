@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { env } from "#infrastructure/config/env.js";
+import { env } from "#infrastructure/config/env";
 import {
   httpRequestDuration,
   httpRequestsTotal,
   httpResponseSize,
-} from "#infrastructure/metrics/index.js";
+} from "#infrastructure/metrics/index";
 
 /**
  * Metrics middleware to collect HTTP request metrics

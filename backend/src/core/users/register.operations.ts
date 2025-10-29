@@ -1,8 +1,8 @@
-import type { NewUser, User } from "#db/schema.js";
+import type { NewUser, User } from "#db/schema";
 
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import bcrypt from "bcrypt";
-import first from "lodash/fp/first.js";
+import first from "lodash/fp/first";
 
 import { allNamed, chain, commandEffect, Effect, failure, pipe, success } from "#lib/effect/index";
 import { RegisterInput } from "#core/users/types/inputs";

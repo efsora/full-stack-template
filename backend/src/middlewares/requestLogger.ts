@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { requestContext } from "#infrastructure/logger/context.js";
-import { logger } from "#infrastructure/logger/index.js";
+import { requestContext } from "#infrastructure/logger/context";
+import { logger } from "#infrastructure/logger/index";
 import { randomUUID } from "node:crypto";
 
 /**

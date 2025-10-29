@@ -3,8 +3,8 @@ import { handleEffect } from "#middlewares/effectHandler";
 import { validate } from "#middlewares/validate";
 import { Router } from "express";
 
-import { handleCreateUser, handleGetUserById } from "./handlers.js";
-import { createUserSchema, getUserSchema } from "./schemas.js";
+import { handleCreateUser, handleGetUserById } from "./handlers";
+import { createUserSchema, getUserSchema } from "./schemas";
 
 const router = Router();
 
