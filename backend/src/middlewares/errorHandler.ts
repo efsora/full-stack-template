@@ -1,7 +1,7 @@
 import { getRequestId } from "#infrastructure/logger/context";
 import { logger } from "#infrastructure/logger/index";
 import { errorResponse } from "#middlewares/utils/response";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 /**
  * Global error handler middleware
  * Catches any unhandled errors and returns a standard error response
@@ -10,6 +10,7 @@ export function errorHandler(
   error: Error,
   req: Request,
   res: Response,
+  _next: NextFunction,
 ): void {
   // Log error with observability context
   logger.error(

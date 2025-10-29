@@ -11,7 +11,7 @@ import type {
     NotFoundError,
     UnauthorizedError,
     ValidationError,
-  } from "#core/effect/types/errors.js";
+  } from "#shared/effect/types/errors.js";
   
   /**
    * Email conflict error - email already taken.

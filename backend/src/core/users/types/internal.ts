@@ -1,5 +1,5 @@
-import type { Email } from "#shared/value-objects/Email.js";
-import type { Password } from "#shared/value-objects/Password.js";
+import type { Email } from "#core/users/value-objects/Email.js";
+import type { Password } from "#core/users/value-objects/Password.js";
 
 /**
  * Internal types for Users domain

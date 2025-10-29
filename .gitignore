@@ -60,3 +60,6 @@ shared/types/*.ts
 
 # OS
 Thumbs.db
+
+# plans
+_plans/
