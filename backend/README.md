@@ -15,7 +15,7 @@ Express + TypeScript backend service implementing a Functional Core, Imperative 
 From the **root of the monorepo**, run:
 
 ```bash
-# Start all services (backend, postgres, redis, otel-collector)
+# Start all services (backend, postgres, weaviate, otel-collector)
 docker-compose up -d
 ```
 

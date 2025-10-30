@@ -44,20 +44,6 @@ services:
     networks:
       - app-network
 
-  redis:
-    image: redis:latest
-    container_name: full-stack-redis
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
   otel-collector:
     image: otel/opentelemetry-collector:latest
     container_name: full-stack-otel-collector
@@ -90,7 +76,6 @@ services:
       DB_NAME: backend_db
       PGPASSWORD: backend_password
       # Other services
-      REDIS_URL: redis://redis:6379
       JWT_SECRET: docker-dev-secret-key-32chars-minimum-length-required
       ENABLE_TRACING: "true"
       TRACING_SAMPLE_RATE: "1.0"
@@ -101,8 +86,6 @@ services:
       LOGGER_PRETTY: "true"
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
       otel-collector:
         condition: service_started
