@@ -1,171 +1,17 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Request
 import structlog
 
 from app.api.schemas.base_response import AppResponse
-from app.api.schemas.errors import ErrorCode
-from app.api.schemas.request import (
-    CreateUserRequest,
-    EmbedRequest,
-    SearchRequest,
-)
-from app.api.schemas.response import (
-    CreateUserResponse,
-    EmbedResponse,
-    HelloResponse,
-    SearchResponse,
-)
-from app.services.user_service import UserService
-from app.services.weaviate_service import WeaviateService
+from app.api.schemas.response import HelloResponse
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["v1"])
-
-UserServiceDep = Annotated[UserService, Depends()]
-WeaviateServiceDep = Annotated[WeaviateService, Depends()]
+router = APIRouter(prefix="/api/v1", tags=["common"])
 
 
 @router.get("/hello", response_model=AppResponse[HelloResponse])
 async def hello(request: Request) -> AppResponse[HelloResponse]:
+    """Health check endpoint."""
     trace_id = getattr(request.state, "trace_id", None)
     logger.info("hello_endpoint_called", trace_id=trace_id)
     return AppResponse.ok(HelloResponse(message="Hello, World!"), trace_id=trace_id)
-
-
-@router.post(
-    "/users", response_model=AppResponse[CreateUserResponse], status_code=status.HTTP_201_CREATED
-)
-async def create_user(
-    request: Request,
-    payload: CreateUserRequest,
-    user_service: UserServiceDep,
-) -> AppResponse[CreateUserResponse]:
-    trace_id = getattr(request.state, "trace_id", None)
-    logger.info(
-        "create_user_endpoint_called",
-        trace_id=trace_id,
-        user_name=payload.user_name,
-        user_surname=payload.user_surname,
-    )
-
-    try:
-        user_entity = await user_service.create_user(payload.user_name, payload.user_surname)
-
-        user = CreateUserResponse(
-            user_name=user_entity.user_name,
-            user_surname=payload.user_surname,
-            email=user_entity.email.value,
-        )
-
-        logger.info(
-            "create_user_endpoint_success",
-            trace_id=trace_id,
-            user_id=user_entity.id,
-        )
-        return AppResponse.ok(user, message="User created", trace_id=trace_id)
-    except Exception as exc:
-        logger.exception(
-            "create_user_endpoint_failed",
-            trace_id=trace_id,
-            exception_type=type(exc).__name__,
-        )
-        raise
-
-
-@router.post(
-    "/weaviate/embed",
-    response_model=AppResponse[EmbedResponse],
-    status_code=status.HTTP_201_CREATED,
-)
-async def embed_text(
-    request: Request,
-    payload: EmbedRequest,
-    weaviate_service: WeaviateServiceDep,
-) -> AppResponse[EmbedResponse]:
-    """Embed text into Weaviate vector database."""
-    trace_id = getattr(request.state, "trace_id", None)
-    logger.info(
-        "embed_text_endpoint_called",
-        trace_id=trace_id,
-        collection=payload.collection,
-        text_length=len(payload.text),
-    )
-
-    try:
-        result = await weaviate_service.embed_text(payload.text, payload.collection)
-        embed_response = EmbedResponse(
-            text=result["text"],
-            collection=result["collection"],
-            uuid=result["uuid"],
-        )
-        logger.info(
-            "embed_text_endpoint_success",
-            trace_id=trace_id,
-            collection=payload.collection,
-            uuid=result["uuid"],
-        )
-        return AppResponse.ok(
-            embed_response, message="Text embedded successfully", trace_id=trace_id
-        )
-    except ValueError as e:
-        logger.error(
-            "embed_text_endpoint_failed",
-            trace_id=trace_id,
-            collection=payload.collection,
-            error=str(e),
-        )
-        return AppResponse.fail(
-            code=ErrorCode.WEAVIATE_ERROR,
-            message="Failed to embed text",
-            detail=str(e),
-            trace_id=trace_id,
-        )
-
-
-@router.post("/weaviate/search", response_model=AppResponse[SearchResponse])
-async def search_weaviate(
-    request: Request,
-    payload: SearchRequest,
-    weaviate_service: WeaviateServiceDep,
-) -> AppResponse[SearchResponse]:
-    """Search for similar objects in Weaviate using BM25 search."""
-    trace_id = getattr(request.state, "trace_id", None)
-    logger.info(
-        "search_weaviate_endpoint_called",
-        trace_id=trace_id,
-        collection=payload.collection,
-        query=payload.query,
-        limit=payload.limit,
-    )
-
-    try:
-        result = await weaviate_service.search(payload.query, payload.collection, payload.limit)
-        search_response = SearchResponse(
-            query=result["query"],
-            collection=result["collection"],
-            results=result["results"],
-            count=result["count"],
-        )
-        logger.info(
-            "search_weaviate_endpoint_success",
-            trace_id=trace_id,
-            collection=payload.collection,
-            results_count=result["count"],
-        )
-        return AppResponse.ok(search_response, message="Search completed", trace_id=trace_id)
-    except ValueError as e:
-        logger.error(
-            "search_weaviate_endpoint_failed",
-            trace_id=trace_id,
-            collection=payload.collection,
-            query=payload.query,
-            error=str(e),
-        )
-        return AppResponse.fail(
-            code=ErrorCode.WEAVIATE_ERROR,
-            message="Failed to search",
-            detail=str(e),
-            trace_id=trace_id,
-        )

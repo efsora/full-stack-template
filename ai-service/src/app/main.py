@@ -13,7 +13,7 @@ from starlette.responses import Response as SstarletteResponse
 
 from app.api.schemas.base_response import AppResponse, FieldError
 from app.api.schemas.errors import ErrorCode
-from app.api.v1.routes import router as v1_router
+from app.api.v1 import routes, user_routes, weaviate_routes
 from app.core.exceptions import AppException
 from app.core.logging import get_logger, setup_logging
 from app.core.settings import Settings
@@ -63,6 +63,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     container.wire(
         modules=[
             "app.api.v1.routes",
+            "app.api.v1.user_routes",
+            "app.api.v1.weaviate_routes",
             "app.api.dependencies",
             "app.services.user_service",
             "app.services.weaviate_service",
@@ -93,7 +95,10 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     register_exception_handlers(app)
-    app.include_router(v1_router)
+    # Include all routers
+    app.include_router(routes.router)
+    app.include_router(user_routes.router)
+    app.include_router(weaviate_routes.router)
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(TraceIdMiddleware)
     app.add_middleware(
