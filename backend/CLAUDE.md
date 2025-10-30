@@ -145,7 +145,7 @@ export function findUserByEmail(input: LoginInput): Effect<{ input, user }> {
       const users = await userRepository.findByEmail(input.email);
       return first(users);
     },
-    (user) => user ? success({ input, user }) : failure({
+    (user) => user ? success({ input, user }) : fail({
       code: "UNAUTHORIZED",
       message: "Invalid email or password"
     }),
@@ -177,7 +177,7 @@ allConcurrent([query1, query2, query3])
 map((user) => ({ id: user.id, email: user.email }))
 
 // Conditional logic
-filter((user) => user.isActive, (user) => failure({
+filter((user) => user.isActive, (user) => fail({
   code: "FORBIDDEN",
   message: `User ${user.id} is inactive`
 }))
@@ -459,7 +459,7 @@ Usage:
 import { logger } from "#infrastructure/logger";
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import { Email } from "#core/users/value-objects/Email";
-import { success, failure } from "#lib/effect/factories";
+import { success, fail } from "#lib/effect/factories";
 import { runEffect } from "#lib/effect/index";
 ```
 

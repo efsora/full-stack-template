@@ -1,4 +1,4 @@
-import { type Effect, failure, success } from "#lib/effect/index";
+import { type Effect, fail, success } from "#lib/effect/index";
 
 import { UserData } from "./types/outputs";
 
@@ -12,7 +12,7 @@ import { UserData } from "./types/outputs";
 export function checkUserOwnership(requestUserId: number) {
   return (userData: UserData): Effect<UserData> => {
     if (userData.id !== requestUserId) {
-      return failure({
+      return fail({
         code: "FORBIDDEN",
         message: "You do not have permission to access this user's data",
         resourceId: userData.id,

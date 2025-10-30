@@ -1,6 +1,6 @@
 import type { NewUser } from "#db/schema";
 import { userRepository } from "#infrastructure/repositories/drizzle";
-import { command, type Effect, failure, success } from "#lib/effect/index";
+import { command, type Effect, fail, success } from "#lib/effect/index";
 import { allNamed, chain } from "#lib/effect/combinators";
 import first from "lodash/fp/first";
 
@@ -40,7 +40,7 @@ export function checkEmailAvailability(
 ): Effect<ValidatedCreationData> {
   return chain(findByEmail(data.email), (existingUser) => {
     if (existingUser) {
-      return failure({
+      return fail({
         code: "CONFLICT",
         conflictType: "email",
         email: Email.toString(data.email),
@@ -89,7 +89,7 @@ export function saveNewUser(data: {
     },
     (user) => {
       if (!user) {
-        return failure({
+        return fail({
           code: "INTERNAL_ERROR",
           message: "Failed to create user",
         });

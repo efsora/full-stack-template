@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Effect, failure, success } from "#lib/effect/index";
+import { Effect, fail, success } from "#lib/effect/index";
 
 /**
  * Email Value Object (opaque branded type)
@@ -37,7 +37,7 @@ export const Email = {
     const result = emailSchema.safeParse(value);
 
     if (!result.success) {
-      return failure({
+      return fail({
         code: "VALIDATION_ERROR",
         field: "email",
         message: "Invalid email format",

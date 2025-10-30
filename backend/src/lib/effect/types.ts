@@ -12,7 +12,7 @@ import { AppError } from "./types/errors";
  */
 export interface Command<T = unknown> {
     command: () => Promise<unknown>;
-    cont: (result: unknown) => Effect<T>;
+    continuation: (result: unknown) => Effect<T>;
     metadata?: EffectMetadata;
     status: "Command";
   }

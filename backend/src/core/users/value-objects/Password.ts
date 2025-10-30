@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { command, Effect, failure, success } from "#lib/effect/index";
+import { command, Effect, fail, success } from "#lib/effect/index";
 
 /**
  * HashedPassword Value Object (opaque branded type)
@@ -47,7 +47,7 @@ export const Password = {
    */
   create: (value: string): Effect<Password> => {
     if (!value || value.length < 8) {
-      return failure({
+      return fail({
         code: "VALIDATION_ERROR",
         field: "password",
         message: "Password must be at least 8 characters long",
@@ -152,7 +152,7 @@ export const HashedPassword = {
    */
   create: (value: string): Effect<HashedPassword> => {
     if (!value || value.length === 0) {
-      return failure({
+      return fail({
         code: "VALIDATION_ERROR",
         field: "password",
         message: "Hashed password cannot be empty",

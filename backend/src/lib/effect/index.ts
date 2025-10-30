@@ -32,7 +32,7 @@ export {
   } from "#lib/effect/combinators";
 
   // --- Factories ---
-  export { command, failure, success } from "#lib/effect/factories";
+  export { command, fail, success } from "#lib/effect/factories";
 
   // --- Interpreter ---
   export { runEffect } from "#lib/effect/interpreter";

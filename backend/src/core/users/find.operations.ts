@@ -3,7 +3,7 @@ import type { User } from "#db/schema";
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import first from "lodash/fp/first";
 
-import { command, Effect, failure, success } from "#lib/effect/index";
+import { command, Effect, fail, success } from "#lib/effect/index";
 import { UserData } from "./types/outputs";
 import { Email } from "./value-objects/Email";
 
@@ -61,7 +61,7 @@ export function findUserById(userId: number): Effect<UserData> {
       const user = first(users);
       return user
         ? success(mapUserToUserData(user))
-        : failure({
+        : fail({
             code: "NOT_FOUND",
             message: "User not found",
             resourceId: userId,

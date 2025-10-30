@@ -7,7 +7,7 @@
 
 import type { Command, Effect, Failure } from "./types";
 
-import { command, failure, success } from "./factories";
+import { command, fail, success } from "./factories";
 import { runEffect } from "./interpreter";
 import { AppError } from "./types/errors";
 
@@ -252,8 +252,8 @@ export function chain<T, U>(effect: Effect<T>, fn: (value: T) => Effect<U>): Eff
       // If the first effect is a command, compose the continuations
       return {
         command: effect.command,
-        cont: (commandResult: unknown) => {
-          const result = effect.cont(commandResult);
+        continuation: (commandResult: unknown) => {
+          const result = effect.continuation(commandResult);
           return chain(result, fn);
         },
         metadata: effect.metadata, // Preserve metadata through chain
@@ -336,7 +336,7 @@ export function filter<T>(
     if (predicate(value)) {
       return success(value);
     }
-    return failure(errorFn(value));
+    return fail(errorFn(value));
   };
 }
 /**
@@ -592,7 +592,7 @@ export function match<T, U>(
  *   onSuccess: (user) => ({ id: user.id }),
  *   onFailure: (error) => {
  *     logger.error({ userId, error }, "Failed to fetch user");
- *     return failure({ code: "INTERNAL_ERROR", message: "Custom message" });
+ *     return fail({ code: "INTERNAL_ERROR", message: "Custom message" });
  *   }
  * });
  * ```

@@ -28,7 +28,7 @@ import {
 
 import type { Command, Effect, Failure } from "./types";
 
-import { failure } from "#lib/effect/factories";
+import { fail } from "#lib/effect/factories";
 
 /**
  * Internal context for command execution tracking
@@ -60,7 +60,7 @@ interface ExecutionContext {
  * export function findUser(id: number): Effect<User> {
  *   return command(
  *     async () => db.select().from(users).where(eq(users.id, id)),
- *     (result) => result ? success(result) : failure({
+ *     (result) => result ? success(result) : fail({
  *       code: "NOT_FOUND",
  *       message: "User not found",
  *       resourceType: "user",
@@ -120,7 +120,7 @@ async function executeCommandAndContinue<T>(
   const commandResult: unknown = await effect.command();
 
   // Apply continuation to transform command result into next Effect
-  const nextEffect = effect.cont(commandResult);
+  const nextEffect = effect.continuation(commandResult);
 
   // Recursively execute the next effect (tail-call style)
   const finalEffect = await runEffect(nextEffect);
@@ -193,7 +193,7 @@ function handleCommandException(error: unknown, execCtx: ExecutionContext): Fail
 
   // Convert exception to typed Failure effect
   const errorMessage = error instanceof Error ? error.message : "Unknown error";
-  return failure({
+  return fail({
     code: "COMMAND_EXECUTION_ERROR",
     context: {
       operation,

@@ -38,7 +38,7 @@ import {
  * export function findUserById(userId: number): Effect<User> {
  *   return command(
  *     async () => db.select().from(users).where(eq(users.id, userId)),
- *     (result) => result ? success(result) : failure("Not found", "NOT_FOUND")
+ *     (result) => result ? success(result) : fail("Not found", "NOT_FOUND")
  *     // Metadata omitted → auto-generates: { operation: "findUserById", tags: { domain: "users", action: "read" } }
  *   );
  * }
@@ -68,7 +68,7 @@ export function command(
   if (metadata) {
     return {
       command,
-      cont,
+      continuation: cont,
       metadata,
       status: "Command",
     };
@@ -104,7 +104,7 @@ export function command(
 
   return {
     command,
-    cont,
+    continuation: cont,
     metadata: autoMetadata,
     status: "Command",
   };
@@ -122,14 +122,14 @@ export function command(
  * @example
  * ```ts
  * // Validation error (timestamp auto-generated)
- * const validationError = failure({
+ * const validationError = fail({
  *   code: "VALIDATION_ERROR",
  *   message: "Invalid email format",
  *   field: "email"
  * });
  *
  * // Not found error (timestamp auto-generated)
- * const notFoundError = failure({
+ * const notFoundError = fail({
  *   code: "NOT_FOUND",
  *   message: "Post not found",
  *   resourceType: "post",
@@ -138,7 +138,7 @@ export function command(
  * });
  *
  * // Conflict error (timestamp auto-generated)
- * const conflictError = failure({
+ * const conflictError = fail({
  *   code: "CONFLICT",
  *   message: "Email already in use",
  *   conflictType: "email",
@@ -146,7 +146,7 @@ export function command(
  * });
  * ```
  */
-export function failure(error: AppError): Failure {
+export function fail(error: AppError): Failure {
   // Auto-generate timestamp if not provided
   const errorWithTimestamp: AppError = {
     ...error,
