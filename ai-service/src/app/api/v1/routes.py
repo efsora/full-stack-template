@@ -13,5 +13,5 @@ router = APIRouter(prefix="/api/v1", tags=["common"])
 async def hello(request: Request) -> AppResponse[HelloResponse]:
     """Health check endpoint."""
     trace_id = getattr(request.state, "trace_id", None)
-    logger.info("hello_endpoint_called", trace_id=trace_id)
+    logger.info("Health check endpoint called", trace_id=trace_id)
     return AppResponse.ok(HelloResponse(message="Hello, World!"), trace_id=trace_id)

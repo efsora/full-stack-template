@@ -29,7 +29,7 @@ async def embed_text(
     """Embed text into Weaviate vector database."""
     trace_id = getattr(request.state, "trace_id", None)
     logger.info(
-        "embed_text_endpoint_called",
+        f"Embedding text into collection '{payload.collection}' ({len(payload.text)} chars)",
         trace_id=trace_id,
         collection=payload.collection,
         text_length=len(payload.text),
@@ -43,7 +43,7 @@ async def embed_text(
             uuid=result["uuid"],
         )
         logger.info(
-            "embed_text_endpoint_success",
+            f"Text embedded successfully in '{payload.collection}': {result['uuid']}",
             trace_id=trace_id,
             collection=payload.collection,
             uuid=result["uuid"],
@@ -53,7 +53,7 @@ async def embed_text(
         )
     except ValueError as e:
         logger.error(
-            "embed_text_endpoint_failed",
+            f"Failed to embed text in '{payload.collection}': {str(e)}",
             trace_id=trace_id,
             collection=payload.collection,
             error=str(e),
@@ -75,7 +75,7 @@ async def search_weaviate(
     """Search for similar objects in Weaviate using BM25 search."""
     trace_id = getattr(request.state, "trace_id", None)
     logger.info(
-        "search_weaviate_endpoint_called",
+        f"Searching in collection '{payload.collection}' for: '{payload.query}' (limit: {payload.limit})",
         trace_id=trace_id,
         collection=payload.collection,
         query=payload.query,
@@ -91,15 +91,16 @@ async def search_weaviate(
             count=result["count"],
         )
         logger.info(
-            "search_weaviate_endpoint_success",
+            f"Search completed in '{payload.collection}': found {result['count']} result(s)",
             trace_id=trace_id,
             collection=payload.collection,
+            query=payload.query,
             results_count=result["count"],
         )
         return AppResponse.ok(search_response, message="Search completed", trace_id=trace_id)
     except ValueError as e:
         logger.error(
-            "search_weaviate_endpoint_failed",
+            f"Search failed in '{payload.collection}' for '{payload.query}': {str(e)}",
             trace_id=trace_id,
             collection=payload.collection,
             query=payload.query,

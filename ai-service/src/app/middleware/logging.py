@@ -37,8 +37,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
 
         # Log request
+        client_info = f" from {request.client.host}" if request.client else ""
         logger.info(
-            "request_started",
+            f"{method} {path}{client_info}",
             trace_id=trace_id,
             method=method,
             path=path,
@@ -52,7 +53,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         except Exception as exc:
             elapsed_time = time.perf_counter() - start_time
             logger.exception(
-                "request_failed",
+                f"{method} {path} failed after {elapsed_time * 1000:.2f}ms: {type(exc).__name__}",
                 trace_id=trace_id,
                 method=method,
                 path=path,
@@ -66,7 +67,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         # Log response
         logger.info(
-            "request_completed",
+            f"{method} {path} → {response.status_code} in {elapsed_time * 1000:.2f}ms",
             trace_id=trace_id,
             method=method,
             path=path,

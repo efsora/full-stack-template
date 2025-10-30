@@ -24,7 +24,7 @@ async def create_user(
     """Create a new user."""
     trace_id = getattr(request.state, "trace_id", None)
     logger.info(
-        "create_user_endpoint_called",
+        f"Creating user: {payload.user_name} {payload.user_surname}",
         trace_id=trace_id,
         user_name=payload.user_name,
         user_surname=payload.user_surname,
@@ -40,15 +40,18 @@ async def create_user(
         )
 
         logger.info(
-            "create_user_endpoint_success",
+            f"User created successfully: {user_entity.email.value}",
             trace_id=trace_id,
             user_id=user_entity.id,
+            email=user_entity.email.value,
         )
         return AppResponse.ok(user, message="User created", trace_id=trace_id)
     except Exception as exc:
         logger.exception(
-            "create_user_endpoint_failed",
+            f"Failed to create user: {type(exc).__name__}",
             trace_id=trace_id,
             exception_type=type(exc).__name__,
+            user_name=payload.user_name,
+            user_surname=payload.user_surname,
         )
         raise

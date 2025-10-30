@@ -48,7 +48,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Initialize logging
     setup_logging(settings)
     logger.info(
-        "application_starting", app_name=APP_NAME, app_version=APP_VERSION, env=settings.ENV
+        f"Starting {APP_NAME} v{APP_VERSION} in {settings.ENV} environment",
+        app_name=APP_NAME,
+        app_version=APP_VERSION,
+        env=settings.ENV,
     )
 
     engine = container.engine()
@@ -57,7 +60,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     if settings.ENV in {"dev", "test"}:
         async with engine.begin() as conn:
             await conn.run_sync(metadata.create_all)
-        logger.debug("database_tables_created", env=settings.ENV)
+        logger.debug(f"Database tables created for {settings.ENV} environment", env=settings.ENV)
 
     # Wire at runtime
     container.wire(
@@ -71,12 +74,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         ]
     )
 
-    logger.info("container_wired")
+    logger.info("Dependency injection container wired successfully")
 
     try:
         yield
     finally:
-        logger.info("application_shutdown")
+        logger.info("Shutting down application")
         # Close Weaviate client
         weaviate_client = container.weaviate_client()
         weaviate_client.close()
@@ -141,7 +144,7 @@ async def request_validation_error_handler(
     ]
     trace_id = getattr(request.state, "trace_id", None)
     logger.warning(
-        "validation_error",
+        f"Validation error on {request.url.path}: {len(errors)} error(s)",
         trace_id=trace_id,
         path=request.url.path,
         errors_count=len(errors),
@@ -178,7 +181,7 @@ async def http_exception_handler(
         detail_payload = None
     trace_id = getattr(request.state, "trace_id", None)
     logger.warning(
-        "http_exception",
+        f"HTTP {exc.status_code} on {request.url.path}: {message}",
         trace_id=trace_id,
         status_code=exc.status_code,
         path=request.url.path,
@@ -202,7 +205,7 @@ async def app_exception_handler(
     errors = [FieldError(field=field, reason=reason) for field, reason in exc.errors]
     trace_id = getattr(request.state, "trace_id", None)
     logger.error(
-        "app_exception",
+        f"Application error [{exc.code.value}] on {request.url.path}: {exc.message}",
         trace_id=trace_id,
         status_code=exc.status_code,
         path=request.url.path,
