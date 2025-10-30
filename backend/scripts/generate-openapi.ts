@@ -10,6 +10,8 @@ import {
   createUserBodySchema,
   createUserResponseSchema,
   getUserParamsSchema,
+  loginBodySchema,
+  loginResponseSchema,
   userDataSchema,
 } from "../src/routes/users/schemas";
 
@@ -164,6 +166,50 @@ registry.registerPath({
     },
     404: {
       description: "User not found",
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+// Register login endpoint
+registry.registerPath({
+  method: "post",
+  path: "/api/v1/auth/login",
+  summary: "Login user",
+  description: "Authenticate user with email and password. Returns JWT token for subsequent authenticated requests.",
+  tags: ["Users"],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: loginBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Login successful",
+      content: {
+        "application/json": {
+          schema: successResponseSchema(loginResponseSchema),
+        },
+      },
+    },
+    400: {
+      description: "Validation error",
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: "Invalid email or password",
       content: {
         "application/json": {
           schema: errorResponseSchema,

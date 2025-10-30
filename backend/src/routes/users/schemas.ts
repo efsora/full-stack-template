@@ -58,11 +58,42 @@ export const createUserSchema = {
   body: createUserBodySchema,
 };
 
+/**
+ * Schema for login body
+ */
+export const loginBodySchema = z
+  .object({
+    email: z.string().email("Invalid email format").openapi({ example: "jane.doe@example.com" }),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .openapi({ example: "securePassword123" }),
+  })
+  .openapi("LoginBody");
+
+/**
+ * Login response schema (with token)
+ */
+export const loginResponseSchema = z
+  .object({
+    email: z.string().email().openapi({ example: "jane.doe@example.com" }),
+    id: z.number().int().positive().openapi({ example: 1 }),
+    name: z.string().nullable().openapi({ example: "Jane Doe" }),
+    token: z.string().openapi({ example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }),
+  })
+  .openapi("LoginResponse");
+
 export const getUserSchema = {
   params: getUserParamsSchema,
+};
+
+export const loginSchema = {
+  body: loginBodySchema,
 };
 
 export type CreateUserBody = z.infer<typeof createUserBodySchema>;
 export type CreateUserResponse = z.infer<typeof createUserResponseSchema>;
 export type GetUserParams = z.infer<typeof getUserParamsSchema>;
 export type UserDataResponse = z.infer<typeof userDataSchema>;
+export type LoginBody = z.infer<typeof loginBodySchema>;
+export type LoginResponse = z.infer<typeof loginResponseSchema>;

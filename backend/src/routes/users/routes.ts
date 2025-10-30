@@ -1,6 +1,7 @@
 import { handleEffect } from "#middlewares/effectHandler";
 import { validate } from "#middlewares/validate";
 import { Router } from "express";
+import { auth } from "#middlewares/auth";
 
 import { handleCreateUser, handleGetUserById } from "./handlers";
 import { createUserSchema, getUserSchema } from "./schemas";
@@ -18,6 +19,6 @@ router.post("/", validate(createUserSchema), handleEffect(handleCreateUser));
  * Get user by ID (protected endpoint - authentication required)
  * Users can only access their own data
  */
-router.get("/:id", validate(getUserSchema), handleEffect(handleGetUserById));
+router.get("/:id", auth, validate(getUserSchema), handleEffect(handleGetUserById));
 
 export default router;
