@@ -1,13 +1,13 @@
-import { matchResponse } from "#lib/effect/combinators";
-import { success } from "#lib/effect/factories";
-import { runEffect } from "#lib/effect/index";
+import { matchResponse } from "#lib/result/combinators";
+import { success } from "#lib/result/factories";
+import { run } from "#lib/result/index";
 
 /**
  * GET /hello
  * Simple health/test endpoint
  */
 export async function handleGetHello() {
-  const result = await runEffect(
+  const result = await run(
     success({
       message: "Hello from API",
       timestamp: new Date().toISOString(),

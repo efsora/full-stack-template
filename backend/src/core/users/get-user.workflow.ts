@@ -1,4 +1,4 @@
-import { type Effect, pipe } from "#lib/effect/index";
+import { type Result, pipe } from "#lib/result/index";
 
 import { findUserById } from "#core/users/find.operations";
 import { UserData } from "./types/outputs.js";
@@ -9,9 +9,9 @@ import { UserData } from "./types/outputs.js";
  *
  * @param userId - ID of the user to fetch
  * @param requestUserId - ID of the user making the request (from JWT)
- * @returns Effect with user data (excluding password)
+ * @returns Result with user data (excluding password)
  */
-export function getUserById(userId: number): Effect<UserData> {
+export function getUserById(userId: number): Result<UserData> {
   return pipe(
     findUserById(userId),
   );

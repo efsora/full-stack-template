@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { command, Effect, fail, success } from "#lib/effect/index";
+import { command, Result, fail, success } from "#lib/result/index";
 
 /**
  * HashedPassword Value Object (opaque branded type)
@@ -34,7 +34,7 @@ export const Password = {
    * Creates a validated Password Value Object
    *
    * @param value - The password string to validate
-   * @returns Effect<Password> - Success with Password or Failure with validation error
+   * @returns Result<Password> - Success with Password or Failure with validation error
    *
    * @example
    * ```ts
@@ -45,7 +45,7 @@ export const Password = {
    * }
    * ```
    */
-  create: (value: string): Effect<Password> => {
+  create: (value: string): Result<Password> => {
     if (!value || value.length < 8) {
       return fail({
         code: "VALIDATION_ERROR",
@@ -61,7 +61,7 @@ export const Password = {
    * Hashes a password using bcrypt
    *
    * @param password - Valid Password Value Object
-   * @returns Effect<HashedPassword> - Command that performs hashing
+   * @returns Result<HashedPassword> - Command that performs hashing
    *
    * @example
    * ```ts
@@ -72,7 +72,7 @@ export const Password = {
    * }
    * ```
    */
-  hash: (password: Password): Effect<HashedPassword> => {
+  hash: (password: Password): Result<HashedPassword> => {
     return command(
       async () => {
         const hashedValue = await bcrypt.hash(password as string, 10);
@@ -148,9 +148,9 @@ export const HashedPassword = {
    * Internal use - typically you create HashedPassword via Password.hash()
    *
    * @param value - The bcrypt hash string
-   * @returns Effect<HashedPassword>
+   * @returns Result<HashedPassword>
    */
-  create: (value: string): Effect<HashedPassword> => {
+  create: (value: string): Result<HashedPassword> => {
     if (!value || value.length === 0) {
       return fail({
         code: "VALIDATION_ERROR",
@@ -182,7 +182,7 @@ export const HashedPassword = {
    *
    * @param hashed - The HashedPassword to verify against
    * @param plain - The plain-text password to check
-   * @returns Effect<boolean> - Command that performs bcrypt comparison
+   * @returns Result<boolean> - Command that performs bcrypt comparison
    *
    * @example
    * ```ts
@@ -193,7 +193,7 @@ export const HashedPassword = {
    * }
    * ```
    */
-  verify: (hashed: HashedPassword, plain: string): Effect<boolean> => {
+  verify: (hashed: HashedPassword, plain: string): Result<boolean> => {
     return command(
       async () => {
         const isValid = await bcrypt.compare(plain, hashed as string);

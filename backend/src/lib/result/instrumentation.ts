@@ -1,7 +1,7 @@
 /**
- * Effect System Instrumentation (Imperative Shell)
+ * Result System Instrumentation (Imperative Shell)
  *
- * Observability integration for the effect system.
+ * Observability integration for the result system.
  * Handles logging, metrics, and distributed tracing for Command executions.
  *
  * This module is in the infrastructure layer (imperative shell) because it:
@@ -38,7 +38,7 @@ export interface InstrumentationContext {
  * Uses dynamic imports to:
  * - Avoid circular dependencies between core and services
  * - Support graceful degradation when observability services unavailable
- * - Defer loading until actually needed (when runEffect is called)
+ * - Defer loading until actually needed (when run is called)
  *
  * @returns Instrumentation context with loaded modules
  */
@@ -62,8 +62,8 @@ export async function loadInstrumentationContext(): Promise<InstrumentationConte
 
     logger = loggerModule.logger;
     getRequestId = contextModule.getRequestId;
-    recordEffectMetrics = metricsModule.recordEffectMetrics;
-    recordEffectError = metricsModule.recordEffectError;
+    recordEffectMetrics = metricsModule.recordResultMetrics;
+    recordEffectError = metricsModule.recordResultError;
     createSpan = tracingModule.createSpan;
     endSpan = tracingModule.endSpan;
     endSpanWithError = tracingModule.endSpanWithError;
@@ -114,7 +114,7 @@ export function logError(
         stack: errorStack,
         tags,
       },
-      `Effect execution failed: ${operation}`,
+      `Result execution failed: ${operation}`,
     );
   }
 
@@ -165,7 +165,7 @@ export function logStart(
         requestId: ctx.getRequestId?.(),
         tags,
       },
-      `Effect execution started: ${operation}`,
+      `Result execution started: ${operation}`,
     );
   }
 
@@ -198,7 +198,7 @@ export function logSuccess(
         status: "success",
         tags,
       },
-      `Effect execution completed: ${operation}`,
+      `Result execution completed: ${operation}`,
     );
   }
 

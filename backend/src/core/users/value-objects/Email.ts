@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { Effect, fail, success } from "#lib/effect/index";
+import { type Result, fail, success } from "#lib/result/index";
 
 /**
  * Email Value Object (opaque branded type)
@@ -21,18 +21,18 @@ export const Email = {
    * Creates a validated Email Value Object
    *
    * @param value - The email string to validate
-   * @returns Effect<Email> - Success with Email or Failure with validation error
+   * @returns Result<Email> - Success with Email or Failure with validation error
    *
    * @example
    * ```ts
    * const emailEffect = Email.create("user@example.com");
-   * const result = await runEffect(emailEffect);
+   * const result = await run(emailEffect);
    * if (result.status === "Success") {
    *   const domain = Email.domain(result.value); // "example.com"
    * }
    * ```
    */
-  create: (value: string): Effect<Email> => {
+  create: (value: string): Result<Email> => {
     const emailSchema = z.email();
     const result = emailSchema.safeParse(value);
 

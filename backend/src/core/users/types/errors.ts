@@ -9,7 +9,7 @@ import type {
   ForbiddenError,
   NotFoundError,
   ValidationError,
-} from "#lib/effect/types/errors";
+} from "#lib/result/types/errors";
 
 /**
  * Union of all user domain errors.

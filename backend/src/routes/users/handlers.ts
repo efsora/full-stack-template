@@ -1,7 +1,7 @@
 import type { Request } from "express";
 
-import { matchResponse } from "#lib/effect/combinators";
-import { runEffect } from "#lib/effect/index";
+import { matchResponse } from "#lib/result/combinators";
+import { run } from "#lib/result/index";
 import { createUser, getUserById } from "#core/users/index";
 
 import { CreateUserBody, GetUserParams } from "./schemas";
@@ -12,7 +12,7 @@ import { CreateUserBody, GetUserParams } from "./schemas";
  */
 export async function handleCreateUser(req: Request) {
   const body = req.body as CreateUserBody;
-  const result = await runEffect(createUser(body));
+  const result = await run(createUser(body));
 
   // Explicitly map response fields for API contract
   return matchResponse(result, {
@@ -32,7 +32,7 @@ export async function handleCreateUser(req: Request) {
 export async function handleGetUserById(req: Request) {
   const { id } = req.params as unknown as GetUserParams;
 
-  const result = await runEffect(getUserById(id));
+  const result = await run(getUserById(id));
 
   // Explicitly map response fields for API contract
   return matchResponse(result, {

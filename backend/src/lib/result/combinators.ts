@@ -1,27 +1,27 @@
 /**
- * Effect Composition Utilities (Combinators)
+ * Result Composition Utilities (Combinators)
  *
- * Pure functions for composing and chaining effects.
- * These combinators allow building complex workflows from simpler effects.
+ * Pure functions for composing and chaining results.
+ * These combinators allow building complex workflows from simpler results.
  */
 
-import type { Command, Effect, Failure } from "./types";
+import type { Command, Failure, Result } from "./types";
 
 import { command, fail, success } from "./factories";
-import { runEffect } from "./interpreter";
+import { run } from "./interpreter";
 import { AppError } from "./types/errors";
 
 /**
- * Combines multiple effects into a single effect that produces an array of results.
- * Similar to Promise.all() - if any effect fails, the whole operation fails.
- * All effects are executed sequentially in order.
+ * Combines multiple results into a single result that produces an array of results.
+ * Similar to Promise.all() - if any result fails, the whole operation fails.
+ * All results are executed sequentially in order.
  *
- * @param effects - Array of effects to combine
- * @returns Single effect producing array of all results
+ * @param results - Array of results to combine
+ * @returns Single result producing array of all results
  *
  * @example
  * ```ts
- * const result = await runEffect(
+ * const result = await run(
  *   all([
  *     Email.create("user@example.com"),
  *     Password.create("secure123"),
@@ -31,47 +31,47 @@ import { AppError } from "./types/errors";
  * // result.value = [email, password, age]
  * ```
  */
-export function all<T extends readonly Effect<unknown>[]>(
-  effects: [...T],
-): Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }> {
+export function all<T extends readonly Result<unknown>[]>(
+  results: [...T],
+): Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }> {
   // Base case: empty array
-  if (effects.length === 0) {
-    return success([]) as Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }>;
+  if (results.length === 0) {
+    return success([]) as Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }>;
   }
 
-  // Recursive case: process first effect, then rest
-  const [first, ...rest] = effects;
+  // Recursive case: process first result, then rest
+  const [first, ...rest] = results;
 
   return chain(first, (firstValue) => {
     if (rest.length === 0) {
-      // Last effect - return single-element array
-      return success([firstValue]) as Effect<{
-        [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+      // Last result - return single-element array
+      return success([firstValue]) as Result<{
+        [K in keyof T]: T[K] extends Result<infer U> ? U : never;
       }>;
     }
 
-    // Recursively process remaining effects
-    return chain(all(rest as [...Effect<unknown>[]]), (restValues) => {
-      return success([firstValue, ...restValues]) as Effect<{
-        [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+    // Recursively process remaining results
+    return chain(all(rest as [...Result<unknown>[]]), (restValues) => {
+      return success([firstValue, ...restValues]) as Result<{
+        [K in keyof T]: T[K] extends Result<infer U> ? U : never;
       }>;
     });
   });
 }
 
 /**
- * Combines multiple effects into a single effect that produces an array of results,
- * executing all effects concurrently (in parallel).
- * Similar to Promise.all() - if any effect fails, the whole operation fails with the first failure.
+ * Combines multiple results into a single result that produces an array of results,
+ * executing all results concurrently (in parallel).
+ * Similar to Promise.all() - if any result fails, the whole operation fails with the first failure.
  * Effects are executed in parallel using Promise.all for better performance.
  *
- * @param effects - Array of effects to combine
- * @returns Single effect producing array of all results
+ * @param results - Array of results to combine
+ * @returns Single result producing array of all results
  *
  * @example
  * ```ts
  * // Execute multiple independent queries concurrently
- * const result = await runEffect(
+ * const result = await run(
  *   allConcurrent([
  *     findUserById(1),
  *     findPostById(2),
@@ -82,39 +82,39 @@ export function all<T extends readonly Effect<unknown>[]>(
  * // All queries executed in parallel
  * ```
  */
-export function allConcurrent<T extends readonly Effect<unknown>[]>(
-  effects: [...T],
-): Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }> {
+export function allConcurrent<T extends readonly Result<unknown>[]>(
+  results: [...T],
+): Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }> {
   // Base case: empty array
-  if (effects.length === 0) {
-    return success([]) as Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }>;
+  if (results.length === 0) {
+    return success([]) as Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }>;
   }
 
-  // Return a Command that executes all effects concurrently
+  // Return a Command that executes all results concurrently
   return command<
-    Effect<unknown>[],
-    { [K in keyof T]: T[K] extends Effect<infer U> ? U : never }
+    Result<unknown>[],
+    { [K in keyof T]: T[K] extends Result<infer U> ? U : never }
   >(
     async () => {
-      // Execute all effects concurrently using Promise.all
-      const results = await Promise.all(effects.map((effect) => runEffect(effect)));
-      return results;
+      // Execute all results concurrently using Promise.all
+      const resultValues = await Promise.all(results.map((result) => run(result)));
+      return resultValues;
     },
     (
-      results: Effect<unknown>[],
-    ): Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }> => {
-      // Check if any effect failed
-      const firstFailure = results.find((result) => result.status === "Failure");
+      resultValues: Result<unknown>[],
+    ): Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }> => {
+      // Check if any result failed
+      const firstFailure = resultValues.find((result) => result.status === "Failure");
 
       if (firstFailure) {
         // Return the first failure (type assertion needed for proper type narrowing)
-        return firstFailure as Effect<{
-          [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+        return firstFailure as Result<{
+          [K in keyof T]: T[K] extends Result<infer U> ? U : never;
         }>;
       }
 
       // All succeeded - extract values
-      const values = results.map((result) => {
+      const values = resultValues.map((result) => {
         if (result.status === "Success") {
           return result.value;
         }
@@ -122,24 +122,24 @@ export function allConcurrent<T extends readonly Effect<unknown>[]>(
         throw new Error("Unexpected effect status");
       });
 
-      return success(values) as Effect<{
-        [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+      return success(values) as Result<{
+        [K in keyof T]: T[K] extends Result<infer U> ? U : never;
       }>;
     },
   );
 }
 
 /**
- * Combines multiple named effects into a single effect that produces an object of results.
+ * Combines multiple named results into a single result that produces an object of results.
  * Similar to Promise.all() but with named properties instead of array indices.
  * This is more readable when combining multiple validations or operations.
  *
- * @param effects - Object of named effects to combine
- * @returns Single effect producing object with all results
+ * @param results - Object of named results to combine
+ * @returns Single result producing object with all results
  *
  * @example
  * ```ts
- * const result = await runEffect(
+ * const result = await run(
  *   allNamed({
  *     email: Email.create("user@example.com"),
  *     password: Password.create("secure123"),
@@ -149,29 +149,29 @@ export function allConcurrent<T extends readonly Effect<unknown>[]>(
  * // result.value = { email: Email, password: Password, age: number }
  * ```
  */
-export function allNamed<T extends Record<string, Effect<unknown>>>(
-  effects: T,
-): Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }> {
-  const keys = Object.keys(effects) as (keyof T)[];
+export function allNamed<T extends Record<string, Result<unknown>>>(
+  results: T,
+): Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }> {
+  const keys = Object.keys(results) as (keyof T)[];
 
   // Base case: empty object
   if (keys.length === 0) {
-    return success({}) as Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }>;
+    return success({}) as Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }>;
   }
 
-  // Convert object to array of [key, effect] pairs
-  const entries = keys.map((key) => [key, effects[key]] as const);
+  // Convert object to array of [key, result] pairs
+  const entries = keys.map((key) => [key, results[key]] as const);
 
-  // Process all effects using the all() function
-  const effectsArray = entries.map(([, effect]) => effect);
+  // Process all results using the all() function
+  const resultsArray = entries.map(([, result]) => result);
 
-  return chain(all(effectsArray), (values) => {
+  return chain(all(resultsArray), (values) => {
     // Reconstruct object from keys and values
-    const result = {} as { [K in keyof T]: T[K] extends Effect<infer U> ? U : never };
+    const result = {} as { [K in keyof T]: T[K] extends Result<infer U> ? U : never };
 
     keys.forEach((key, index) => {
       result[key] = values[index] as {
-        [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+        [K in keyof T]: T[K] extends Result<infer U> ? U : never;
       }[keyof T];
     });
 
@@ -180,18 +180,18 @@ export function allNamed<T extends Record<string, Effect<unknown>>>(
 }
 
 /**
- * Combines multiple named effects into a single effect that produces an object of results,
- * executing all effects concurrently (in parallel).
+ * Combines multiple named results into a single result that produces an object of results,
+ * executing all results concurrently (in parallel).
  * Similar to Promise.all() but with named properties instead of array indices.
  * Effects are executed in parallel using Promise.all for better performance.
  *
- * @param effects - Object of named effects to combine
- * @returns Single effect producing object with all results
+ * @param results - Object of named results to combine
+ * @returns Single result producing object with all results
  *
  * @example
  * ```ts
  * // Execute multiple validations concurrently
- * const result = await runEffect(
+ * const result = await run(
  *   allNamedConcurrent({
  *     user: findUserById(userId),
  *     post: findPostById(postId),
@@ -202,27 +202,27 @@ export function allNamed<T extends Record<string, Effect<unknown>>>(
  * // All operations executed in parallel
  * ```
  */
-export function allNamedConcurrent<T extends Record<string, Effect<unknown>>>(
-  effects: T,
-): Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }> {
-  const keys = Object.keys(effects) as (keyof T)[];
+export function allNamedConcurrent<T extends Record<string, Result<unknown>>>(
+  results: T,
+): Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }> {
+  const keys = Object.keys(results) as (keyof T)[];
 
   // Base case: empty object
   if (keys.length === 0) {
-    return success({}) as Effect<{ [K in keyof T]: T[K] extends Effect<infer U> ? U : never }>;
+    return success({}) as Result<{ [K in keyof T]: T[K] extends Result<infer U> ? U : never }>;
   }
 
-  // Convert object to array of effects
-  const entries = keys.map((key) => [key, effects[key]] as const);
-  const effectsArray = entries.map(([, effect]) => effect);
+  // Convert object to array of results
+  const entries = keys.map((key) => [key, results[key]] as const);
+  const resultsArray = entries.map(([, result]) => result);
 
   // Use allConcurrent to execute in parallel, then reconstruct object
-  return chain(allConcurrent(effectsArray), (values) => {
-    const result = {} as { [K in keyof T]: T[K] extends Effect<infer U> ? U : never };
+  return chain(allConcurrent(resultsArray), (values) => {
+    const result = {} as { [K in keyof T]: T[K] extends Result<infer U> ? U : never };
 
     keys.forEach((key, index) => {
       result[key] = values[index] as {
-        [K in keyof T]: T[K] extends Effect<infer U> ? U : never;
+        [K in keyof T]: T[K] extends Result<infer U> ? U : never;
       }[keyof T];
     });
 
@@ -231,52 +231,52 @@ export function allNamedConcurrent<T extends Record<string, Effect<unknown>>>(
 }
 
 /**
- * The "bind" operator for the Effect system (monadic bind).
- * Chains two effectful computations together.
+ * The "bind" operator for the Result system (monadic bind).
+ * Chains two operations that return results computations together.
  *
- * @param effect - The first effect to execute
- * @param fn - Function to apply to the success value, producing the next effect
- * @returns Combined effect
+ * @param result - The first result to execute
+ * @param fn - Function to apply to the success value, producing the next result
+ * @returns Combined result
  *
  * @example
  * ```ts
- * const effect = chain(
+ * const result = chain(
  *   validateInput(data),
  *   (validData) => saveToDatabase(validData)
  * );
  * ```
  */
-export function chain<T, U>(effect: Effect<T>, fn: (value: T) => Effect<U>): Effect<U> {
-  switch (effect.status) {
+export function chain<T, U>(result: Result<T>, fn: (value: T) => Result<U>): Result<U> {
+  switch (result.status) {
     case "Command":
-      // If the first effect is a command, compose the continuations
+      // If the first result is a command, compose the continuations
       return {
-        command: effect.command,
+        command: result.command,
         continuation: (commandResult: unknown) => {
-          const result = effect.continuation(commandResult);
-          return chain(result, fn);
+          const nextResult = result.continuation(commandResult);
+          return chain(nextResult, fn);
         },
-        metadata: effect.metadata, // Preserve metadata through chain
+        metadata: result.metadata, // Preserve metadata through chain
         status: "Command",
       } as Command<U>;
 
     case "Failure":
-      // If the first effect is a failure, short-circuit the chain
-      return effect;
+      // If the first result is a failure, short-circuit the chain
+      return result;
 
     case "Success":
-      // If the first effect is a success, apply the next function to its value
-      return fn(effect.value);
+      // If the first result is a success, apply the next function to its value
+      return fn(result.value);
   }
 }
 
 /**
- * Filters the success value of an effect by a predicate.
+ * Filters the success value of a result by a predicate.
  * If the predicate returns true, the value passes through.
  * If the predicate returns false, returns a Failure with the provided error.
  *
  * This is useful for validation guards, authorization checks, and conditional logic
- * where you want to fail the effect if a condition is not met.
+ * where you want to fail the result if a condition is not met.
  *
  * @param predicate - Function that tests the success value
  * @param errorFn - Function that creates an error if predicate fails
@@ -331,7 +331,7 @@ export function chain<T, U>(effect: Effect<T>, fn: (value: T) => Effect<U>): Eff
 export function filter<T>(
   predicate: (value: T) => boolean,
   errorFn: (value: T) => AppError,
-): (value: T) => Effect<T> {
+): (value: T) => Result<T> {
   return (value: T) => {
     if (predicate(value)) {
       return success(value);
@@ -352,7 +352,7 @@ export function filter<T>(
  *
  * Named `flow` following fp-ts and Effect-TS conventions.
  *
- * @param fns - Effect-producing functions to compose
+ * @param fns - Result-returning functions to compose
  * @returns A function that takes initial input and returns an Effect
  *
  * @example
@@ -365,73 +365,73 @@ export function filter<T>(
  * );
  *
  * // Use it multiple times
- * const result1 = await runEffect(processUser(userData1));
- * const result2 = await runEffect(processUser(userData2));
+ * const result1 = await run(processUser(userData1));
+ * const result2 = await run(processUser(userData2));
  * ```
  *
  * @example
  * ```ts
  * // Compare with pipe() - direct transformation
  * const result = pipe(
- *   validateUser(userData),  // ← Start with an Effect
+ *   validateUser(userData),  // ← Start with a Result
  *   enrichUserData,
  *   saveToDatabase
  * );
  * ```
  */
 // Overloads for different arities with proper type inference
-export function flow<A, B>(fn1: (a: A) => Effect<B>): (initial: A) => Effect<B>;
+export function flow<A, B>(fn1: (a: A) => Result<B>): (initial: A) => Result<B>;
 export function flow<A, B, C>(
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-): (initial: A) => Effect<C>;
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+): (initial: A) => Result<C>;
 export function flow<A, B, C, D>(
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-): (initial: A) => Effect<D>;
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+): (initial: A) => Result<D>;
 
 export function flow<A, B, C, D, E>(
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-  fn4: (d: D) => Effect<E>,
-): (initial: A) => Effect<E>;
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+  fn4: (d: D) => Result<E>,
+): (initial: A) => Result<E>;
 
 export function flow<A, B, C, D, E, F>(
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-  fn4: (d: D) => Effect<E>,
-  fn5: (e: E) => Effect<F>,
-): (initial: A) => Effect<F>;
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+  fn4: (d: D) => Result<E>,
+  fn5: (e: E) => Result<F>,
+): (initial: A) => Result<F>;
 
 // Implementation
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function flow(...fns: ((value: any) => Effect<any>)[]): (initial: any) => Effect<any> {
+export function flow(...fns: ((value: any) => Result<any>)[]): (initial: any) => Result<any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (initialValue: any): Effect<any> =>
+  return (initialValue: any): Result<any> =>
     fns.reduce(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (effect: Effect<any>, fn: (value: any) => Effect<any>) => chain(effect, fn),
+      (result: Result<any>, fn: (value: any) => Result<any>) => chain(result, fn),
       success(initialValue),
     );
 }
 
 /**
- * Transforms the success value of an effect from one type to another.
+ * Transforms the success value of a result from one type to another.
  * This is the fundamental functor operation - it maps over the success value
- * while preserving the Effect wrapper and passing through failures unchanged.
+ * while preserving the Result wrapper and passing through failures unchanged.
  *
  * The key difference from `chain()`:
  * - `map()` transforms the value and keeps it wrapped in Success
- * - `chain()` transforms the value into a new Effect (can change Success/Failure)
+ * - `chain()` transforms the value into a new Result (can change Success/Failure)
  *
- * Use `map()` when you want to transform data without changing the effect structure.
+ * Use `map()` when you want to transform data without changing the result structure.
  * Use `chain()` when the transformation itself can succeed or fail.
  *
  * @param mapper - Pure function to transform the success value
- * @returns Function that takes a value and returns Effect with mapped value
+ * @returns Function that takes a value and returns Result with mapped value
  *
  * @example
  * ```ts
@@ -464,12 +464,12 @@ export function flow(...fns: ((value: any) => Effect<any>)[]): (initial: any) =>
  * );
  * ```
  */
-export function map<T, U>(mapper: (value: T) => U): (value: T) => Effect<U> {
+export function map<T, U>(mapper: (value: T) => U): (value: T) => Result<U> {
   return (value: T) => success(mapper(value));
 }
 
 /**
- * Pattern matches on an Effect to explicitly handle Success and Failure cases.
+ * Pattern matches on a Result to explicitly handle Success and Failure cases.
  * Returns raw data on success or throws AppError on failure.
  *
  * This combinator enables explicit field mapping in handlers while maintaining
@@ -484,7 +484,7 @@ export function map<T, U>(mapper: (value: T) => U): (value: T) => Effect<U> {
  * The onFailure handler must have a `never` return type, enforcing that it
  * throws the error rather than returning a value.
  *
- * @param effect - The Effect to pattern match on
+ * @param result - The Result to pattern match on
  * @param handlers - Object with onSuccess and onFailure handlers
  * @returns The mapped value from onSuccess, or throws from onFailure
  *
@@ -492,7 +492,7 @@ export function map<T, U>(mapper: (value: T) => U): (value: T) => Effect<U> {
  * ```ts
  * // In a handler - explicit field mapping
  * export async function handleCreateUser(req: Request) {
- *   const result = await runEffect(createUser(body));
+ *   const result = await run(createUser(body));
  *
  *   return match(result, {
  *     onSuccess: (user) => ({
@@ -522,56 +522,56 @@ export function map<T, U>(mapper: (value: T) => U): (value: T) => Effect<U> {
  * ```
  */
 export function match<T, U>(
-  effect: Effect<T>,
+  result: Result<T>,
   handlers: {
     onFailure: (error: AppError) => unknown;
     onSuccess: (value: T) => U;
   },
 ): U {
-  switch (effect.status) {
+  switch (result.status) {
     case "Failure":
       // Failure case: throw the error (caught by middleware)
-      return handlers.onFailure(effect.error) as U;
+      return handlers.onFailure(result.error) as U;
 
     case "Success":
       // Success case: apply mapper and return plain data
-      return handlers.onSuccess(effect.value);
+      return handlers.onSuccess(result.value);
 
     case "Command": {
       // Command case: we need to execute the effect first
-      // This shouldn't happen in practice since handlers call runEffect() first,
+      // This shouldn't happen in practice since handlers call run() first,
       // but we handle it for composability
       throw new Error(
-        "match() called on unexecuted Command. Call runEffect() first, or use match() in a chain.",
+        "match() called on unexecuted Command. Call run() first, or use match() in a chain.",
       );
     }
   }
 }
 
 /**
- * Pattern matches on an Effect for HTTP response handlers, returning inlined data or Failure.
+ * Pattern matches on a Result for HTTP response handlers, returning inlined data or Failure.
  * This combinator eliminates response wrapping boilerplate by returning a discriminated union
  * that the middleware can handle automatically.
  *
  * Key differences from match():
  * - Returns U | Failure (discriminated union) instead of U
  * - Success: Returns inlined data directly (no wrapping)
- * - Failure: Returns original Failure effect (middleware converts to HTTP error)
+ * - Failure: Returns original Failure result (middleware converts to HTTP error)
  * - Optional onFailure handler for custom error handling
  *
- * The middleware (effectHandler) detects the discriminated union and:
+ * The middleware (resultHandler) detects the discriminated union and:
  * - Wraps success data U in successResponse()
  * - Converts Failure to errorResponse()
  *
- * @param effect - The executed Effect (must call runEffect() first)
+ * @param result - The executed Result (must call run() first)
  * @param handlers - Object with onSuccess mapper and optional onFailure handler
- * @returns Inlined data U on success, or Failure effect on failure
+ * @returns Inlined data U on success, or Failure result on failure
  *
  * @example
  * ```ts
  * // Simple usage - automatic error handling
  * export async function handleGetUser(req: Request) {
- *   const result = await runEffect(getUser(userId));
+ *   const result = await run(getUser(userId));
  *
  *   return matchResponse(result, {
  *     onSuccess: (user) => ({
@@ -610,48 +610,48 @@ export function match<T, U>(
  * ```
  */
 export function matchResponse<T, U>(
-  effect: Effect<T>,
+  result: Result<T>,
   handlers: {
     onFailure?: (error: AppError) => unknown;
     onSuccess: (value: T) => U;
   },
 ): Failure | U {
-  switch (effect.status) {
+  switch (result.status) {
     case "Failure": {
       // Use custom error handler if provided, otherwise return original Failure
       if (handlers.onFailure) {
-        return handlers.onFailure(effect.error) as Failure;
+        return handlers.onFailure(result.error) as Failure;
       }
-      return effect;
+      return result;
     }
 
     case "Success": {
       // Return inlined data directly (no wrapping)
-      return handlers.onSuccess(effect.value);
+      return handlers.onSuccess(result.value);
     }
 
     case "Command": {
       throw new Error(
-        "matchResponse() called on unexecuted Command. Call runEffect() first.",
+        "matchResponse() called on unexecuted Command. Call run() first.",
       );
     }
   }
 }
 
 /**
- * Pipes an effect through a series of transformation functions.
+ * Pipes a result through a series of transformation functions.
  * More readable than nested chains for linear transformations.
  *
- * This is the direct-value version of `flow()` - it takes an initial effect
+ * This is the direct-value version of `flow()` - it takes an initial result
  * instead of returning a function.
  *
  * The key difference from `flow()`:
- * - `pipe()` starts with an Effect and RETURNS AN EFFECT
+ * - `pipe()` starts with a Result and RETURNS A Result
  * - `flow()` composes functions and RETURNS A FUNCTION
  *
- * @param effect - Initial effect to pipe
+ * @param result - Initial result to pipe
  * @param fns - Transformation functions to apply
- * @returns Final effect after all transformations
+ * @returns Final result after all transformations
  *
  * @example
  * ```ts
@@ -670,52 +670,52 @@ export function matchResponse<T, U>(
  * );
  * ```
  */
-export function pipe<A>(effect: Effect<A>): Effect<A>;
+export function pipe<A>( result: Result<A>): Result<A>;
 
-export function pipe<A, B>(effect: Effect<A>, fn1: (a: A) => Effect<B>): Effect<B>;
+export function pipe<A, B>( result: Result<A>, fn1: (a: A) => Result<B>): Result<B>;
 
 export function pipe<A, B, C>(
-  effect: Effect<A>,
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-): Effect<C>;
+  result: Result<A>,
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+): Result<C>;
 
 export function pipe<A, B, C, D>(
-  effect: Effect<A>,
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-): Effect<D>;
+  result: Result<A>,
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+): Result<D>;
 
 export function pipe<A, B, C, D, E>(
-  effect: Effect<A>,
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-  fn4: (d: D) => Effect<E>,
-): Effect<E>;
+  result: Result<A>,
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+  fn4: (d: D) => Result<E>,
+): Result<E>;
 
 export function pipe<A, B, C, D, E, F>(
-  effect: Effect<A>,
-  fn1: (a: A) => Effect<B>,
-  fn2: (b: B) => Effect<C>,
-  fn3: (c: C) => Effect<D>,
-  fn4: (d: D) => Effect<E>,
-  fn5: (e: E) => Effect<F>,
-): Effect<F>;
+  result: Result<A>,
+  fn1: (a: A) => Result<B>,
+  fn2: (b: B) => Result<C>,
+  fn3: (c: C) => Result<D>,
+  fn4: (d: D) => Result<E>,
+  fn5: (e: E) => Result<F>,
+): Result<F>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function pipe(effect: Effect<any>, ...fns: ((value: any) => Effect<any>)[]): Effect<any> {
+export function pipe(result: Result<any>, ...fns: ((value: any) => Result<any>)[]): Result<any> {
   if (fns.length === 0) {
-    return effect;
+    return result;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return fns.reduce((acc: Effect<any>, fn: (value: any) => Effect<any>) => chain(acc, fn), effect);
+  return fns.reduce((acc: Result<any>, fn: (value: any) => Result<any>) => chain(acc, fn), result);
 }
 
 /**
- * Executes an effect for its side effects while preserving the original input value.
+ * Executes a result for its side effects while preserving the original input value.
  * Also known as "chainFirst" in fp-ts or "tapEffect" in other FP libraries.
  *
  * This combinator is useful for:
@@ -723,10 +723,10 @@ export function pipe(effect: Effect<any>, ...fns: ((value: any) => Effect<any>)[
  * - Performing logging or caching operations
  * - Executing side effects in a pipeline without changing the flow
  *
- * The effect's result is discarded, and the original input is returned.
- * If the effect fails, the failure propagates (input is not returned).
+ * The result's value is discarded, and the original input is returned.
+ * If the result fails, the failure propagates (input is not returned).
  *
- * @param fn - Effect-producing function that receives the input
+ * @param fn - Result-returning function that receives the input
  * @returns Function that executes the effect and returns the original input
  *
  * @example
@@ -751,6 +751,6 @@ export function pipe(effect: Effect<any>, ...fns: ((value: any) => Effect<any>)[
  * );
  * ```
  */
-export function tap<T, R>(fn: (input: T) => Effect<R>): (input: T) => Effect<T> {
+export function tap<T, R>(fn: (input: T) => Result<R>): (input: T) => Result<T> {
   return (input: T) => chain(fn(input), () => success(input));
 }

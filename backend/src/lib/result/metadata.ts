@@ -1,5 +1,5 @@
 /**
- * Effect Metadata Auto-Generation Utilities
+ * Result Metadata Auto-Generation Utilities
  *
  * Pure functions for extracting metadata from runtime context.
  * Used by command() when metadata parameter is omitted.

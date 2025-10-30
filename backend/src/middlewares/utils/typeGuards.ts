@@ -1,5 +1,5 @@
-import type { Effect } from "#lib/effect/index";
-import type { AppError } from "#lib/effect/types/errors";
+import type { Result } from "#lib/result/index";
+import type { AppError } from "#lib/result/types/errors";
 
 /**
  * Type guard to check if an error is an AppError
@@ -47,13 +47,13 @@ export function isAppError(error: unknown): error is AppError {
  *
  * @example
  * ```ts
- * const result = await runEffect(someEffect);
- * if (isEffect(result)) {
+ * const result = await run(someResult);
+ * if (isResult(result)) {
  *   // Handle Success/Failure cases
  * }
  * ```
  */
-export function isEffect(value: unknown): value is Effect<unknown> {
+export function isResult(value: unknown): value is Result<unknown> {
   return (
     value !== null &&
     value !== undefined &&

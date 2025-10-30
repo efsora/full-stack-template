@@ -1,7 +1,7 @@
 import type { NewUser } from "#db/schema";
 import { userRepository } from "#infrastructure/repositories/drizzle";
-import { command, type Effect, fail, success } from "#lib/effect/index";
-import { allNamed, chain } from "#lib/effect/combinators";
+import { command, type Result, fail, success } from "#lib/result/index";
+import { allNamed, chain } from "#lib/result/combinators";
 import first from "lodash/fp/first";
 
 import type {
@@ -17,7 +17,7 @@ import { findByEmail } from "./find.operations";
  * Validates user creation input
  * Creates Email and Password value objects
  */
-export function validateUserCreation(input: CreateUserInput): Effect<ValidatedCreationData> {
+export function validateUserCreation(input: CreateUserInput): Result<ValidatedCreationData> {
   return chain(
     allNamed({
       email: Email.create(input.email),
@@ -37,7 +37,7 @@ export function validateUserCreation(input: CreateUserInput): Effect<ValidatedCr
  */
 export function checkEmailAvailability(
   data: ValidatedCreationData,
-): Effect<ValidatedCreationData> {
+): Result<ValidatedCreationData> {
   return chain(findByEmail(data.email), (existingUser) => {
     if (existingUser) {
       return fail({
@@ -54,7 +54,7 @@ export function checkEmailAvailability(
 /**
  * Hashes password using Password Value Object
  */
-export function hashPasswordForCreation(data: ValidatedCreationData): Effect<{
+export function hashPasswordForCreation(data: ValidatedCreationData): Result<{
   email: Email;
   hashedPassword: HashedPassword;
   name?: string;
@@ -75,7 +75,7 @@ export function saveNewUser(data: {
   email: Email;
   hashedPassword: HashedPassword;
   name?: string;
-}): Effect<CreateUserResult> {
+}): Result<CreateUserResult> {
   return command(
     async () => {
       const userData: NewUser = {

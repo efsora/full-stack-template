@@ -46,7 +46,7 @@ export const effectDuration = new Histogram({
 export const effectErrorsTotal = new Counter({
   help: "Total number of effect errors",
   labelNames: ["operation", "domain", "error_code"],
-  name: "effect_errors_total",
+  name: "result_errors_total",
   registers: [metricsRegistry],
 });
 /**
@@ -105,14 +105,14 @@ export function recordBusinessMetric(
 /**
  * Helper function to record effect errors
  */
-export function recordEffectError(operation: string, domain: string, errorCode: string): void {
+export function recordResultError(operation: string, domain: string, errorCode: string): void {
   if (!env.METRICS_ENABLED) return;
   effectErrorsTotal.inc({ domain, error_code: errorCode, operation });
 }
 /**
  * Helper function to record effect metrics
  */
-export function recordEffectMetrics(
+export function recordResultMetrics(
   operation: string,
   domain: string,
   duration: number,

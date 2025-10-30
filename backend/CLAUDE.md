@@ -94,28 +94,28 @@ src/
 
 ### Key Design Patterns
 
-1. **Custom Effect System**: Lightweight functional programming system for composable operations with automatic observability
+1. **Custom Result System**: Lightweight functional programming system for composable operations with automatic observability
 2. **Repository Pattern**: Factory functions for testable data access
 3. **Value Objects**: Opaque branded types for type-safe domain primitives
 4. **Railway-Oriented Programming**: Explicit success/failure paths via Effect type
 5. **Dependency Injection**: Via function parameters and factory functions
-6. **Layered HTTP Handler**: validate → handleEffect → workflow → operations → repository
+6. **Layered HTTP Handler**: validate → handleResult → workflow → operations → repository
 
-## Custom Effect System
+## Custom Result System
 
-The codebase uses a **custom Effect system** (inspired by Effect-TS/fp-ts) for managing side effects with full observability.
+The codebase uses a **custom Effect system** (inspired by Effect-TS/fp-ts) for managing side results with full observability.
 
-### Effect Type
+### Result Type
 
 ```typescript
-type Effect<T> = Success<T> | Failure | Command<T>
+type Result<T> = Success<T> | Failure | Command<T>
 ```
 
 - **Success**: Contains a successful result value
 - **Failure**: Contains a typed error (AppError)
 - **Command**: Represents a side effect (async operation) with continuation
 
-### Effect Patterns
+### Result Patterns
 
 #### 1. Workflow Orchestration (Railway-Oriented Programming)
 
@@ -182,7 +182,7 @@ filter((user) => user.isActive, (user) => fail({
   message: `User ${user.id} is inactive`
 }))
 
-// Side effects without transformation
+// Side results without transformation
 tap((post) => logger.info({ postId: post.id }, "Post created"))
 
 // Pattern matching
@@ -192,18 +192,18 @@ match(result, {
 })
 ```
 
-#### 4. Effect Execution
+#### 4. Result Execution
 
-Handlers execute effects using `runEffect()`:
+Handlers execute results using `run()`:
 
 ```typescript
 export async function handleLogin(req: Request) {
   const body = req.body as LoginBody;
-  return await runEffect(login(body));
+  return await run(login(body));
 }
 ```
 
-The `handleEffect` middleware:
+The `handleResult` middleware:
 - Executes the effect returned by the handler
 - Maps `Success` to 200/201 HTTP responses
 - Maps `Failure` to appropriate HTTP error status codes
@@ -328,18 +328,18 @@ export const createBodySchema = z.object({
 ```typescript
 export async function handleCreate(req: Request) {
   const body = req.body as CreateBody;
-  return await runEffect(createWorkflow(body));
+  return await run(createWorkflow(body));
 }
 ```
 
 4. **Define routes** (`routes.ts`):
 ```typescript
 import { validate } from "#middlewares/validate";
-import { handleEffect } from "#middlewares/handleEffect";
+import { handleResult } from "#middlewares/handleResult";
 
 router.post("/create",
   validate(createBodySchema),
-  handleEffect(handleCreate)
+  handleResult(handleCreate)
 );
 ```
 
@@ -360,7 +360,7 @@ Route Handler
   ↓
 validate() middleware (Zod schema)
   ↓
-handleEffect() middleware
+handleResult() middleware
   ↓
 Handler Function (calls workflow)
   ↓
@@ -370,7 +370,7 @@ Operations (business logic)
   ↓
 Repository (database access)
   ↓
-Response (formatted by handleEffect)
+Response (formatted by handleResult)
 ```
 
 ## Observability
@@ -393,7 +393,7 @@ logger.error({ error, requestId }, "Operation failed");
 
 Metrics are automatically collected for:
 - HTTP requests (count, duration, response size)
-- Effect executions (count, duration, errors)
+- Result executions (count, duration, errors)
 - Database queries (count, duration)
 - Business events (users_registered_total, etc.)
 
@@ -404,7 +404,7 @@ Access metrics: `GET /metrics`
 Distributed tracing is automatically enabled for:
 - HTTP requests (via auto-instrumentation)
 - Database queries (via Drizzle instrumentation)
-- Effect operations (via Command metadata)
+- Result operations (via Command metadata)
 
 Configure via environment variables:
 ```
@@ -459,8 +459,8 @@ Usage:
 import { logger } from "#infrastructure/logger";
 import { userRepository } from "#infrastructure/repositories/drizzle";
 import { Email } from "#core/users/value-objects/Email";
-import { success, fail } from "#lib/effect/factories";
-import { runEffect } from "#lib/effect/index";
+import { success, fail } from "#lib/result/factories";
+import { run } from "#lib/result/index";
 ```
 
 ## Authentication

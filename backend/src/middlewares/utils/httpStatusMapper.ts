@@ -1,4 +1,4 @@
-import type { AppError, ErrorCode } from "#lib/effect/types/errors";
+import type { AppError, ErrorCode } from "#lib/result/types/errors";
 
 /**
  * Get HTTP status code for successful responses based on request method

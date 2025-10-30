@@ -1,19 +1,19 @@
 /**
- * Effect Factory Functions
+ * Result Factory Functions
  *
- * Pure functions for creating Effect values.
+ * Pure functions for creating Result values.
  * These factories construct Success, Failure, and Command types.
  */
 
-import type { Command, Effect, EffectMetadata, Failure, Success } from "#lib/effect/types";
-import type { AppError } from "#lib/effect/types/errors";
+import type { Command, Failure, Result, ResultMetadata, Success } from "#lib/result/types";
+import type { AppError } from "#lib/result/types/errors";
 
 import {
   extractCallerInfo,
   extractDomainFromFilePath,
   extractFilenameStem,
   inferActionFromFunctionName,
-} from "#lib/effect/metadata";
+} from "#lib/result/metadata";
 
 /**
  * Creates a Command - a deferred side-effectful computation.
@@ -28,14 +28,14 @@ import {
  * - action: Inferred from function name prefix (find → "read", create → "create", etc.)
  *
  * @param command - Async operation to perform
- * @param cont - Function to convert command result to next Effect
+ * @param cont - Function to convert command result to next Result
  * @param metadata - Optional metadata for observability (auto-generated if omitted)
- * @returns A Command that will be executed by runEffect()
+ * @returns A Command that will be executed by run()
  *
  * @example
  * ```ts
  * // Auto mode - metadata auto-generated from stack trace
- * export function findUserById(userId: number): Effect<User> {
+ * export function findUserById(userId: number): Result<User> {
  *   return command(
  *     async () => db.select().from(users).where(eq(users.id, userId)),
  *     (result) => result ? success(result) : fail("Not found", "NOT_FOUND")
@@ -44,7 +44,7 @@ import {
  * }
  *
  * // Manual mode - explicit metadata
- * export function customOperation(): Effect<Data> {
+ * export function customOperation(): Result<Data> {
  *   return command(
  *     async () => { ... },
  *     (result) => success(result),
@@ -55,14 +55,14 @@ import {
  */
 export function command<TCommand, TResult>(
   command: () => Promise<TCommand>,
-  cont: (result: TCommand) => Effect<TResult>,
-  metadata?: EffectMetadata,
+  cont: (result: TCommand) => Result<TResult>,
+  metadata?: ResultMetadata,
 ): Command<TResult>;
 
 export function command(
   command: () => Promise<unknown>,
-  cont: (result: unknown) => Effect<unknown>,
-  metadata?: EffectMetadata,
+  cont: (result: unknown) => Result<unknown>,
+  metadata?: ResultMetadata,
 ): Command {
   // If metadata explicitly provided, use it directly (manual mode)
   if (metadata) {
@@ -94,7 +94,7 @@ export function command(
   const action = inferActionFromFunctionName(operation);
 
   // Build auto-generated metadata
-  const autoMetadata: EffectMetadata = {
+  const autoMetadata: ResultMetadata = {
     operation,
     tags: {
       action,
@@ -111,13 +111,13 @@ export function command(
 }
 
 /**
- * Creates a failed Effect with typed error information.
+ * Creates a failed Result with typed error information.
  *
  * This function accepts an AppError object containing all required error fields.
  * TypeScript enforces that all required fields for the specific error type are provided.
  *
  * @param error - Typed error object (AppError) with all required fields
- * @returns A Failure effect containing the typed error
+ * @returns A Failure result containing the typed error
  *
  * @example
  * ```ts
@@ -159,10 +159,10 @@ export function fail(error: AppError): Failure {
   };
 }
 /**
- * Creates a successful Effect with a value.
+ * Creates a successful Result with a value.
  *
  * @param value - The success value
- * @returns A Success effect containing the value
+ * @returns A Success result containing the value
  *
  * @example
  * ```ts

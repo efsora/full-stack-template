@@ -1,7 +1,7 @@
-import { pipe } from "#lib/effect/combinators";
-import type { Effect } from "#lib/effect/index";
+import { pipe } from "#lib/result/combinators";
+import type { Result } from "#lib/result/index";
 import { generateAuthToken } from "#infrastructure/auth/token";
-import { success } from "#lib/effect/factories";
+import { success } from "#lib/result/factories";
 
 import type { CreateUserInput, CreateUserResult } from "./types/create-user";
 import {
@@ -25,9 +25,9 @@ import {
  * 5. Generate authentication token
  *
  * @param input - User creation data (email, password, optional name)
- * @returns Effect containing user data with authentication token
+ * @returns Result containing user data with authentication token
  */
-export function createUser(input: CreateUserInput): Effect<CreateUserResult> {
+export function createUser(input: CreateUserInput): Result<CreateUserResult> {
   return pipe(
     validateUserCreation(input),
     checkEmailAvailability,
@@ -40,7 +40,7 @@ export function createUser(input: CreateUserInput): Effect<CreateUserResult> {
 /**
  * Adds authentication token to user result
  */
-function addAuthToken(result: CreateUserResult): Effect<CreateUserResult> {
+function addAuthToken(result: CreateUserResult): Result<CreateUserResult> {
   const token = generateAuthToken(result.id, result.email);
   return success({ ...result, token });
 }

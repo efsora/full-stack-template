@@ -4,36 +4,36 @@ import { AppError } from "./types/errors";
  * Represents a side-effectful computation that produces a value of type T.
  * Uses `unknown` for internal type safety while preserving type inference at call sites.
  *
- * A Command defers execution until interpreted by runEffect().
+ * A Command defers execution until interpreted by run().
  * It consists of:
  * - command: The async operation to perform
- * - cont: How to process the command's result into the next Effect
+ * - cont: How to process the command's result into the next Result
  * - metadata: Optional observability information (operation name, tags)
  */
 export interface Command<T = unknown> {
     command: () => Promise<unknown>;
-    continuation: (result: unknown) => Effect<T>;
-    metadata?: EffectMetadata;
+    continuation: (result: unknown) => Result<T>;
+    metadata?: ResultMetadata;
     status: "Command";
   }
-  
+
   /**
    * A computation that may succeed with a value, fail with an error, or require side effects.
    *
-   * Effect<T> is the core type of the effect system. It represents:
+   * Result<T> is the core type of the result system. It represents:
    * - Success<T>: A pure value of type T
    * - Failure: An error with typed error information (AppError)
    * - Command<T>: A deferred computation that will eventually produce T
    */
-  export type Effect<T> = Command<T> | Failure | Success<T>;
-  
+  export type Result<T> = Command<T> | Failure | Success<T>;
+
   /**
    * Metadata for observability (logging, tracing, metrics).
    *
    * Attached to Command for instrumentation purposes.
    * Can be provided manually or auto-generated from stack traces.
    */
-  export interface EffectMetadata {
+  export interface ResultMetadata {
     operation: string; // e.g., "findUserByEmail", "savePost"
     tags?: Record<string, string>; // e.g., { domain: "users", action: "create" }
   }

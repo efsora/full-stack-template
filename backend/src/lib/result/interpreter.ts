@@ -1,17 +1,17 @@
 /**
- * Effect Interpreter
+ * Result Interpreter
  *
- * Executes Effect values, running Commands and returning Success/Failure results.
- * This is the bridge between the functional core (Effect descriptions) and the imperative shell.
+ * Executes Result values, running Commands and returning Success/Failure results.
+ * This is the bridge between the functional core (Result descriptions) and the imperative shell.
  *
  * The interpreter:
  * - Uses tail-call style recursion to avoid stack overflow
  * - Automatically instruments effects with logging, metrics, and tracing
- * - Converts exceptions to Failure effects
+ * - Converts exceptions to Failure results
  * - Preserves type safety throughout execution
  *
  * Architecture:
- * - Public API: `runEffect()` - Main entry point for executing effects
+ * - Public API: `run()` - Main entry point for executing effects
  * - Private helpers: Modular functions for instrumentation and error handling
  */
 
@@ -24,11 +24,11 @@ import {
   logStart,
   logSuccess,
   withSpanContext,
-} from "#lib/effect/instrumentation";
+} from "#lib/result/instrumentation";
 
-import type { Command, Effect, Failure } from "./types";
+import type { Command, Failure, Result } from "./types";
 
-import { fail } from "#lib/effect/factories";
+import { fail } from "#lib/result/factories";
 
 /**
  * Internal context for command execution tracking
@@ -57,7 +57,7 @@ interface ExecutionContext {
  * @example
  * ```ts
  * // In functional core (pure)
- * export function findUser(id: number): Effect<User> {
+ * export function findUser(id: number): Result<User> {
  *   return command(
  *     async () => db.select().from(users).where(eq(users.id, id)),
  *     (result) => result ? success(result) : fail({
@@ -70,7 +70,7 @@ interface ExecutionContext {
  * }
  *
  * // In imperative shell (impure - route handler)
- * const result = await runEffect(findUser(123));
+ * const result = await run(findUser(123));
  * if (result.status === "Success") {
  *   console.log(result.value);
  * } else {
@@ -78,17 +78,17 @@ interface ExecutionContext {
  * }
  * ```
  */
-export async function runEffect<T>(effect: Effect<T>): Promise<Effect<T>> {
+export async function run<T>(result: Result<T>): Promise<Result<T>> {
   // Pattern match on effect type
-  switch (effect.status) {
+  switch (result.status) {
     case "Command":
       // Execute Command with full instrumentation
-      return executeCommand(effect);
+      return executeCommand(result);
 
     case "Failure":
     case "Success":
       // Base case: pure value (Success or Failure), return as-is
-      return effect;
+      return result;
   }
 }
 
@@ -115,46 +115,46 @@ function calculateDuration(execCtx: ExecutionContext): ExecutionContext {
 async function executeCommandAndContinue<T>(
   effect: Command<T>,
   execCtx: ExecutionContext,
-): Promise<Effect<T>> {
+): Promise<Result<T>> {
   // Execute the command (e.g., database query, API call)
   const commandResult: unknown = await effect.command();
 
   // Apply continuation to transform command result into next Effect
-  const nextEffect = effect.continuation(commandResult);
+  const nextResult = effect.continuation(commandResult);
 
   // Recursively execute the next effect (tail-call style)
-  const finalEffect = await runEffect(nextEffect);
+  const finalResult = await run(nextResult);
 
   // Update duration after full execution
   const updatedExecCtx = calculateDuration(execCtx);
 
   // Log and record metrics based on final result
-  processEffectResult(updatedExecCtx, finalEffect);
+  processResultExecution(updatedExecCtx, finalResult);
 
-  return finalEffect;
+  return finalResult;
 }
 
 /**
  * Executes a Command with full instrumentation and span context propagation.
- * Wraps the entire execution (command + continuation + recursive runEffect) in the span's
+ * Wraps the entire execution (command + continuation + recursive run) in the span's
  * active context, ensuring all child operations inherit this span as their parent.
  *
  * @param effect - Command to execute
  * @returns Promise resolving to final Effect result
  */
-async function executeCommand<T>(effect: Command<T>): Promise<Effect<T>> {
+async function executeCommand<T>(effect: Command<T>): Promise<Result<T>> {
   // Initialize instrumentation context (creates span)
   const execCtx = await initializeExecutionContext(effect);
 
   // Wrap entire execution in span context for propagation
-  // All async work (command execution, continuation, recursive runEffect) runs with active span context
+  // All async work (command execution, continuation, recursive run) runs with active span context
   return withSpanContext(execCtx.span, async () => {
     try {
       // Execute command and process result
-      // All nested effects will inherit this span as parent
+      // All nested results will inherit this span as parent
       return await executeCommandAndContinue(effect, execCtx);
     } catch (error) {
-      // Convert exceptions to Failure effects
+      // Convert exceptions to Failure results
       return handleCommandException(error, execCtx);
     }
   });
@@ -178,7 +178,7 @@ function extractMetadata(effect: Command): {
 
 /**
  * Handles exceptions thrown during command execution
- * Converts exceptions to typed Failure effects
+ * Converts exceptions to typed Failure results
  *
  * @param error - The exception that was thrown
  * @param execCtx - Execution context
@@ -230,7 +230,7 @@ async function initializeExecutionContext(effect: Command): Promise<ExecutionCon
 }
 
 /**
- * Logs and records failure metrics for an Effect that returned Failure
+ * Logs and records failure metrics for a Result that returned Failure
  *
  * @param execCtx - Execution context
  * @param failureEffect - The Failure effect to log
@@ -272,16 +272,16 @@ function logAndRecordFailure(execCtx: ExecutionContext, failureEffect: Failure):
 // ============================================================================
 
 /**
- * Processes the final effect result after execution
+ * Processes the final result value after execution
  * Routes to appropriate logging/metrics based on Success or Failure status
  *
  * @param execCtx - Execution context
- * @param finalEffect - Final effect result to process
+ * @param finalResult - Final result value to process
  */
-function processEffectResult<T>(execCtx: ExecutionContext, finalEffect: Effect<T>): void {
-  if (finalEffect.status === "Failure") {
-    logAndRecordFailure(execCtx, finalEffect);
-  } else if (finalEffect.status === "Success") {
+function processResultExecution<T>(execCtx: ExecutionContext, finalResult: Result<T>): void {
+  if (finalResult.status === "Failure") {
+    logAndRecordFailure(execCtx, finalResult);
+  } else if (finalResult.status === "Success") {
     const { ctx, duration, operation, span, tags } = execCtx;
     logSuccess(ctx, span, operation, tags, duration);
   }

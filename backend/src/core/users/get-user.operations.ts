@@ -1,4 +1,4 @@
-import { type Effect, fail, success } from "#lib/effect/index";
+import { type Result, fail, success } from "#lib/result/index";
 
 import { UserData } from "./types/outputs";
 
@@ -10,7 +10,7 @@ import { UserData } from "./types/outputs";
  * @returns Function that checks if userData belongs to requestUserId
  */
 export function checkUserOwnership(requestUserId: number) {
-  return (userData: UserData): Effect<UserData> => {
+  return (userData: UserData): Result<UserData> => {
     if (userData.id !== requestUserId) {
       return fail({
         code: "FORBIDDEN",
