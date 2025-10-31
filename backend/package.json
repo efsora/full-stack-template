@@ -10,7 +10,7 @@
     "start": "node --import ./dist/instrumentation.js dist/index.js",
     "build": "npm run generate:openapi && tsc",
     "type-check": "tsc --noEmit",
-    "generate:openapi": "tsx scripts/generate-openapi.ts",
+    "generate:openapi": "tsx src/openapi/generate.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix .",
     "format": "prettier --write .",

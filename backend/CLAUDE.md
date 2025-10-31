@@ -648,12 +648,15 @@ The middleware:
    - Implement operations in `*.operations.ts`
    - Compose workflows in `*.workflow.ts`
 5. **Create HTTP layer**: `src/routes/entity/`
-   - Define schemas in `schemas.ts`
+   - Define schemas in `schemas.ts` with OpenAPI metadata
    - Implement handlers in `handlers.ts`
    - Define routes in `routes.ts`
 6. **Register routes** in `src/routes/index.ts`
 7. **Create barrel export** in `src/core/entity/index.ts` (see Barrel Export Enforcement section)
-8. **Update OpenAPI spec** in `_docs/openapi.json`
+8. **Register OpenAPI paths**:
+   - Create `src/openapi/paths/entity.ts` with path registrations
+   - Import in `src/openapi/generate.ts`
+   - Run `npm run generate:openapi`
 
 ## Barrel Export Enforcement
 
@@ -791,13 +794,33 @@ Tests are written using Vitest and should follow these patterns:
 
 The OpenAPI spec is **automatically generated** from Zod schemas using `@asteasolutions/zod-to-openapi`. This ensures the documentation always stays in sync with the code.
 
-**Generation script**: `src/scripts/generate-openapi.ts`
+**Modular Architecture**: The OpenAPI generation uses a modular structure with separate files for:
+- **Registry** (`src/openapi/registry.ts`) - Central OpenAPI registry and security schemes
+- **Common Schemas** (`src/openapi/schemas.ts`) - Reusable response wrappers and error schemas
+- **Path Registrations** (`src/openapi/paths/`) - Separate file for each domain/route
+- **Generation Script** (`src/openapi/generate.ts`) - Orchestrates the spec generation
 
-The script:
-1. Imports all route schemas (from `routes/*/schemas.ts`)
-2. Registers endpoints with the OpenAPI registry
-3. Generates `_docs/openapi.json`
-4. Runs automatically before `npm run dev` and `npm run build`
+**File Structure**:
+```
+src/
+├── openapi/
+│   ├── generate.ts          # Generation script
+│   ├── registry.ts          # Central OpenAPI registry
+│   ├── schemas.ts           # Common response/error schemas
+│   └── paths/               # Path registrations by domain
+│       ├── health.ts        # Health endpoint
+│       ├── hello.ts         # Hello endpoint
+│       └── users.ts         # User endpoints
+└── routes/
+    └── [domain]/
+        └── schemas.ts       # Zod schemas with OpenAPI metadata
+```
+
+**Generation Process**:
+1. Define Zod schemas in `routes/[domain]/schemas.ts` with `.openapi()` metadata
+2. Create path registration in `src/openapi/paths/[domain].ts`
+3. Run `npm run generate:openapi` to generate `_docs/openapi.json`
+4. Spec auto-generates before `npm run dev` and `npm run build`
 
 **Accessing Documentation**:
 - OpenAPI JSON: `http://localhost:3000/docs/openapi.json`
@@ -806,9 +829,12 @@ The script:
 
 ### Adding Endpoints to OpenAPI
 
-When adding new routes:
+When adding new routes, follow these steps:
 
-1. **Define schemas with OpenAPI metadata** in `routes/domain/schemas.ts`:
+#### 1. Define Zod Schemas with OpenAPI Metadata
+
+In `routes/domain/schemas.ts`:
+
 ```typescript
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
@@ -819,19 +845,32 @@ export const createBodySchema = z.object({
   email: z.string().email().openapi({ example: "user@example.com" }),
   name: z.string().min(1).openapi({ example: "John Doe" }),
 }).openapi("CreateBody");
+
+export const createResponseSchema = z.object({
+  id: z.number().int().positive().openapi({ example: 1 }),
+  email: z.string().email().openapi({ example: "user@example.com" }),
+  name: z.string().openapi({ example: "John Doe" }),
+}).openapi("CreateResponse");
 ```
 
-2. **Register endpoint in generation script** (`src/scripts/generate-openapi.ts`):
-```typescript
-// Import schemas
-import { createBodySchema } from "../routes/domain/schemas.js";
+#### 2. Create Path Registration File
 
-// Register path
+Create `src/openapi/paths/domain.ts`:
+
+```typescript
+import { createBodySchema, createResponseSchema } from "#routes/domain/schemas";
+import { registry } from "../registry.js";
+import { commonErrorResponses, successResponseSchema } from "../schemas.js";
+
+/**
+ * POST /api/v1/domain
+ * Create a new entity
+ */
 registry.registerPath({
   method: "post",
   path: "/api/v1/domain",
   summary: "Create entity",
-  description: "Description of the endpoint",
+  description: "Create a new entity with the provided data",
   tags: ["Domain"],
   request: {
     body: {
@@ -844,20 +883,124 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Success",
+      description: "Entity created successfully",
       content: {
         "application/json": {
-          schema: successResponseSchema(responseSchema),
+          schema: successResponseSchema(createResponseSchema),
         },
       },
     },
+    400: commonErrorResponses[400],
+    500: commonErrorResponses[500],
   },
 });
 ```
 
-3. **Regenerate spec**:
+**For protected endpoints**, add security:
+
+```typescript
+registry.registerPath({
+  method: "get",
+  path: "/api/v1/domain/{id}",
+  security: [{ BearerAuth: [] }],  // Requires JWT token
+  // ... rest of config
+});
+```
+
+#### 3. Import Path Registration in Generation Script
+
+Add to `src/openapi/generate.ts`:
+
+```typescript
+// Import all path registrations
+import "./paths/health.js";
+import "./paths/hello.js";
+import "./paths/users.js";
+import "./paths/domain.js";  // Add your new path file
+```
+
+#### 4. Regenerate OpenAPI Spec
+
 ```bash
 npm run generate:openapi
 ```
 
-The OpenAPI spec is automatically served and used by Swagger UI.
+The spec is auto-generated and served via Swagger UI.
+
+### Common Schema Utilities
+
+The `src/openapi/schemas.ts` file provides reusable utilities:
+
+#### Success Response Wrapper
+
+Wraps data in standard `AppResponse<T>` success format:
+
+```typescript
+import { successResponseSchema } from "../schemas.js";
+
+// Wrap your response schema
+schema: successResponseSchema(userDataSchema)
+
+// Generates:
+// {
+//   success: true,
+//   data: { ...userData },
+//   traceId: "...",
+//   error: null,
+//   message: null,
+//   meta: null
+// }
+```
+
+#### Paginated Response Wrapper
+
+For paginated list endpoints:
+
+```typescript
+import { paginatedSuccessResponseSchema } from "../schemas.js";
+
+// Wrap array schema
+schema: paginatedSuccessResponseSchema(userSchema)
+
+// Generates:
+// {
+//   success: true,
+//   data: [...users],
+//   meta: {
+//     pagination: { page: 1, size: 10, total: 100 },
+//     cursor: null
+//   },
+//   traceId: "...",
+//   error: null,
+//   message: null
+// }
+```
+
+#### Common Error Responses
+
+Reusable error responses for standard HTTP status codes:
+
+```typescript
+import { commonErrorResponses } from "../schemas.js";
+
+responses: {
+  200: { /* success response */ },
+  400: commonErrorResponses[400],  // Validation Error
+  401: commonErrorResponses[401],  // Unauthorized
+  403: commonErrorResponses[403],  // Forbidden
+  404: commonErrorResponses[404],  // Not Found
+  409: commonErrorResponses[409],  // Conflict
+  500: commonErrorResponses[500],  // Internal Error
+}
+```
+
+All error responses match the `AppError` type from `lib/result/types/errors.ts`.
+
+### OpenAPI Best Practices
+
+1. **One path file per domain** - Keep registrations organized by business domain
+2. **Use common schemas** - Leverage `successResponseSchema()` and `commonErrorResponses`
+3. **Add examples** - Use `.openapi({ example: "value" })` for better docs
+4. **Document all responses** - Include success and all possible error responses
+5. **Import from routes** - Path files import schemas from `#routes/[domain]/schemas`
+6. **Match AppResponse** - All response schemas must match the `AppResponse<T>` format
