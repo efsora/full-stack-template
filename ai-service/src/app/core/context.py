@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from typing import Any, TypeVar
 
 from sqlalchemy.ext.asyncio import AsyncSession
+import structlog
 
 SessionFactory = Callable[[], AsyncSession]
 T = TypeVar("T")
@@ -16,10 +17,16 @@ class Context:
     def __init__(self, session_factory: SessionFactory) -> None:
         self._session_factory = session_factory
         self._session_stack: list[AsyncSession] = []
+        self._logger = structlog.get_logger()
 
     @property
     def session_factory(self) -> SessionFactory:
         return self._session_factory
+
+    @property
+    def logger(self) -> structlog.BoundLogger:
+        """Get logger instance from context."""
+        return self._logger
 
     @property
     def db_session(self) -> AsyncSession:

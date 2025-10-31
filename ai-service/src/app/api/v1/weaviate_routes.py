@@ -1,18 +1,18 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
-import structlog
 
+from app.api.dependencies import get_context
 from app.api.schemas.base_response import AppResponse
 from app.api.schemas.errors import ErrorCode
 from app.api.schemas.request import EmbedRequest, SearchRequest
 from app.api.schemas.response import EmbedResponse, SearchResponse
+from app.core.context import Context
 from app.services.weaviate_service import WeaviateService
-
-logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/weaviate", tags=["weaviate"])
 
+ContextDep = Annotated[Context, Depends(get_context)]
 WeaviateServiceDep = Annotated[WeaviateService, Depends()]
 
 
@@ -24,11 +24,12 @@ WeaviateServiceDep = Annotated[WeaviateService, Depends()]
 async def embed_text(
     request: Request,
     payload: EmbedRequest,
+    ctx: ContextDep,
     weaviate_service: WeaviateServiceDep,
 ) -> AppResponse[EmbedResponse]:
     """Embed text into Weaviate vector database."""
     trace_id = getattr(request.state, "trace_id", None)
-    logger.info(
+    ctx.logger.info(
         f"Embedding text into collection '{payload.collection}' ({len(payload.text)} chars)",
         trace_id=trace_id,
         collection=payload.collection,
@@ -42,7 +43,7 @@ async def embed_text(
             collection=result["collection"],
             uuid=result["uuid"],
         )
-        logger.info(
+        ctx.logger.info(
             f"Text embedded successfully in '{payload.collection}': {result['uuid']}",
             trace_id=trace_id,
             collection=payload.collection,
@@ -52,7 +53,7 @@ async def embed_text(
             embed_response, message="Text embedded successfully", trace_id=trace_id
         )
     except ValueError as e:
-        logger.error(
+        ctx.logger.error(
             f"Failed to embed text in '{payload.collection}': {str(e)}",
             trace_id=trace_id,
             collection=payload.collection,
@@ -70,11 +71,12 @@ async def embed_text(
 async def search_weaviate(
     request: Request,
     payload: SearchRequest,
+    ctx: ContextDep,
     weaviate_service: WeaviateServiceDep,
 ) -> AppResponse[SearchResponse]:
     """Search for similar objects in Weaviate using BM25 search."""
     trace_id = getattr(request.state, "trace_id", None)
-    logger.info(
+    ctx.logger.info(
         f"Searching in collection '{payload.collection}' for: '{payload.query}' (limit: {payload.limit})",
         trace_id=trace_id,
         collection=payload.collection,
@@ -90,7 +92,7 @@ async def search_weaviate(
             results=result["results"],
             count=result["count"],
         )
-        logger.info(
+        ctx.logger.info(
             f"Search completed in '{payload.collection}': found {result['count']} result(s)",
             trace_id=trace_id,
             collection=payload.collection,
@@ -99,7 +101,7 @@ async def search_weaviate(
         )
         return AppResponse.ok(search_response, message="Search completed", trace_id=trace_id)
     except ValueError as e:
-        logger.error(
+        ctx.logger.error(
             f"Search failed in '{payload.collection}' for '{payload.query}': {str(e)}",
             trace_id=trace_id,
             collection=payload.collection,
