@@ -243,10 +243,10 @@ export async function handleLogin(req: Request) {
 ```
 
 The `handleResult` middleware:
-- Executes the effect returned by the handler
-- Maps `Success` to 200/201 HTTP responses
-- Maps `Failure` to appropriate HTTP error status codes
-- Automatically formats responses using `successResponse()` and `errorResponse()`
+- Processes handlers returning `AppResponse<T>` (universal response format)
+- Maps success responses to 200/201 HTTP status codes
+- Maps failure responses to appropriate HTTP error status codes
+- Sends responses directly (already formatted by `matchResponse`)
 
 ### Value Objects
 
@@ -347,6 +347,86 @@ export type NewUser = typeof users.$inferInsert;
 
 For development, you can use `npx drizzle-kit push` to apply schema changes directly without generating migration files.
 
+## Universal API Response Format
+
+All API endpoints return responses in a standardized `AppResponse<T>` format using discriminated unions for type-safe success/failure handling.
+
+### Response Structure
+
+```typescript
+// Success Response
+{
+  success: true,
+  data: T,
+  trace_id: string,
+  message?: null,
+  meta?: Meta | null,
+  error?: null
+}
+
+// Failure Response
+{
+  success: false,
+  error: AppError,
+  message: string,
+  trace_id: string,
+  data?: null,
+  meta?: null
+}
+```
+
+### Handler Implementation Pattern
+
+Handlers use `matchResponse` to construct the complete response:
+
+```typescript
+import {
+  createSuccessResponse,
+  createFailureResponse,
+  type AppResponse,
+} from "#lib/types/response";
+
+export async function handleGetUser(req: Request): Promise<AppResponse<UserData>> {
+  const result = await run(getUserById(userId));
+
+  return matchResponse(result, {
+    onSuccess: (user) => createSuccessResponse({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    }),
+    onFailure: (error) => createFailureResponse(error),
+  });
+}
+```
+
+### Helper Functions
+
+```typescript
+// Simple success response
+createSuccessResponse<T>(data: T): SuccessResponse<T>
+
+// Success with pagination
+createPaginatedSuccessResponse<T>(
+  data: T,
+  pagination: PaginationMeta
+): SuccessResponse<T>
+
+// Failure response
+createFailureResponse(error: AppError): FailureResponse
+
+// Get trace ID (auto-included by helpers)
+getTraceId(): string
+```
+
+### Type Safety
+
+The `AppResponse<T>` system enforces:
+- Exhaustive field mapping via TypeScript
+- Required `trace_id` in all responses
+- Discriminated union (success: true/false)
+- Proper error structure with AppError type
+
 ## HTTP Layer
 
 ### Adding New Routes
@@ -365,16 +445,27 @@ export const createBodySchema = z.object({
 
 3. **Create handlers** (`handlers.ts`):
 ```typescript
-export async function handleCreate(req: Request) {
+import {
+  createSuccessResponse,
+  createFailureResponse,
+  type AppResponse,
+} from "#lib/types/response";
+
+export async function handleCreate(req: Request): Promise<AppResponse<CreateResult>> {
   const body = req.body as CreateBody;
-  return await run(createWorkflow(body));
+  const result = await run(createWorkflow(body));
+
+  return matchResponse(result, {
+    onSuccess: (data) => createSuccessResponse(data),
+    onFailure: (error) => createFailureResponse(error),
+  });
 }
 ```
 
 4. **Define routes** (`routes.ts`):
 ```typescript
 import { validate } from "#middlewares/validate";
-import { handleResult } from "#middlewares/handleResult";
+import { handleResult } from "#middlewares/resultHandler";
 
 router.post("/create",
   validate(createBodySchema),

@@ -5,11 +5,17 @@
  * These combinators allow building complex workflows from simpler results.
  */
 
-import type { Command, Failure, Result } from "./types";
+import type { Command, Result } from "./types";
 
 import { command, fail, success } from "./factories";
 import { run } from "./interpreter";
+import { invariant } from "#lib/result/invariant";
 import { AppError } from "./types/errors";
+import type {
+  AppResponse,
+  FailureResponse,
+  SuccessResponse,
+} from "#lib/types/response";
 
 /**
  * Combines multiple results into a single result that produces an array of results.
@@ -549,93 +555,90 @@ export function match<T, U>(
 }
 
 /**
- * Pattern matches on a Result for HTTP response handlers, returning inlined data or Failure.
- * This combinator eliminates response wrapping boilerplate by returning a discriminated union
- * that the middleware can handle automatically.
+ * Pattern matches on a Result for HTTP response handlers, returning universal AppResponse.
+ * This combinator constructs the complete API response format with proper type safety
+ * using discriminated unions.
  *
- * Key differences from match():
- * - Returns T | Failure (discriminated union) instead of transformed value
- * - Success: Returns inlined data directly (no wrapping)
- * - Failure: Returns original Failure result (middleware converts to HTTP error)
- * - Optional onFailure handler for custom error handling
- * - Enforces exhaustive type safety: onSuccess must return exactly type T
- *
- * The middleware (resultHandler) detects the discriminated union and:
- * - Wraps success data T in successResponse()
- * - Converts Failure to errorResponse()
+ * Key features:
+ * - Returns AppResponse<T> (SuccessResponse<T> | FailureResponse)
+ * - Success: Handler constructs full SuccessResponse with all required fields
+ * - Failure: Handler constructs full FailureResponse with all required fields
+ * - Enforces exhaustive type safety via discriminated unions
+ * - Both handlers are required
  *
  * @param result - The executed Result (must call run() first)
- * @param handlers - Object with onSuccess mapper (must return type T) and optional onFailure handler
- * @returns Inlined data T on success, or Failure result on failure
+ * @param handlers - Object with onSuccess and onFailure handlers
+ * @returns Universal AppResponse (discriminated union)
  *
  * @example
  * ```ts
- * // Simple usage - pass through value as-is
+ * // Handler with explicit response construction
  * export async function handleGetUser(req: Request) {
  *   const result = await run(getUser(userId));
  *
  *   return matchResponse(result, {
- *     onSuccess: (user) => user  // Type-safe: must return exact UserData type
+ *     onSuccess: (user) => ({
+ *       success: true,
+ *       data: {
+ *         id: user.id,
+ *         email: user.email,
+ *         name: user.name,
+ *         createdAt: user.createdAt,
+ *         updatedAt: user.updatedAt
+ *       },
+ *       trace_id: getTraceId(),
+ *       message: null,
+ *       meta: null,
+ *       error: null,
+ *     }),
+ *     onFailure: (error) => ({
+ *       success: false,
+ *       error: error,
+ *       message: error.message,
+ *       trace_id: getTraceId(),
+ *       data: null,
+ *       meta: null,
+ *     }),
  *   });
  * }
- * // Success → returns UserData (middleware wraps in successResponse)
- * // Failure → returns Failure effect (middleware converts to errorResponse)
  * ```
  *
  * @example
  * ```ts
- * // Explicit field mapping - TypeScript enforces ALL fields must be present
- * return matchResponse(result, {
- *   onSuccess: (user) => ({
- *     id: user.id,
- *     email: user.email,
- *     name: user.name,
- *     createdAt: user.createdAt,
- *     updatedAt: user.updatedAt
- *     // Missing any field? TypeScript error!
- *     // Extra field? TypeScript error!
- *   })
- * });
- * ```
+ * // Using helper functions for cleaner code
+ * import { createSuccessResponse, createFailureResponse } from "#lib/types/response";
  *
- * @example
- * ```ts
- * // Array mapping with exhaustive type safety
  * return matchResponse(result, {
- *   onSuccess: (users) => users.map(user => ({
+ *   onSuccess: (user) => createSuccessResponse({
  *     id: user.id,
  *     email: user.email,
  *     name: user.name,
- *     createdAt: user.createdAt,
- *     updatedAt: user.updatedAt
- *     // Must map ALL fields to match UserData[] type
- *   }))
+ *   }),
+ *   onFailure: (error) => createFailureResponse(error),
  * });
  * ```
  */
 export function matchResponse<T>(
   result: Result<T>,
   handlers: {
-    onFailure?: (error: AppError) => unknown;
-    onSuccess: (value: T) => T;
+    onFailure: (error: AppError) => FailureResponse;
+    onSuccess: (value: T) => SuccessResponse<T>;
   },
-): Failure | T {
+): AppResponse<T> {
   switch (result.status) {
     case "Failure": {
-      // Use custom error handler if provided, otherwise return original Failure
-      if (handlers.onFailure) {
-        return handlers.onFailure(result.error) as Failure;
-      }
-      return result;
+      // Return failure response constructed by handler
+      return handlers.onFailure(result.error);
     }
 
     case "Success": {
-      // Return inlined data directly (no wrapping)
+      // Return success response constructed by handler
       return handlers.onSuccess(result.value);
     }
 
     case "Command": {
-      throw new Error(
+      invariant(
+        false,
         "matchResponse() called on unexecuted Command. Call run() first.",
       );
     }

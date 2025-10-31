@@ -1,84 +1,45 @@
 /**
- * Standard response formatters for API responses
+ * Response Utilities
+ *
+ * Provides backward-compatible utilities for middleware that need to send
+ * error responses directly (auth, validation, etc.).
+ *
+ * For handlers, use the new AppResponse system:
+ * @see #lib/types/response
  */
 
-import type { PaginationMeta } from "#lib/types/pagination";
-
-export interface ErrorResponse {
-  code: string;
-  details?: unknown;
-  message: string;
-  status: "error";
-}
-
-export interface PaginatedSuccessResponse<T> {
-  data: T[];
-  pagination: PaginationMeta;
-  status: "success";
-}
-
-export interface SuccessResponse<T> {
-  data: T;
-  status: "success";
-}
+import { getTraceId } from "#infrastructure/logger/context";
+import type { FailureResponse } from "#lib/types/response";
 
 /**
- * Calculates pagination metadata from query parameters and total count
+ * Creates an error response in the new AppResponse format
+ * Backward-compatible helper for middleware that send errors directly
+ *
+ * @param message - Error message
+ * @param code - Error code
+ * @param details - Optional error details
+ * @returns FailureResponse matching the new format
  */
-export function calculatePaginationMeta(
-  page: number,
-  limit: number,
-  total: number,
-): PaginationMeta {
-  const totalPages = Math.ceil(total / limit);
-
-  return {
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1,
-    limit,
-    page,
-    total,
-    totalPages,
-  };
-}
-
-/**
- * Creates a standard error response
- */
-export function errorResponse(message: string, code: string, details?: unknown): ErrorResponse {
-  const response: ErrorResponse = {
-    code,
+export function errorResponse(
+  message: string,
+  code: string,
+  details?: unknown,
+): FailureResponse {
+  const error: FailureResponse["error"] = {
+    code: code as never, // Type cast needed for backward compatibility
     message,
-    status: "error",
   };
 
   if (details !== undefined) {
-    response.details = details;
+    error.context = { details };
   }
 
-  return response;
-}
-
-/**
- * Creates a paginated success response with metadata
- */
-export function paginatedSuccessResponse<T>(
-  data: T[],
-  pagination: PaginationMeta,
-): PaginatedSuccessResponse<T> {
   return {
-    data,
-    pagination,
-    status: "success",
-  };
-}
-
-/**
- * Creates a standard success response
- */
-export function successResponse<T>(data: T): SuccessResponse<T> {
-  return {
-    data,
-    status: "success",
+    success: false,
+    error,
+    message,
+    trace_id: getTraceId() ?? "unknown",
+    data: null,
+    meta: null,
   };
 }
