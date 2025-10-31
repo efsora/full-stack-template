@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    --box-shadow:
+        0 4px 10px rgba(0, 0, 100, 0.2), 0 1px 3px rgba(0, 0, 255, 0.06);
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+button {
+    background: black;
+    color: white;
+    border-radius: 0.6rem;
+    padding: 0.6rem;
+    cursor: pointer;
+}
+
+button:active {
+    scale: 0.95;
+}
+
+.card {
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    box-shadow: var(--box-shadow);
+}

@@ -97,22 +97,22 @@ services:
     networks:
       - app-network
 
-  # Frontend service (React + TypeScript)
-  # Uncomment when frontend is implemented
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: full-stack-frontend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${FRONTEND_PORT:-5173}:5173"
-  #   environment:
-  #     VITE_BACKEND_URL: http://localhost:${BACKEND_PORT:-3000}
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - app-network
+  # Frontend service (React + TypeScript + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: full-stack-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+    # Uncomment when backend is implemented
+    # depends_on:
+    #   - backend
+    networks:
+      - app-network
 
   # AI Service (FastAPI)
   # Uncomment when ai-service is implemented

@@ -1,0 +1,49 @@
+{
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+        /* Target & Libs */
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        /* JSX & Module setup */
+        "jsx": "react-jsx",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+        "verbatimModuleSyntax": true,
+        "allowImportingTsExtensions": true,
+        "useDefineForClassFields": true,
+        "noEmit": true,
+        /* Type support */
+        "types": ["vite/client"],
+        /* Interop & Compatibility */
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        /* Strictness & Linting */
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        /* Path Aliases */
+        "baseUrl": ".",
+        "paths": {
+            "#store": ["src/store/index"],
+            "#store/*": ["src/store/*"],
+            "#components": ["src/presentation/components/index"],
+            "#components/*": ["src/presentation/components/*"],
+            "#pages": ["src/presentation/pages/index"],
+            "#pages/*": ["src/presentation/pages/*"],
+            "#layout/*": ["src/presentation/view/layout/*"],
+            "#api/*": ["src/api/*"],
+            "#hooks/*": ["src/api/hooks/*"],
+            "#config/*": ["src/constants/*"],
+            "#utils/*": ["src/utils/*"],
+            "#types/*": ["src/api/types/*"],
+            "#constants/*": ["src/constants/*"],
+            "#models/*": ["src/presentation/models/*"]
+        }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+}
