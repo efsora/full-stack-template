@@ -68,9 +68,6 @@ export function hashPasswordForCreation(data: ValidatedCreationData): Result<{
   );
 }
 
-/**
- * Saves new user to database
- */
 export function saveNewUser(data: {
   email: Email;
   hashedPassword: HashedPassword;

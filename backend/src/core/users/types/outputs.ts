@@ -5,9 +5,6 @@
  * They typically exclude sensitive fields (e.g., password hashes).
  */
 
-/**
- * Result after creating a user
- */
 export type CreateUserResult = {
   email: string;
   id: number;

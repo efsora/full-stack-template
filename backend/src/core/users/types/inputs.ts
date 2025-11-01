@@ -14,9 +14,6 @@ export type CreateUserInput = {
   password: string;
 };
 
-/**
- * Update user input data
- */
 export type UpdateUserInput = {
   email?: string;
   name?: string;

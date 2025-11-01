@@ -21,18 +21,12 @@ export type UserDataWithPassword = {
   updatedAt: Date;
 };
 
-/**
- * Validated creation data with Value Objects
- */
 export type ValidatedCreationData = {
   email: Email;
   name?: string;
   password: Password;
 };
 
-/**
- * Validated registration data with Value Objects
- */
 export type ValidatedRegistrationData = {
   email: Email;
   name?: string;
