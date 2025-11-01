@@ -2,6 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 
 import { requestContext } from "#infrastructure/logger/context";
 import { logger } from "#infrastructure/logger/index";
+import {
+  sanitizeBody,
+  sanitizeHeaders,
+  sanitizeQuery,
+} from "#middlewares/utils/sanitize";
 import { trace } from "@opentelemetry/api";
 import { randomUUID } from "node:crypto";
 
@@ -25,14 +30,14 @@ export function requestLogger(
 
   // Create request context with correlation IDs
   requestContext.run({ requestId, spanId, traceId }, () => {
-    // Log request start
+    // Log request start (with sensitive data redacted)
     logger.info(
       {
-        body: req.body,
-        headers: req.headers,
+        body: sanitizeBody(req.body),
+        headers: sanitizeHeaders(req.headers as Record<string, unknown>),
         method: req.method,
         path: req.path,
-        query: req.query,
+        query: sanitizeQuery(req.query as Record<string, unknown>),
         requestId,
         spanId,
         traceId,

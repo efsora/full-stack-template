@@ -663,6 +663,42 @@ logger.info({ userId, action: "login" }, "User logged in");
 logger.error({ error, requestId }, "Operation failed");
 ```
 
+### Log Sanitization (Security)
+
+**Critical Security Feature**: The request logger automatically sanitizes sensitive data to prevent credential leakage in logs.
+
+**What Gets Redacted**:
+- **Authentication**: passwords, tokens, API keys, Bearer tokens, sessions
+- **Payment**: credit card numbers, CVV, account numbers
+- **PII**: SSN, passport, driver's license, national ID
+- **Security**: private keys, secrets, encryption keys
+
+**How It Works**:
+The `sanitize` utility (`src/middlewares/utils/sanitize.ts`) recursively redacts sensitive fields:
+
+```typescript
+import { sanitize, sanitizeBody, sanitizeHeaders } from "#middlewares/utils/sanitize";
+
+// Sanitize request data before logging
+const safeBody = sanitizeBody(req.body);
+const safeHeaders = sanitizeHeaders(req.headers);
+
+logger.info({ body: safeBody, headers: safeHeaders }, "Request received");
+```
+
+**Automatic Sanitization**: The `requestLogger` middleware automatically sanitizes all request bodies, headers, and query parameters before logging. No manual sanitization needed in route handlers.
+
+**Example**:
+```typescript
+// Input
+{ email: "user@example.com", password: "secret123" }
+
+// Logged output
+{ email: "user@example.com", password: "[REDACTED]" }
+```
+
+**Adding Custom Sensitive Fields**: Edit the `SENSITIVE_FIELDS` Set in `src/middlewares/utils/sanitize.ts` to add domain-specific sensitive field names.
+
 ### Metrics (Prometheus)
 
 Metrics are automatically collected for:

@@ -126,7 +126,7 @@ export function recordResultMetrics(
   effectExecutionsTotal.inc({ domain, operation, status });
   effectDuration.observe({ domain, operation }, duration / 1000); // Convert to seconds
   // Record database query metrics for DB operations
-  if (["create", "delete", "read", "update"].includes(domain)) {
+  if (["create", "delete", "read", "update"].includes(operation)) {
     dbQueriesTotal.inc({ domain, operation });
     dbQueryDuration.observe({ domain, operation }, duration / 1000);
   }
