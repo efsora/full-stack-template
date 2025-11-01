@@ -8,12 +8,14 @@ export { createUser } from "./create-user.workflow";
 export { getUserById } from "./get-user.workflow";
 
 // Public types - Inputs
-export type { UpdateUserInput } from "./types/inputs";
-export type { CreateUserInput } from "./types/create-user";
+export type { CreateUserInput, UpdateUserInput } from "./types/inputs";
 
 // Public types - Outputs
-export type { UserData } from "./types/outputs";
-export type { CreateUserResult } from "./types/create-user";
+export type {
+  CreateUserResult,
+  UpdateUserResult,
+  UserData,
+} from "./types/outputs";
 
 // Public types - Errors
 export type {

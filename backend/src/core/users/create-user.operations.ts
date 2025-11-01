@@ -4,11 +4,9 @@ import { command, type Result, fail, success } from "#lib/result/index";
 import { allNamed, chain } from "#lib/result/combinators";
 import first from "lodash/fp/first";
 
-import type {
-  CreateUserInput,
-  CreateUserResult,
-  ValidatedCreationData,
-} from "./types/create-user";
+import type { CreateUserInput } from "./types/inputs";
+import type { CreateUserResult } from "./types/outputs";
+import type { ValidatedCreationData } from "./types/internal";
 import { Email } from "./value-objects/Email";
 import { HashedPassword, Password } from "./value-objects/Password";
 import { findByEmail } from "./find.operations";

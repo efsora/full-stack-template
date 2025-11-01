@@ -343,6 +343,94 @@ Benefits:
 - Validation happens at creation time
 - Self-documenting API
 
+## Type vs Interface Convention
+
+This codebase follows a clear convention for when to use `type` vs `interface`:
+
+### Use `type` for Data Transfer Objects (DTOs)
+
+All Input/Output/Internal types in domain modules use `type` declarations:
+
+```typescript
+// ✅ Correct - Use type for DTOs
+export type CreateUserInput = {
+  email: string;
+  name?: string;
+  password: string;
+};
+
+export type CreateUserResult = {
+  id: number;
+  email: string;
+  name: string | null;
+  token?: string;
+};
+```
+
+**When to use `type`:**
+- Input types (`types/inputs.ts`) - Request data from external sources
+- Output types (`types/outputs.ts`) - Response data to external consumers
+- Internal types (`types/internal.ts`) - Domain-internal data shapes
+- Shared response types (`lib/types/`) - API response wrappers
+- Union types and intersections
+
+**Benefits:**
+- More flexible (supports unions, intersections, primitives)
+- Clearer intent: "this is just a data shape"
+- Preferred by modern TypeScript community for DTOs
+- Consistent with functional programming patterns
+
+### Use `interface` for Extensible Contracts
+
+Reserve `interface` for OOP patterns and declaration merging:
+
+```typescript
+// ✅ Correct - Use interface for extensible contracts
+export interface IUserRepository {
+  findById(id: number): Promise<User | null>;
+  create(data: NewUser): Promise<User>;
+}
+
+// ✅ Correct - Use interface for declaration merging
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JwtPayload;
+    }
+  }
+}
+```
+
+**When to use `interface`:**
+- Repository contracts and service interfaces
+- Class hierarchies and inheritance
+- Declaration merging (extending third-party types)
+- Plugin systems requiring extension
+
+### Union Type Order Convention
+
+Always put the main type first in unions:
+
+```typescript
+// ✅ Correct
+name: string | null;
+cursor?: string | null;
+
+// ❌ Incorrect
+name: null | string;
+cursor?: null | string;
+```
+
+### ESLint Configuration
+
+The codebase enforces this convention via ESLint:
+
+```javascript
+"@typescript-eslint/consistent-type-definitions": ["error", "type"]
+```
+
+This rule ensures all new code follows the `type`-first approach for DTOs.
+
 ## Repository Pattern
 
 Repositories use **factory functions** for dependency injection and testing.

@@ -25,7 +25,7 @@ export type ValidatedRequest<T = Record<string, unknown>> = Request & {
 /**
  * Zod schema configuration for request validation.
  */
-export interface ValidationSchemas {
+export type ValidationSchemas = {
   body?: z.ZodType;
   params?: z.ZodType;
   query?: z.ZodType;

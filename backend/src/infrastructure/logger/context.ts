@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 /**
  * Request context type for correlation
  */
-export interface RequestContext {
+export type RequestContext = {
   requestId: string;
   spanId?: string;
   traceId?: string;

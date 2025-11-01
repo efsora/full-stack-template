@@ -6,37 +6,47 @@
  */
 
 /**
+ * Result after creating a user
+ */
+export type CreateUserResult = {
+  email: string;
+  id: number;
+  name: string | null;
+  token?: string;
+};
+
+/**
  * Public user data (without password field)
  * Safe for API responses
  */
-export interface PublicUserData {
+export type PublicUserData = {
   createdAt: Date;
   email: string;
   id: number;
-  name: null | string;
+  name: string | null;
   updatedAt: Date;
-}
+};
 
 /**
  * Update user result
  * Optionally includes authentication token when generated
  */
-export interface UpdateUserResult {
+export type UpdateUserResult = {
   createdAt: Date;
   email: string;
   id: number;
-  name: null | string;
+  name: string | null;
   token?: string;
   updatedAt: Date;
-}
+};
 
 /**
  * User data for responses (without password)
  */
-export interface UserData {
+export type UserData = {
   createdAt: Date;
   email: string;
   id: number;
-  name: null | string;
+  name: string | null;
   updatedAt: Date;
-}
+};

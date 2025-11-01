@@ -6,10 +6,19 @@
  */
 
 /**
+ * Input for creating a new user
+ */
+export type CreateUserInput = {
+  email: string;
+  name?: string;
+  password: string;
+};
+
+/**
  * Update user input data
  */
-export interface UpdateUserInput {
+export type UpdateUserInput = {
   email?: string;
   name?: string;
   password?: string;
-}
+};

@@ -95,7 +95,7 @@ export type ConflictType = "email"; // Extensible for future conflicts like user
  * @property resourceId - Optional ID of related resource (may duplicate specific error field)
  * @property context - Optional free-form request metadata (ip, userAgent, requestId, etc.)
  */
-export interface ErrorBase {
+export type ErrorBase = {
   context?: Record<string, unknown>;
   message: string;
   resourceId?: number;

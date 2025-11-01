@@ -10,7 +10,7 @@ import { AppError } from "./types/errors";
  * - cont: How to process the command's result into the next Result
  * - metadata: Optional observability information (operation name, tags)
  */
-export interface Command<T = unknown> {
+export type Command<T = unknown> = {
   command: () => Promise<unknown>;
   continuation: (result: unknown) => Result<T>;
   metadata?: ResultMetadata;
@@ -33,7 +33,7 @@ export type Result<T> = Command<T> | Failure | Success<T>;
  * Attached to Command for instrumentation purposes.
  * Can be provided manually or auto-generated from stack traces.
  */
-export interface ResultMetadata {
+export type ResultMetadata = {
   operation: string; // e.g., "findUserByEmail", "savePost"
   tags?: Record<string, string>; // e.g., { domain: "users", action: "create" }
 }
@@ -61,7 +61,7 @@ export interface ResultMetadata {
  * }
  * ```
  */
-export interface Failure {
+export type Failure = {
   error: AppError;
   status: "Failure";
 }
@@ -71,7 +71,7 @@ export interface Failure {
  *
  * This is a pure value - it has already been computed and contains no side effects.
  */
-export interface Success<T> {
+export type Success<T> = {
   status: "Success";
   value: T;
 }

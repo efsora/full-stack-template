@@ -3,7 +3,8 @@ import type { Result } from "#lib/result/index";
 import { generateAuthToken } from "#infrastructure/auth/token";
 import { success } from "#lib/result/factories";
 
-import type { CreateUserInput, CreateUserResult } from "./types/create-user";
+import type { CreateUserInput } from "./types/inputs";
+import type { CreateUserResult } from "./types/outputs";
 import {
   checkEmailAvailability,
   hashPasswordForCreation,

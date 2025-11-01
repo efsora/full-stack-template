@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 /**
  * JWT payload structure
  */
-export interface JwtPayload {
+export type JwtPayload = {
   email: string;
   userId: number;
 }
@@ -17,6 +17,7 @@ export interface JwtPayload {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     interface Request {
       isOwner?: boolean;
       resource?: Record<string, unknown>;

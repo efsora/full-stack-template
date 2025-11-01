@@ -25,6 +25,8 @@ export default tseslint.config(
       // Disable unified-signatures rule due to ESLint plugin bug
       // See: https://github.com/typescript-eslint/typescript-eslint/issues/9475
       "@typescript-eslint/unified-signatures": "off",
+      // Prefer 'type' over 'interface' for DTOs and data shapes
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
     },
   },
   {

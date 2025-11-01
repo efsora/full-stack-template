@@ -7,17 +7,17 @@
  * Generic paginated response wrapper
  * Used to wrap any data type with pagination metadata
  */
-export interface PaginatedResponse<T> {
+export type PaginatedResponse<T> = {
   /** Array of items for current page */
   data: T[];
   /** Pagination metadata */
   pagination: PaginationMeta;
-}
+};
 
 /**
  * Pagination metadata included in responses
  */
-export interface PaginationMeta {
+export type PaginationMeta = {
   /** Whether there is a next page */
   hasNextPage: boolean;
   /** Whether there is a previous page */
@@ -30,12 +30,12 @@ export interface PaginationMeta {
   total: number;
   /** Total number of pages */
   totalPages: number;
-}
+};
 
 /**
  * Pagination query parameters
  */
-export interface PaginationParams {
+export type PaginationParams = {
   /** Number of items per page */
   limit: number;
   /** Current page number (1-indexed) */
@@ -44,7 +44,7 @@ export interface PaginationParams {
   sortBy?: string;
   /** Sort direction */
   sortOrder?: SortOrder;
-}
+};
 
 /**
  * Sort order for pagination queries

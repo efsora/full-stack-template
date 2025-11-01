@@ -33,7 +33,7 @@ import { fail } from "#lib/result/factories";
 /**
  * Internal context for command execution tracking
  */
-interface ExecutionContext {
+type ExecutionContext = {
   ctx: InstrumentationContext;
   duration: number;
   operation: string;

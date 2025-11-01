@@ -11,41 +11,41 @@ import type { AppError } from "#lib/result/types/errors";
 /**
  * Pagination metadata for list responses
  */
-export interface PaginationMeta {
+export type PaginationMeta = {
   /** Current page number */
   page: number;
   /** Number of items per page */
   size: number;
   /** Total number of items */
   total: number;
-}
+};
 
 /**
  * Cursor-based pagination metadata
  */
-export interface CursorMeta {
+export type CursorMeta = {
   /** Cursor for next page */
   next_cursor?: string | null;
   /** Cursor for previous page */
   previous_cursor?: string | null;
-}
+};
 
 /**
  * Metadata container for responses
  * Can include pagination or cursor-based pagination
  */
-export interface Meta {
+export type Meta = {
   /** Pagination metadata */
   pagination?: PaginationMeta | null;
   /** Cursor metadata */
   cursor?: CursorMeta | null;
-}
+};
 
 /**
  * Success response with discriminated union
  * Used when operation succeeds
  */
-export interface SuccessResponse<T> {
+export type SuccessResponse<T> = {
   /** Data payload */
   data: T;
   /** Error field (always null for success) */
@@ -58,13 +58,13 @@ export interface SuccessResponse<T> {
   success: true;
   /** Trace ID for request correlation */
   traceId: string;
-}
+};
 
 /**
  * Failure response with discriminated union
  * Used when operation fails
  */
-export interface FailureResponse {
+export type FailureResponse = {
   /** Data field (always null for failure) */
   data?: null;
   /** Error details */
@@ -77,7 +77,7 @@ export interface FailureResponse {
   success: false;
   /** Trace ID for request correlation */
   traceId: string;
-}
+};
 
 /**
  * Universal API response type

@@ -19,7 +19,7 @@ import { context, type Span, trace } from "@opentelemetry/api";
  * Context for observability instrumentation (logging, metrics, tracing).
  * All fields are nullable to support graceful degradation when modules are unavailable.
  */
-export interface InstrumentationContext {
+export type InstrumentationContext = {
   createSpan:
     | ((name: string, attributes?: Record<string, string>) => Span)
     | null;
