@@ -1,0 +1,172 @@
+[project]
+name = "fastapi-best-practices"
+version = "0.1.0"
+description = "Clean Fast api backend with best practices"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Efsora Developers" }]
+dependencies = [
+  "asyncpg>=0.30.0",
+  "dependency-injector>=4.48.2",
+  "fastapi>=0.117.1",
+  "pydantic-settings>=2.10.1",
+  "sqlalchemy[asyncio]>=2.0.43",
+  "structlog>=25.4.0",
+  "uvicorn[standard]>=0.36.0",
+  "weaviate-client>=4.7.0,<5.0.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+# keeps uv aware of our src layout
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[dependency-groups]
+dev = [
+  "alembic>=1.16.5",
+  "bandit>=1.8.6",
+  "black>=25.9.0",
+  "coverage[toml]>=7.10.7",
+  "httpx>=0.28.1",
+  "mypy>=1.18.2",
+  "pip-audit>=2.9.0",
+  "pre-commit>=4.3.0",
+  "pytest>=8.4.2",
+  "pytest-asyncio>=1.2.0",
+  "ruff>=0.13.1",
+  "types-requests>=2.32.4.20250913",
+]
+
+
+############################
+# Formatting & Linting
+############################
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = """
+/(
+    .venv
+  | .uv
+  | dist
+  | build
+  | .*_cache
+)/
+"""
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+exclude = [".venv", ".uv", "dist", "build"]
+
+
+[tool.ruff.lint]
+# Ortak kurallar
+select = [
+  "E",     # pycodestyle errors
+  "F",     # pyflakes
+  "I",     # import order (isort)
+  "UP",    # pyupgrade
+  "B",     # bugbear
+  "C4",    # flake8-comprehensions
+  "T20",   # flake8-print
+  "ASYNC", # flake8-async
+]
+ignore = [
+  "E501", # line length (Black yönetir)
+]
+# Print'leri otomatik düzeltme (sinyal kalsın)
+unfixable = ["T20"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+force-sort-within-sections = true
+combine-as-imports = true
+
+############################
+# Type Checking
+############################
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+mypy_path = ["src"]
+namespace_packages = false
+files = ["src/app", "tests"]
+exclude = "(^src/app/core/)"
+follow_imports = "skip"
+
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+strict_equality = true
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_typed = true
+warn_required_dynamic_aliases = true
+
+############################
+# Testing & Coverage
+############################
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q"
+testpaths = ["tests"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+
+[tool.coverage.run]
+branch = true
+source = ["src", "tests"]
+omit = [
+  "*/__init__.py",
+  "tests/*",
+  "*/__init__.py",
+  "tests/*",
+  "*/app/main.py",
+  "*/app/core/settings.py",
+  "*/dependency_injector/*",
+  "*/infrastructure/*",
+  "*/app/api/dependencies.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 80
+
+############################
+# Optional: Tool-specific defaults
+############################
+
+[tool.bandit]
+skips = ["B101"]
+targets = ["src"]
+exclude_dirs = [
+  "tests",
+  "alembic",
+  "migrations",
+  ".venv",
+  ".uv",
+  "dist",
+  "build",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+]
