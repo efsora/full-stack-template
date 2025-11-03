@@ -6,7 +6,9 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
  * Stores user account information
  */
 export const users = pgTable("users", {
-  id: uuid("id").primaryKey().default(sql`uuidv7()`),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`uuidv7()`),
   email: text("email").notNull().unique(),
   name: text("name"),
   password: text("password").notNull(),

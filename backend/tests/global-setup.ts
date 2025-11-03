@@ -5,7 +5,10 @@
  * Starts the testcontainer and sets DATABASE_URL before any modules are loaded.
  */
 
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
@@ -57,13 +60,17 @@ export async function setup() {
   console.log("✅ Database schema applied");
 
   // Store container reference globally for teardown
-  (global as { __TEST_CONTAINER__?: StartedPostgreSqlContainer }).__TEST_CONTAINER__ = globalContainer;
+  (
+    global as { __TEST_CONTAINER__?: StartedPostgreSqlContainer }
+  ).__TEST_CONTAINER__ = globalContainer;
 }
 
 export async function teardown() {
   console.log("🧹 Stopping test database container...");
 
-  const container = (global as { __TEST_CONTAINER__?: StartedPostgreSqlContainer }).__TEST_CONTAINER__;
+  const container = (
+    global as { __TEST_CONTAINER__?: StartedPostgreSqlContainer }
+  ).__TEST_CONTAINER__;
   if (container) {
     await container.stop();
     console.log("✅ Test database container stopped");

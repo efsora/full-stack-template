@@ -86,14 +86,11 @@ export function handleFindByEmailResult(user: User | undefined) {
  * For public user data (without password), use findUserById instead.
  */
 export function findByEmail(email: Email): Result<undefined | User> {
-  return command(
-    async () => {
-      const emailStr = Email.toString(email);
-      const users = await userRepository.findByEmail(emailStr);
-      return first(users);
-    },
-    handleFindByEmailResult,
-  );
+  return command(async () => {
+    const emailStr = Email.toString(email);
+    const users = await userRepository.findByEmail(emailStr);
+    return first(users);
+  }, handleFindByEmailResult);
 }
 
 /**

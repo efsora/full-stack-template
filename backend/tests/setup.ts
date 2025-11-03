@@ -8,7 +8,8 @@
 
 // Set required environment variables for tests
 process.env.NODE_ENV = "development";
-process.env.JWT_SECRET = "test-secret-key-minimum-32-chars-long-for-jwt-signing";
+process.env.JWT_SECRET =
+  "test-secret-key-minimum-32-chars-long-for-jwt-signing";
 process.env.OTEL_SERVICE_NAME = "backend-test";
 process.env.LOG_LEVEL = "error"; // Reduce log noise in tests
 process.env.ENABLE_TRACING = "false"; // Disable tracing in tests

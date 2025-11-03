@@ -53,7 +53,10 @@ describe("createUser Integration Tests", () => {
 
         // Verify user exists in database
         const db = getTestDb();
-        const userRecords = await db.select().from(users).where(eq(users.email, "test@example.com"));
+        const userRecords = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, "test@example.com"));
 
         expect(userRecords).toHaveLength(1);
         expect(userRecords[0].email).toBe("test@example.com");
@@ -140,7 +143,9 @@ describe("createUser Integration Tests", () => {
 
       if (result.status === "Failure") {
         expect(result.error.code).toBe("USER_INVALID_PASSWORD");
-        expect(result.error.message).toBe("Password must be at least 8 characters long");
+        expect(result.error.message).toBe(
+          "Password must be at least 8 characters long",
+        );
       }
     });
 

@@ -5,7 +5,10 @@
  * Supports parallel test execution with shared container and proper cleanup.
  */
 
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
@@ -121,7 +124,9 @@ export function getTestDb() {
  *
  * @param db - Drizzle database instance
  */
-export async function cleanupDatabase(db: ReturnType<typeof drizzle>): Promise<void> {
+export async function cleanupDatabase(
+  db: ReturnType<typeof drizzle>,
+): Promise<void> {
   // Truncate all tables in the schema
   // CASCADE automatically handles foreign key constraints
   const tables = ["users"]; // Add more tables as schema grows
@@ -159,7 +164,9 @@ export async function teardownTestDatabase(): Promise<void> {
  */
 export function getTestConnectionString(): string {
   if (!testContainer) {
-    throw new Error("Test database not initialized. Call setupTestDatabase() first.");
+    throw new Error(
+      "Test database not initialized. Call setupTestDatabase() first.",
+    );
   }
   return testContainer.getConnectionUri();
 }

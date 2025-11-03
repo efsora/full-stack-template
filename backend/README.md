@@ -200,6 +200,7 @@ npm run test:coverage
 **Coverage Configuration**:
 
 Coverage is configured to:
+
 - Only measure code in `src/core/` (business logic)
 - Use v8 provider for fast, accurate coverage
 - Generate lcov reports for IDE integration

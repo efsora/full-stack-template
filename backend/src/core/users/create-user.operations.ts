@@ -86,7 +86,9 @@ export function hashPasswordForCreation(data: ValidatedCreationData): Result<{
  * expect(result.error.code).toBe('INTERNAL_ERROR');
  * ```
  */
-export function handleSaveNewUserResult(user: { id: string; email: string; name: string | null } | undefined) {
+export function handleSaveNewUserResult(
+  user: { id: string; email: string; name: string | null } | undefined,
+) {
   if (!user) {
     return fail({
       code: "INTERNAL_ERROR",

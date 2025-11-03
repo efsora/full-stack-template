@@ -1071,18 +1071,21 @@ Tests are written using Vitest v4.0.4 and organized by test category. The projec
 ### Test Categories and When to Use Them
 
 **Unit Tests** (`tests/value-objects/`):
+
 - **What to test**: Pure value objects, utility functions, isolated operations
 - **Characteristics**: No database, no external dependencies, fast execution
 - **Example**: Email validation, Password strength calculation
 - **When to write**: For pure functions that don't require external resources
 
 **Integration Tests** (`tests/integration/`):
+
 - **What to test**: Complete workflows with real database operations
 - **Characteristics**: Uses testcontainers, tests end-to-end business logic
 - **Example**: Full createUser workflow including validation, hashing, and database persistence
 - **When to write**: For workflows that orchestrate multiple operations and database access
 
 **Handler Tests** (Future):
+
 - **What to test**: HTTP layer with request/response handling
 - **Characteristics**: Uses supertest, tests routing and validation middleware
 - **Example**: POST /api/v1/users with authentication
@@ -1110,6 +1113,7 @@ if (result.status === "Success") {
 ```
 
 **Testing Patterns**:
+
 1. **Always use `run()`**: Convert Result to Promise for testing
 2. **Check status first**: Use `result.status` before accessing value/error
 3. **Type narrowing**: Let TypeScript narrow types after status check
@@ -1155,12 +1159,14 @@ describe("Workflow Integration Tests", () => {
 ```
 
 **Testcontainer Lifecycle**:
+
 1. **beforeAll**: Starts PostgreSQL 18 container, runs migrations (shared across tests)
 2. **beforeEach**: Truncates all tables with CASCADE (ensures test isolation)
 3. **Test Execution**: All tests share the same container (parallel execution)
 4. **afterAll**: Stops container and cleans up resources
 
 **Benefits**:
+
 - **Real Database**: Tests against actual PostgreSQL, not mocks or SQLite
 - **Isolation**: Each test starts with clean database state
 - **Parallel Execution**: Shared container makes tests fast
@@ -1182,12 +1188,14 @@ export async function cleanupDatabase(db) {
 ```
 
 **Why TRUNCATE CASCADE**:
+
 - **Fast**: Faster than DELETE for removing all rows
 - **Handles Foreign Keys**: CASCADE automatically handles dependent data
 - **Resets Sequences**: Optional - can reset AUTO_INCREMENT if needed
 - **Simple**: One command per table, no ordering required
 
 **When to Update**:
+
 - Add new tables to the `tables` array as you expand the schema
 - Keep the list in dependency order if not using CASCADE
 
@@ -1213,17 +1221,20 @@ coverage: {
 ```
 
 **Coverage Scope**:
+
 - **Included**: `src/core/**/*.ts` (business logic only)
 - **Excluded**: Infrastructure, routes, config, tests
 - **Rationale**: Focus on testing the functional core, not framework code
 
 **Coverage Expectations**:
+
 - **35% Threshold**: Template starts with minimal examples, thresholds are low
 - **Warn Only**: Coverage warnings don't fail builds (encourages testing without blocking)
 - **Increase Over Time**: As you add tests, gradually increase thresholds
 - **Business Logic Focus**: Only core domain logic counts toward coverage
 
 **Running Coverage**:
+
 ```bash
 npm run test:coverage           # Generate coverage report
 # Output: coverage/lcov.info    # For IDE integration
@@ -1235,6 +1246,7 @@ npm run test:coverage           # Generate coverage report
 The project provides reusable test helpers in `tests/helpers/database.ts`:
 
 **Available Functions**:
+
 ```typescript
 // Setup PostgreSQL testcontainer and run migrations
 setupTestDatabase(): Promise<string>
@@ -1256,6 +1268,7 @@ getTestConnectionString(): string
 ```
 
 **Usage Pattern**:
+
 1. Call `setupTestDatabase()` in `beforeAll` (starts container, runs migrations)
 2. Call `createTestDb()` in `beforeAll` (creates shared db instance)
 3. Call `cleanupDatabase()` in `beforeEach` (cleans data between tests)
@@ -1265,12 +1278,14 @@ getTestConnectionString(): string
 ### Testing Conventions
 
 **File Organization**:
+
 - Unit tests: `tests/value-objects/*.test.ts`
 - Integration tests: `tests/integration/*.test.ts`
 - Helpers: `tests/helpers/*.ts`
 - Name pattern: `*.test.ts` (Vitest auto-discovers)
 
 **Import Patterns**:
+
 ```typescript
 // Use # aliases for clean imports
 import { Email } from "#core/users/value-objects/Email";
@@ -1280,6 +1295,7 @@ import { getTestDb } from "../helpers/database";
 ```
 
 **Test Structure (AAA Pattern)**:
+
 ```typescript
 it("should create user successfully", async () => {
   // Arrange: Setup test data
@@ -1297,6 +1313,7 @@ it("should create user successfully", async () => {
 ```
 
 **Error Testing Pattern**:
+
 ```typescript
 it("should fail with invalid email", async () => {
   const input = { email: "not-an-email", password: "pass123" };
@@ -1312,6 +1329,7 @@ it("should fail with invalid email", async () => {
 ```
 
 **Database Verification Pattern**:
+
 ```typescript
 it("should persist user in database", async () => {
   const input = { email: "test@example.com", password: "pass123" };
@@ -1332,39 +1350,47 @@ it("should persist user in database", async () => {
 ### Common Testing Issues and Solutions
 
 **Issue: "Test database not initialized"**
+
 - **Cause**: `getTestDb()` called before `setupTestDatabase()`
 - **Solution**: Ensure `setupTestDatabase()` runs in `beforeAll` before any tests
 
 **Issue: "Container startup timeout"**
+
 - **Cause**: Docker not running or slow network
 - **Solution**: Increase timeout in `beforeAll` to 60000ms (60 seconds)
 
 **Issue: "Tests fail with duplicate key errors"**
+
 - **Cause**: Database not cleaned between tests
 - **Solution**: Add `cleanupDatabase()` call in `beforeEach`
 
 **Issue: "Cannot find table 'users'"**
+
 - **Cause**: Migrations not run or wrong connection string
 - **Solution**: Verify `runMigrations()` is called in `setupTestDatabase()`
 
 **Issue: "Tests work locally but fail in CI"**
+
 - **Cause**: Docker not available in CI environment
 - **Solution**: Ensure CI has Docker installed and running
 
 ### Example Test Files
 
 **Unit Test Example**: `tests/value-objects/Email.test.ts`
+
 - Tests pure Email validation logic
 - No database required
 - Fast execution (< 1ms per test)
 
 **Integration Test Example**: `tests/integration/create-user.test.ts`
+
 - Tests complete createUser workflow
 - Uses real PostgreSQL database
 - Tests validation, hashing, persistence, error handling
 - Verifies database state after operations
 
 **Helper Utilities**: `tests/helpers/database.ts`
+
 - Testcontainer setup and teardown
 - Database cleanup utilities
 - Shared database instance management
