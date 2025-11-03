@@ -56,8 +56,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     engine = container.engine()
 
-    # Auto-create tables in dev/test
-    if settings.ENV in {"dev", "test"}:
+    # Auto-create tables in dev, but NOT in test (conftest handles test_schema creation)
+    if settings.ENV == "dev":
         async with engine.begin() as conn:
             await conn.run_sync(metadata.create_all)
         logger.debug(f"Database tables created for {settings.ENV} environment", env=settings.ENV)

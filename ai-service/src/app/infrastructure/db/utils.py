@@ -43,3 +43,38 @@ async def ensure_database_exists(database_url: str) -> None:
 def ensure_database_exists_sync(database_url: str) -> None:
     """Synchronous helper that delegates to the async variant."""
     asyncio.run(ensure_database_exists(database_url))
+
+
+async def ensure_schema_exists(database_url: str, schema_name: str) -> None:
+    """Create the schema if it does not already exist."""
+    # Convert SQLAlchemy URL to asyncpg format if needed
+    url = make_url(database_url)
+    base_driver = url.drivername.split("+", 1)[0]
+    asyncpg_url = url.set(drivername=base_driver)
+
+    conn = await asyncpg.connect(asyncpg_url.render_as_string(hide_password=False))
+    try:
+        exists = await conn.fetchval(
+            "SELECT 1 FROM information_schema.schemata WHERE schema_name = $1",
+            schema_name,
+        )
+        if not exists:
+            schema_escaped = schema_name.replace('"', '""')
+            await conn.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_escaped}"')
+    finally:
+        await conn.close()
+
+
+async def drop_schema(database_url: str, schema_name: str) -> None:
+    """Drop the schema including all its contents."""
+    # Convert SQLAlchemy URL to asyncpg format if needed
+    url = make_url(database_url)
+    base_driver = url.drivername.split("+", 1)[0]
+    asyncpg_url = url.set(drivername=base_driver)
+
+    conn = await asyncpg.connect(asyncpg_url.render_as_string(hide_password=False))
+    try:
+        schema_escaped = schema_name.replace('"', '""')
+        await conn.execute(f'DROP SCHEMA IF EXISTS "{schema_escaped}" CASCADE')
+    finally:
+        await conn.close()

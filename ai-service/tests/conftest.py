@@ -1,6 +1,7 @@
 import asyncio
 from collections.abc import AsyncGenerator, Iterator
 import os
+from typing import Any, cast
 
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
@@ -13,23 +14,16 @@ from app.api.dependencies import get_session
 from app.core.settings import Settings, get_settings
 from app.infrastructure.db.engine import create_engine
 from app.infrastructure.db.schema import metadata
-from app.infrastructure.db.utils import coerce_database, ensure_database_exists
+from app.infrastructure.db.utils import ensure_database_exists, ensure_schema_exists, drop_schema
 from app.main import create_app
 from app.services.weaviate_service import WeaviateService
 
 
-def _configure_test_database() -> str:
-    base_url = os.environ.get(
-        "DATABASE_URL",
-        "postgresql+asyncpg://app:app@localhost:5432/app",
-    )
-    coerced = coerce_database(base_url, "app_test")
-    os.environ["DATABASE_URL"] = coerced
-    return coerced
-
-
+# Set test environment
 os.environ["ENV"] = "test"
-TEST_DATABASE_URL = _configure_test_database()
+
+# Always use test_schema for test isolation
+TEST_SCHEMA = "test_schema"
 
 
 @pytest.fixture(scope="session")
@@ -46,30 +40,75 @@ def settings() -> Settings:
 
 @pytest_asyncio.fixture(scope="session")
 async def async_engine(settings: Settings) -> AsyncGenerator[AsyncEngine, None]:
-    await ensure_database_exists(TEST_DATABASE_URL)
-    engine = create_engine(settings)
-    async with engine.begin() as conn:
-        await conn.run_sync(metadata.create_all)
+    """
+    Create async engine with test_schema.
+
+    This fixture:
+    1. Ensures the main database exists
+    2. Creates test_schema
+    3. Creates all tables in test_schema
+    4. Sets up event listener to set search_path on each new connection
+    5. Cleans up test_schema after tests
+    """
     try:
+        # Ensure database exists
+        await ensure_database_exists(settings.DATABASE_URL)
+
+        # Create test_schema
+        await ensure_schema_exists(settings.DATABASE_URL, TEST_SCHEMA)
+
+        # Create engine
+        engine = create_engine(settings)
+
+        # Set up event listener to set search_path on each new connection
+        from sqlalchemy import event
+        from sqlalchemy.pool import Pool
+
+        @event.listens_for(Pool, "connect")
+        def receive_connect(dbapi_conn, connection_record):  # type: ignore[no-untyped-def]
+            """Set search_path on new connections."""
+            try:
+                dbapi_conn.execute(f"SET search_path TO {TEST_SCHEMA}")
+            except Exception:
+                # Ignore errors if search_path setting fails
+                pass
+
+        # Create all tables in test_schema
+        async with engine.begin() as conn:
+            await conn.execute(text(f"SET search_path TO {TEST_SCHEMA}"))
+            await conn.run_sync(metadata.create_all)
+
         yield engine
     finally:
+        # Cleanup: drop test_schema and all its contents
         await engine.dispose()
+        try:
+            await drop_schema(settings.DATABASE_URL, TEST_SCHEMA)
+        except Exception:
+            pass  # Ignore errors during cleanup
 
 
 @pytest.fixture(scope="session")
 def session_maker(async_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    """Create session maker that uses test_schema."""
     return async_sessionmaker(bind=async_engine, expire_on_commit=False)
 
 
 @pytest_asyncio.fixture(autouse=True)
 async def truncate_tables(async_engine: AsyncEngine) -> AsyncGenerator[None, None]:
+    """
+    Truncate test_schema.users before and after each test.
+
+    This ensures test isolation - each test starts with clean data.
+    """
     async with async_engine.begin() as conn:
-        await conn.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
+        # Only truncate test_schema, never touch public schema
+        await conn.execute(text("TRUNCATE TABLE test_schema.users RESTART IDENTITY CASCADE"))
     try:
         yield
     finally:
         async with async_engine.begin() as conn:
-            await conn.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
+            await conn.execute(text("TRUNCATE TABLE test_schema.users RESTART IDENTITY CASCADE"))
 
 
 @pytest_asyncio.fixture()
@@ -92,17 +131,26 @@ def sample_user_payload() -> dict[str, str]:
 @pytest_asyncio.fixture()
 async def app_with_overrides(
     session_maker: async_sessionmaker[AsyncSession],
+    async_engine: AsyncEngine,
 ) -> AsyncGenerator[FastAPI, None]:
     app = create_app()
 
+    # Override get_session to use test session_maker
     async def _session_override() -> AsyncGenerator[AsyncSession, None]:
         async with session_maker() as session:
             yield session
 
     app.dependency_overrides[get_session] = _session_override
+
+    # Start the app lifespan
     lifespan = app.router.lifespan_context(app)
     await lifespan.__aenter__()
+
     try:
+        # After lifespan starts, override the container engine and session_factory
+        container = cast(Any, app.state).container
+        container.engine.override(async_engine)
+        container.session_factory.override(session_maker)
         yield app
     finally:
         await lifespan.__aexit__(None, None, None)

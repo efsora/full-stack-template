@@ -14,21 +14,21 @@ run:
 
 # ---- Tests ----
 test:
-	docker compose --profile test up -d postgres-test
+	docker compose up -d postgres
 	docker compose run --rm ai-service \
-	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://app:app@postgres-test:5432/app_test PYTHONPATH=/app/src pytest -q -s'
+	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/app_db PYTHONPATH=/app/src pytest -q -s'
 
 
 test-migrations:
-	docker compose --profile test up -d postgres-test
+	docker compose up -d postgres
 	docker compose run --rm ai-service \
-	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://app:app@postgres-test:5432/app_test PYTHONPATH=/app/src alembic upgrade head'
+	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/app_db PYTHONPATH=/app/src alembic upgrade head'
 
 
 test-cov:
-	docker compose --profile test up -d postgres-test
+	docker compose up -d postgres
 	docker compose run --rm ai-service \
-	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://app:app@postgres-test:5432/app_test PYTHONPATH=/app/src \
+	  bash -lc 'ENV=test DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/app_db PYTHONPATH=/app/src \
 	    coverage erase && coverage run -m pytest -q && coverage report && coverage html'
 
 # ---- Quality ----
