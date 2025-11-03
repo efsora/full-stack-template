@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 
 import { Email } from "#core/users/value-objects/Email";
 import { run } from "#lib/result/index";
-import { isValidationError } from "#lib/result/types/errors";
 
 describe("Email Value Object", () => {
   describe("create()", () => {
@@ -20,11 +19,8 @@ describe("Email Value Object", () => {
 
       expect(result.status).toBe("Failure");
       if (result.status === "Failure") {
-        expect(result.error.code).toBe("VALIDATION_ERROR");
+        expect(result.error.code).toBe("USER_INVALID_EMAIL");
         expect(result.error.message).toBe("Invalid email format");
-        if (isValidationError(result.error)) {
-          expect(result.error.field).toBe("email");
-        }
       }
     });
 
@@ -33,7 +29,7 @@ describe("Email Value Object", () => {
 
       expect(result.status).toBe("Failure");
       if (result.status === "Failure") {
-        expect(result.error.code).toBe("VALIDATION_ERROR");
+        expect(result.error.code).toBe("USER_INVALID_EMAIL");
         expect(result.error.message).toBe("Invalid email format");
       }
     });
@@ -43,7 +39,7 @@ describe("Email Value Object", () => {
 
       expect(result.status).toBe("Failure");
       if (result.status === "Failure") {
-        expect(result.error.code).toBe("VALIDATION_ERROR");
+        expect(result.error.code).toBe("USER_INVALID_EMAIL");
       }
     });
 
@@ -52,7 +48,7 @@ describe("Email Value Object", () => {
 
       expect(result.status).toBe("Failure");
       if (result.status === "Failure") {
-        expect(result.error.code).toBe("VALIDATION_ERROR");
+        expect(result.error.code).toBe("USER_INVALID_EMAIL");
       }
     });
 

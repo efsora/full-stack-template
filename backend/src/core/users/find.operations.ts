@@ -62,10 +62,8 @@ export function findUserById(userId: string): Result<UserData> {
       return user
         ? success(mapUserToUserData(user))
         : fail({
-            code: "NOT_FOUND",
-            message: "ser not found",
-            resourceId: userId,
-            resourceType: "user",
+            code: "USER_NOT_FOUND",
+            message: "User not found",
           });
     },
     {

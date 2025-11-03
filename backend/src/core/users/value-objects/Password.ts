@@ -48,8 +48,7 @@ export const Password = {
   create: (value: string): Result<Password> => {
     if (!value || value.length < 8) {
       return fail({
-        code: "VALIDATION_ERROR",
-        field: "password",
+        code: "USER_INVALID_PASSWORD",
         message: "Password must be at least 8 characters long",
       });
     }
@@ -153,8 +152,7 @@ export const HashedPassword = {
   create: (value: string): Result<HashedPassword> => {
     if (!value || value.length === 0) {
       return fail({
-        code: "VALIDATION_ERROR",
-        field: "password",
+        code: "USER_INVALID_PASSWORD",
         message: "Hashed password cannot be empty",
       });
     }

@@ -41,9 +41,7 @@ export function checkEmailAvailability(
   return chain(findByEmail(data.email), (existingUser) => {
     if (existingUser) {
       return fail({
-        code: "CONFLICT",
-        conflictType: "email",
-        email: Email.toString(data.email),
+        code: "USER_EMAIL_ALREADY_EXISTS",
         message: "Email already in use",
       });
     }

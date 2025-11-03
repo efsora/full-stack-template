@@ -38,8 +38,7 @@ export const Email = {
 
     if (!result.success) {
       return fail({
-        code: "VALIDATION_ERROR",
-        field: "email",
+        code: "USER_INVALID_EMAIL",
         message: "Invalid email format",
       });
     }

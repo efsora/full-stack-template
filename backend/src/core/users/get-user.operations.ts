@@ -13,10 +13,8 @@ export function checkUserOwnership(requestUserId: string) {
   return (userData: UserData): Result<UserData> => {
     if (userData.id !== requestUserId) {
       return fail({
-        code: "FORBIDDEN",
+        code: "USER_FORBIDDEN",
         message: "You do not have permission to access this user's data",
-        resourceId: userData.id,
-        resourceType: "user",
       });
     }
 

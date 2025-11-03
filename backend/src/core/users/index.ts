@@ -19,10 +19,12 @@ export type {
 
 // Public types - Errors
 export type {
-  UserNotFoundError,
-  UserForbiddenError,
-  UserValidationError,
+  UserEmailAlreadyExistsError,
   UserError,
+  UserForbiddenError,
+  UserInvalidEmailError,
+  UserInvalidPasswordError,
+  UserNotFoundError,
 } from "./types/errors";
 
 // Value objects
