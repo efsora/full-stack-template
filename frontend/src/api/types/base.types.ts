@@ -5,8 +5,9 @@ export type AppResponse<T> = {
     data?: T;
     message?: string;
     meta?: components['schemas']['Meta'];
-    error?: components['schemas']['ErrorInfo'];
-    trace_id?: string | null;
+    error?: components['schemas']['AppError'];
+    traceId?: string;
 };
 
-export type ValidationError = components['schemas']['ValidationError'];
+export type AppError = components['schemas']['AppError'];
+export type ErrorResponse = components['schemas']['ErrorResponse'];

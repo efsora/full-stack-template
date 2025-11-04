@@ -11,7 +11,7 @@ export function useCreateUser() {
     return useMutation({ mutationFn: createUser });
 }
 
-export function useGetUserDetailedById(userId: number) {
+export function useGetUserDetailedById(userId: string) {
     return useQuery({
         queryKey: [QUERY_KEYS.USER.DETAILED],
         queryFn: async () => getUserById(userId),
@@ -20,7 +20,7 @@ export function useGetUserDetailedById(userId: number) {
     });
 }
 
-export function useGetUserSummaryById(userId: number) {
+export function useGetUserSummaryById(userId: string) {
     return useQuery({
         queryKey: [QUERY_KEYS.USER.SUMMARY],
         queryFn: async () => {

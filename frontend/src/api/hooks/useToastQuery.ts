@@ -22,10 +22,16 @@ function useToast<T>(
             }
             if (data?.success) {
                 toast.success(data?.message || 'Success');
-            } else {
-                data?.error?.errors?.forEach((m) =>
-                    toast.error(m.field + ': ' + m.reason),
-                );
+            } else if (data?.error) {
+                // Handle validation errors with field information
+                if (
+                    data.error.code === 'VALIDATION_ERROR' &&
+                    'field' in data.error
+                ) {
+                    toast.error(`${data.error.field}: ${data.error.message}`);
+                } else {
+                    toast.error(data.error.message || 'An error occurred');
+                }
             }
         }
         if (isError) {

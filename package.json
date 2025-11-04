@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "Full-stack + AI project template with monorepo architecture",
+  "workspaces": [
+    "frontend",
+    "shared",
+    "packages/*"
+  ],
   "scripts": {
     "generate:types": "./scripts/generate-types.sh",
     "lint:contracts": "cd shared && npm run lint --workspace=shared",
@@ -10,6 +15,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "chalk": "^5.4.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.0"
   },
