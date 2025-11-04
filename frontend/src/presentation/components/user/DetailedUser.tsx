@@ -13,7 +13,7 @@ export default function DetailedUser({ id }: DetailedUserProps) {
         error,
         isLoading,
         isError,
-    } = useGetUserDetailedById(Number(id));
+    } = useGetUserDetailedById(id);
 
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Error: {error?.message}</p>;
@@ -22,9 +22,10 @@ export default function DetailedUser({ id }: DetailedUserProps) {
         <>
             <div className="card">
                 <p className="font-bold text-xl mb-2">{t('user-details')}</p>
-                <p>Name: {detailedUser?.data?.user_name}</p>
-                <p>Surname: {detailedUser?.data?.user_surname}</p>
+                <p>Name: {detailedUser?.data?.name}</p>
                 <p>Email: {detailedUser?.data?.email}</p>
+                <p>ID: {detailedUser?.data?.id}</p>
+                <p>Created: {detailedUser?.data?.createdAt}</p>
             </div>
         </>
     );

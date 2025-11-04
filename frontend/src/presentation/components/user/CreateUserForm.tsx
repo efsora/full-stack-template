@@ -31,16 +31,16 @@ export default function CreateUserForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="card">
             <p className="font-bold text-xl mb-2">{t('create-user')}</p>
             <TextInput
-                id="userName"
-                label={t('name')}
-                field="user_name"
+                id="userEmail"
+                label={t('email')}
+                field="email"
                 errors={errors}
                 register={register}
             />
             <TextInput
-                id="userSurname"
-                label={t('surname')}
-                field="user_surname"
+                id="userName"
+                label={t('name')}
+                field="name"
                 errors={errors}
                 register={register}
             />

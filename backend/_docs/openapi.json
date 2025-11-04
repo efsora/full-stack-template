@@ -1,0 +1,850 @@
+{
+  "info": {
+    "description": "API documentation for the Full Stack Template backend service",
+    "title": "Full Stack Template API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "description": "Development server",
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "description": "System health and status endpoints",
+      "name": "System"
+    },
+    {
+      "description": "Health check and test endpoints",
+      "name": "Hello"
+    },
+    {
+      "description": "User management endpoints",
+      "name": "Users"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "bearerFormat": "JWT",
+        "description": "JWT authentication token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "AppError": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "COMMAND_EXECUTION_ERROR"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "code"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "CONFLICT"
+                ]
+              },
+              "conflictType": {
+                "type": "string",
+                "enum": [
+                  "email"
+                ]
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message",
+              "code",
+              "conflictType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "FORBIDDEN"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "auth",
+                  "comment",
+                  "post",
+                  "user"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "resourceId",
+              "code",
+              "resourceType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "INTERNAL_ERROR"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "code"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "NOT_FOUND"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "auth",
+                  "comment",
+                  "post",
+                  "user"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "resourceId",
+              "code",
+              "resourceType"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "code"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "context": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "message": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "number"
+              },
+              "timestamp": {
+                "type": "string",
+                "example": "2025-10-31T10:30:00.000Z"
+              },
+              "userId": {
+                "type": "number"
+              },
+              "code": {
+                "type": "string",
+                "enum": [
+                  "VALIDATION_ERROR"
+                ]
+              },
+              "field": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message",
+              "code",
+              "field"
+            ]
+          }
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "null"
+          },
+          "error": {
+            "$ref": "#/components/schemas/AppError"
+          },
+          "message": {
+            "type": "string",
+            "example": "An error occurred"
+          },
+          "meta": {
+            "type": "null"
+          },
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "traceId": {
+            "type": "string",
+            "example": "00-1234567890abcdef-1234567890abcdef-01"
+          }
+        },
+        "required": [
+          "error",
+          "message",
+          "success",
+          "traceId"
+        ]
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "example": 10
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 100
+          }
+        },
+        "required": [
+          "page",
+          "size",
+          "total"
+        ]
+      },
+      "CursorMeta": {
+        "type": "object",
+        "properties": {
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "abc123"
+          },
+          "previous_cursor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "def456"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "cursor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CursorMeta"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          },
+          "pagination": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMeta"
+              },
+              {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "HelloResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Hello from API"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "CreateUserResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jane.doe@example.com"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Jane Doe"
+          },
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "email",
+          "id",
+          "name",
+          "token"
+        ]
+      },
+      "CreateUserBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jane.doe@example.com"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Jane Doe"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "example": "securePassword123"
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "UserData": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "example": "2025-10-29T10:30:00.000Z"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "jane.doe@example.com"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "example": "Jane Doe"
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "example": "2025-10-29T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "createdAt",
+          "email",
+          "id",
+          "name",
+          "updatedAt"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "Check if the server is running and healthy",
+        "summary": "Health check",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Server is healthy"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ],
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2025-10-31T10:30:00.000Z"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "status",
+                    "timestamp"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hello": {
+      "get": {
+        "description": "Simple health/test endpoint that returns a greeting message",
+        "summary": "Hello endpoint",
+        "tags": [
+          "Hello"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/HelloResponse"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "description": "Register a new user account",
+        "summary": "Create user",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CreateUserResponse"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Resource already exists or conflict occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "description": "Retrieve user information by ID. Users can only access their own data.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Get user by ID",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/UserData"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

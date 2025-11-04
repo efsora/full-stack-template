@@ -1,0 +1,179 @@
+/**
+ * Result Factory Functions
+ *
+ * Pure functions for creating Result values.
+ * These factories construct Success, Failure, and Command types.
+ */
+
+import type {
+  Command,
+  Failure,
+  Result,
+  ResultMetadata,
+  Success,
+} from "#lib/result/types";
+import type { AppError } from "#lib/result/types/errors";
+
+import {
+  extractCallerInfo,
+  extractDomainFromFilePath,
+  extractFilenameStem,
+  inferActionFromFunctionName,
+} from "#lib/result/metadata";
+
+/**
+ * Creates a Command - a deferred side-effectful computation.
+ *
+ * Supports two modes:
+ * 1. **Auto Mode** (metadata omitted): Automatically generates metadata from stack trace
+ * 2. **Manual Mode** (metadata provided): Uses explicit metadata
+ *
+ * Auto mode uses stacktrace-js to extract:
+ * - operation: Function name or filename stem
+ * - domain: Extracted from file path (src/core/{domain})
+ * - action: Inferred from function name prefix (find → "read", create → "create", etc.)
+ *
+ * @param command - Async operation to perform
+ * @param cont - Function to convert command result to next Result
+ * @param metadata - Optional metadata for observability (auto-generated if omitted)
+ * @returns A Command that will be executed by run()
+ *
+ * @example
+ * ```ts
+ * // Auto mode - metadata auto-generated from stack trace
+ * export function findUserById(userId: number): Result<User> {
+ *   return command(
+ *     async () => db.select().from(users).where(eq(users.id, userId)),
+ *     (result) => result ? success(result) : fail("Not found", "NOT_FOUND")
+ *     // Metadata omitted → auto-generates: { operation: "findUserById", tags: { domain: "users", action: "read" } }
+ *   );
+ * }
+ *
+ * // Manual mode - explicit metadata
+ * export function customOperation(): Result<Data> {
+ *   return command(
+ *     async () => { ... },
+ *     (result) => success(result),
+ *     { operation: "customName", tags: { domain: "custom", action: "special" } }
+ *   );
+ * }
+ * ```
+ */
+export function command<TCommand, TResult>(
+  command: () => Promise<TCommand>,
+  cont: (result: TCommand) => Result<TResult>,
+  metadata?: ResultMetadata,
+): Command<TResult>;
+
+export function command(
+  command: () => Promise<unknown>,
+  cont: (result: unknown) => Result<unknown>,
+  metadata?: ResultMetadata,
+): Command {
+  // If metadata explicitly provided, use it directly (manual mode)
+  if (metadata) {
+    return {
+      command,
+      continuation: cont,
+      metadata,
+      status: "Command",
+    };
+  }
+
+  // Auto mode: generate metadata from stack trace using stacktrace-js
+  const { filePath, functionName } = extractCallerInfo();
+
+  let operation: string;
+  if (functionName) {
+    operation = functionName;
+  } else if (filePath) {
+    operation = extractFilenameStem(filePath);
+  } else {
+    operation = "unknown";
+  }
+
+  const domain = filePath ? extractDomainFromFilePath(filePath) : "unknown";
+
+  const action = inferActionFromFunctionName(operation);
+
+  const autoMetadata: ResultMetadata = {
+    operation,
+    tags: {
+      action,
+      domain,
+    },
+  };
+
+  return {
+    command,
+    continuation: cont,
+    metadata: autoMetadata,
+    status: "Command",
+  };
+}
+
+/**
+ * Creates a failed Result with typed error information.
+ *
+ * This function accepts an AppError object containing all required error fields.
+ * TypeScript enforces that all required fields for the specific error type are provided.
+ *
+ * @param error - Typed error object (AppError) with all required fields
+ * @returns A Failure result containing the typed error
+ *
+ * @example
+ * ```ts
+ * // Validation error (timestamp auto-generated)
+ * const validationError = fail({
+ *   code: "VALIDATION_ERROR",
+ *   message: "Invalid email format",
+ *   field: "email"
+ * });
+ *
+ * // Not found error (timestamp auto-generated)
+ * const notFoundError = fail({
+ *   code: "NOT_FOUND",
+ *   message: "Post not found",
+ *   resourceType: "post",
+ *   resourceId: 123,
+ *   userId: 456
+ * });
+ *
+ * // Conflict error (timestamp auto-generated)
+ * const conflictError = fail({
+ *   code: "CONFLICT",
+ *   message: "Email already in use",
+ *   conflictType: "email",
+ *   email: "user@example.com"
+ * });
+ * ```
+ */
+export function fail(error: AppError): Failure {
+  const errorWithTimestamp: AppError = {
+    ...error,
+    timestamp: error.timestamp ?? new Date().toISOString(),
+  };
+
+  return {
+    error: errorWithTimestamp,
+    status: "Failure",
+  };
+}
+/**
+ * Creates a successful Result with a value.
+ *
+ * @param value - The success value
+ * @returns A Success result containing the value
+ *
+ * @example
+ * ```ts
+ * const result = success({ id: 1, name: "John" });
+ * // => { status: "Success", value: { id: 1, name: "John" } }
+ * ```
+ */
+export function success<T>(value: T): Success<T> {
+  return {
+    status: "Success",
+    value,
+  };
+}

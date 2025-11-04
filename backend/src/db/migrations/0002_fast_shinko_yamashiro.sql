@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "id" SET DEFAULT uuidv7();

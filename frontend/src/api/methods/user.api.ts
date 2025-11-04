@@ -2,7 +2,10 @@ import * as api from '#api/api';
 import { ENDPOINTS } from '#api/endpoints';
 
 import type { CreateUserRequest } from '../types/user/request.types';
-import type { AppResponse_CreateUserResponse_ } from '../types/user/response.types';
+import type {
+    AppResponse_CreateUserResponse_,
+    AppResponse_UserData_,
+} from '../types/user/response.types';
 
 export const createUser = async (
     createUserRequest: CreateUserRequest,
@@ -16,9 +19,9 @@ export const createUser = async (
 };
 
 export const getUserById = async (
-    userId: number,
-): Promise<AppResponse_CreateUserResponse_> => {
-    const response = await api.get<AppResponse_CreateUserResponse_>(
+    userId: string,
+): Promise<AppResponse_UserData_> => {
+    const response = await api.get<AppResponse_UserData_>(
         ENDPOINTS.USERS.GET_BY_ID(userId),
     );
 

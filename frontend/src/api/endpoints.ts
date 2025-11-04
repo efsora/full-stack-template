@@ -5,6 +5,6 @@ export const ENDPOINTS = {
     },
     USERS: {
         CREATE: '/api/v1/users',
-        GET_BY_ID: (userId: number) => `/api/v1/users/${userId}`,
+        GET_BY_ID: (userId: string) => `/api/v1/users/${userId}`,
     },
 };

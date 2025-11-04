@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: full-stack-postgres
     restart: unless-stopped
     environment:
@@ -23,7 +21,7 @@ services:
       - app-network
 
   weaviate:
-    image: semitechnologies/weaviate:1.27.0
+    image: semitechnologies/weaviate:1.33.2
     container_name: full-stack-weaviate
     restart: unless-stopped
     environment:
@@ -47,43 +45,62 @@ services:
       - app-network
 
   # Backend service (Express + TypeScript)
-  # Uncomment when backend is implemented
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: full-stack-backend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${BACKEND_PORT:-3000}:3000"
-  #   environment:
-  #     NODE_ENV: ${NODE_ENV:-development}
-  #     POSTGRES_HOST: postgres
-  #     POSTGRES_PORT: 5432
-  #     POSTGRES_DB: ${POSTGRES_DB:-app_db}
-  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-  #     BACKEND_SCHEMA: ${BACKEND_SCHEMA:-backend_schema}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - app-network
+  backend:
+    build:
+      context: .
+      dockerfile: backend/docker/Dockerfile
+    container_name: full-stack-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://backend_user:backend_password@postgres:5432/backend_db
+      # Database connection for wait script
+      DB_HOST: postgres
+      DB_USER: backend_user
+      DB_NAME: backend_db
+      PGPASSWORD: backend_password
+      # Other services
+      AI_SERVICE_URL: http://ai-service:8000
+      JWT_SECRET: docker-dev-secret-key-32chars-minimum-length-required
+      ENABLE_TRACING: "true"
+      TRACING_SAMPLE_RATE: "1.0"
+      OTEL_SERVICE_NAME: backend-api
+      # OTEL_EXPORTER_OTLP_ENDPOINT: Optional - if not set, traces go to console via ConsoleSpanExporter
+      METRICS_ENABLED: "true"
+      LOG_LEVEL: debug
+      LOGGER_PRETTY: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
   # Frontend service (React + TypeScript + Nginx)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""  # Empty string to use relative URLs (nginx proxy)
+        VITE_NODE_ENV: production
     container_name: full-stack-frontend
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-5173}:80"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-    # Uncomment when backend is implemented
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
     networks:
       - app-network
 

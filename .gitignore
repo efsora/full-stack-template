@@ -30,6 +30,7 @@ build/
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # Logs
 logs/
@@ -60,6 +61,5 @@ shared/types/*.ts
 # OS
 Thumbs.db
 
-# Claude
-*CLAUDE.md
-.claude/
+# plans
+_plans/
