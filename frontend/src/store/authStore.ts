@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { isTokenExpired } from '../utils/jwt';
+
 /**
  * Auth user data from JWT token or API response
  */
@@ -19,7 +21,6 @@ export interface AuthState {
     // State
     user: AuthUser | null;
     token: string | null;
-    isAuthenticated: boolean;
 
     // Actions
     setAuth: (user: AuthUser, token: string) => void;
@@ -30,6 +31,7 @@ export interface AuthState {
     // Computed
     isLoading: boolean;
     setIsLoading: (isLoading: boolean) => void;
+    getIsAuthenticated: () => boolean;
 }
 
 /**
@@ -38,17 +40,15 @@ export interface AuthState {
  */
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             token: null,
-            isAuthenticated: false,
             isLoading: false,
 
             setAuth: (user: AuthUser, token: string) => {
                 set({
                     user,
                     token,
-                    isAuthenticated: true,
                 });
             },
 
@@ -57,19 +57,27 @@ export const useAuthStore = create<AuthState>()(
             },
 
             setToken: (token: string) => {
-                set({ token, isAuthenticated: true });
+                set({ token });
             },
 
             clearAuth: () => {
                 set({
                     user: null,
                     token: null,
-                    isAuthenticated: false,
                 });
             },
 
             setIsLoading: (isLoading: boolean) => {
                 set({ isLoading });
+            },
+
+            /**
+             * Get authentication status by validating token expiration
+             * Returns true only if token exists and is not expired
+             */
+            getIsAuthenticated: () => {
+                const { token } = get();
+                return !isTokenExpired(token);
             },
         }),
         {
@@ -77,7 +85,6 @@ export const useAuthStore = create<AuthState>()(
             partialize: (state) => ({
                 user: state.user,
                 token: state.token,
-                isAuthenticated: state.isAuthenticated,
             }), // Only persist these fields
         },
     ),
@@ -85,10 +92,13 @@ export const useAuthStore = create<AuthState>()(
 
 /**
  * Convenience hook to check if user is authenticated
+ * Validates token expiration dynamically
  */
 export const useIsAuthenticated = () => {
-    const { isAuthenticated } = useAuthStore();
-    return isAuthenticated;
+    const getIsAuthenticated = useAuthStore(
+        (state) => state.getIsAuthenticated,
+    );
+    return getIsAuthenticated();
 };
 
 /**
