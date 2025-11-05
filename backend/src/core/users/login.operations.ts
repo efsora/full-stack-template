@@ -67,7 +67,7 @@ export function verifyLoginPassword(
   data: { input: LoginInput; user: User },
 ): Result<{ user: User }> {
   return chain(
-    HashedPassword.verify(data.user.password as any, data.input.password),
+    HashedPassword.verify(data.user.password as HashedPassword, data.input.password),
     (isValid: boolean) => handlePasswordVerificationResult(data, isValid),
   );
 }
@@ -92,7 +92,10 @@ export function addAuthTokenToLogin(data: {
   user: User;
 }): Result<LoginResult> {
   return command(
-    async () => data.user,
+    async () => {
+      // Return the user from async context for command execution
+      return await Promise.resolve(data.user);
+    },
     handleAddAuthTokenToLoginResult,
     {
       operation: "generateLoginToken",
