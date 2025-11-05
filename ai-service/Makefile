@@ -5,7 +5,32 @@ APP_DIR = src
 PYTHONPATH ?= $(APP_DIR)
 
 # ---- Phony ----
-.PHONY: run test test-cov test-migrations lint type check pre-commit-install pre-commit format ruff ruff-fix mypy bandit qa
+.PHONY: install install-hooks-force run test test-cov test-migrations lint type check pre-commit-install pre-commit format ruff ruff-fix mypy bandit qa
+
+# ---- Setup ----
+install:
+	@echo "Installing dependencies..."
+	uv sync
+	@echo ""
+	@echo "Checking pre-commit hook setup..."
+	@if git config --get core.hooksPath > /dev/null 2>&1; then \
+		echo "⚠️  Git hooks are managed at repository level (core.hooksPath is set)"; \
+		echo "   Skipping local pre-commit hook installation."; \
+		echo "   To run checks manually, use: make pre-commit"; \
+	else \
+		echo "Installing pre-commit hooks..."; \
+		$(PY) pre-commit install && echo "✓ Pre-commit hooks installed!"; \
+	fi
+	@echo ""
+	@echo "✓ Installation complete!"
+
+install-hooks-force:
+	@echo "Force installing pre-commit hooks..."
+	@echo "This will temporarily unset core.hooksPath for ai-service."
+	git config --local --unset core.hooksPath || true
+	$(PY) pre-commit install
+	@echo "✓ Pre-commit hooks installed!"
+	@echo "⚠️  Note: You may need to reconfigure hooks for the monorepo."
 
 # ---- Development ----
 run:

@@ -14,10 +14,9 @@ from app.api.dependencies import get_session
 from app.core.settings import Settings, get_settings
 from app.infrastructure.db.engine import create_engine
 from app.infrastructure.db.schema import metadata
-from app.infrastructure.db.utils import ensure_database_exists, ensure_schema_exists, drop_schema
+from app.infrastructure.db.utils import drop_schema, ensure_database_exists, ensure_schema_exists
 from app.main import create_app
 from app.services.weaviate_service import WeaviateService
-
 
 # Set test environment
 os.environ["ENV"] = "test"

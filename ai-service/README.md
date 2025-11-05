@@ -36,8 +36,8 @@ Tests live under `tests/` and mirror the same structure with unit, integration, 
 ## Quick Start
 
 ```bash
-# 1. Install Python deps into a virtual environment
-uv sync  # or: python -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt
+# 1. Install dependencies and setup pre-commit hooks
+make install
 
 # 2. Bring up Postgres
 docker compose up -d postgres
@@ -109,27 +109,49 @@ The coverage config in `pyproject.toml` enforces branch coverage and excludes in
 
 ## Quality Gates (pre-commit)
 
-Install hooks once per clone:
+### Monorepo Setup
 
-```bash
-uv run pre-commit install
-```
+This service is part of a monorepo with centralized git hooks (Husky). The `make install` command will automatically detect this and skip local pre-commit hook installation.
 
-Then run them manually before pushing (or rely on the pre-commit integration in your IDE):
+**To run quality checks manually** (recommended approach):
 
 ```bash
 make pre-commit
 ```
 
-Hooks included:
+### Standalone Setup
 
-- Black (formatting)
-- Ruff (linting, import order, pyupgrade)
-- MyPy (static typing with Pydantic plugin)
-- Pyright (Pylance-equivalent type checks)
-- Bandit (basic security linting)
+If you want to enable automatic pre-commit hooks for ai-service only:
 
-## Best Practices We’re Demonstrating
+```bash
+make install-hooks-force
+```
+
+**Note**: This will unset the monorepo's `core.hooksPath` setting. You may need to reconfigure hooks for other services.
+
+### Hooks Included
+
+- **Black** - Code formatting
+- **Ruff** - Linting, import order, pyupgrade
+- **MyPy** - Static typing with Pydantic plugin
+- **Bandit** - Security linting
+
+All checks must pass before commits are allowed (when hooks are installed).
+
+### Integrating with Monorepo Hooks (Husky)
+
+To integrate ai-service checks into the monorepo's Husky pre-commit hook, add this to `.husky/pre-commit`:
+
+```bash
+# AI Service checks (Python)
+if [ -f ai-service/Makefile ]; then
+  cd ai-service && make pre-commit && cd ..
+fi
+```
+
+This ensures ai-service quality checks run automatically on every commit at the monorepo level.
+
+## Best Practices We're Demonstrating
 
 - **Explicit context objects** (`Context`) instead of passing sessions globally; makes tests deterministic and easy to override.
 - **Factory-based responses** (`AppResponse.ok` / `.fail`) centralise API shape and error semantics.
@@ -154,12 +176,14 @@ Hooks included:
 ## Reference Commands
 
 ```bash
-make run           # dev server inside Docker
-make test          # pytest inside Docker
-make test-cov      # coverage run + HTML report
-make lint          # Ruff lint
-make type          # MyPy
-make pre-commit    # full quality suite
+make install            # install dependencies (auto-detects monorepo hooks)
+make install-hooks-force # force install local pre-commit hooks
+make run                # dev server inside Docker
+make test               # pytest inside Docker
+make test-cov           # coverage run + HTML report
+make lint               # Ruff lint
+make type               # MyPy
+make pre-commit         # full quality suite (run manually)
 ```
 
 Happy building! Let’s use this template as the source for future FastAPI services, and keep iterating on the best practices as the ecosystem evolves.

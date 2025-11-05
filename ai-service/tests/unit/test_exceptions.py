@@ -52,7 +52,8 @@ async def test_app_exception_handler_formats_response() -> None:
     response = await app_exception_handler(request, exc)
 
     assert response.status_code == 422
-    payload = json.loads(response.body.decode())
+    body = response.body if isinstance(response.body, bytes) else bytes(response.body)
+    payload = json.loads(body.decode())
     assert payload["success"] is False
     assert payload["error"]["code"] == ErrorCode.VALIDATION_ERROR.value
     assert payload["error"]["errors"] == [{"field": "email", "reason": "Invalid email address"}]

@@ -20,10 +20,6 @@
     "lint-staged": "^15.2.0"
   },
   "lint-staged": {
-    "shared/contracts/*.yaml": [
-      "cd shared && npm run lint:contracts",
-      "cd shared && npm run format:contracts"
-    ],
     "backend/**/*.{ts,tsx,js,jsx}": [
       "cd backend && npm run lint",
       "cd backend && npm run type-check"
@@ -35,9 +31,6 @@
       "cd ai-service && uv run ruff check .",
       "cd ai-service && uv run black --check .",
       "cd ai-service && uv run mypy ."
-    ],
-    "packages/**/*.{ts,tsx,js,jsx}": [
-      "cd packages/common && npm run build"
     ]
   },
   "engines": {

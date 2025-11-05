@@ -23,7 +23,7 @@ class DummySession:
 @pytest.mark.asyncio
 async def test_create_user_operation_returns_domain_user(monkeypatch: pytest.MonkeyPatch) -> None:
     session = DummySession()
-    ctx = Context(lambda: session)  # pyright: ignore[reportArgumentType]
+    ctx = Context(lambda: session)  # type: ignore[arg-type, return-value]
     now = datetime.utcnow()
 
     class FakeEntity:

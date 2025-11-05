@@ -42,7 +42,7 @@ def setup_logging(settings: Settings) -> None:
         # Production: JSON structured logging using structlog's built-in JSON renderer
         structlog.configure(
             processors=[
-                *shared_processors,
+                *shared_processors,  # type: ignore[list-item]
                 structlog.processors.dict_tracebacks,
                 structlog.processors.JSONRenderer(),
             ],
@@ -54,7 +54,7 @@ def setup_logging(settings: Settings) -> None:
         # Development/Console: Pretty-printed output
         structlog.configure(
             processors=[
-                *shared_processors,
+                *shared_processors,  # type: ignore[list-item]
                 structlog.dev.ConsoleRenderer(),
             ],
             context_class=dict,

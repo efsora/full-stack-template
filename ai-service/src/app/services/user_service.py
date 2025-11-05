@@ -14,5 +14,10 @@ class UserService:
     def __init__(self, ctx: ContextDep) -> None:
         self._ctx = ctx
 
+    @property
+    def ctx(self) -> Context:
+        """Expose context for accessing logger, db_session, etc."""
+        return self._ctx
+
     async def create_user(self, user_name: str, user_surname: str) -> User:
         return await create_user_operation(self._ctx, user_name, user_surname)

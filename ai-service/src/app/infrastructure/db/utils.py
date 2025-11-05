@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-import asyncpg
+import asyncpg  # type: ignore[import-untyped]
 from sqlalchemy.engine import make_url
 
 

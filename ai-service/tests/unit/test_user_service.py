@@ -10,7 +10,7 @@ from app.services.user_service import UserService
 
 @pytest.mark.asyncio
 async def test_create_user_commits_session(monkeypatch: pytest.MonkeyPatch) -> None:
-    ctx = Context(lambda: None)  # pyright: ignore[reportArgumentType]
+    ctx = Context(lambda: None)  # type: ignore[arg-type, return-value]
 
     expected_user = User(
         id=1,
@@ -41,7 +41,7 @@ async def test_create_user_commits_session(monkeypatch: pytest.MonkeyPatch) -> N
 
 @pytest.mark.asyncio
 async def test_create_user_rolls_back_on_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    ctx = Context(lambda: None)  # pyright: ignore[reportArgumentType]
+    ctx = Context(lambda: None)  # type: ignore[arg-type, return-value]
 
     async def fake_create_user_operation(ctx_arg: Context, name: str, surname: str) -> User:
         assert ctx_arg is ctx

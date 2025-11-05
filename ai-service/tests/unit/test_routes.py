@@ -60,18 +60,22 @@ async def test_create_user_route_builds_response() -> None:
         updated_at=datetime.utcnow(),
     )
 
+    # Create mock context with logger
+    mock_ctx = Mock(spec=Context)
+    mock_ctx.logger = Mock()
+
     class DummyUserService:
+        @property
+        def ctx(self) -> Context:
+            return mock_ctx  # type: ignore
+
         async def create_user(self, user_name: str, user_surname: str) -> User:
             assert user_name == payload.user_name
             assert user_surname == payload.user_surname
             return dummy_user
 
-    # Create mock context with logger
-    mock_ctx = Mock(spec=Context)
-    mock_ctx.logger = Mock()
-
     response = await user_routes.create_user(
-        request, payload, mock_ctx, DummyUserService()  # pyright: ignore[reportArgumentType]
+        request, payload, DummyUserService()  # type: ignore[arg-type]
     )
 
     assert response.success is True
