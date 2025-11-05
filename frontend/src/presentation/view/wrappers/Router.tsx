@@ -31,24 +31,17 @@ export default function Router() {
             />
 
             {/* Protected routes wrapped with Layout */}
-            <Route path="/" element={<Layout />}>
+            <Route
+                path="/"
+                element={
+                    <ProtectedRoute>
+                        <Layout />
+                    </ProtectedRoute>
+                }
+            >
                 <Route index element={<Home />} />
-                <Route
-                    path="/users"
-                    element={
-                        <ProtectedRoute>
-                            <Users />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/users/:id"
-                    element={
-                        <ProtectedRoute>
-                            <User />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/:id" element={<User />} />
             </Route>
         </Routes>
     );
