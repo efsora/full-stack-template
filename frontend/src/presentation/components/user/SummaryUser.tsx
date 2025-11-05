@@ -2,11 +2,14 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useGetUserSummaryById } from '#hooks/useUser';
+import { useCurrentUser } from '#store/authStore';
 
 export default function SummaryUser() {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const userId = '550e8400-e29b-41d4-a716-446655440000'; // TODO: Get from props or context
+    const currentUser = useCurrentUser();
+    const userId = currentUser?.id || '';
+
     const {
         data: detailedUser,
         error,
