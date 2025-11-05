@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getUserById } from '#api/methods/user.api';
+import { getAllUsers, getUserById } from '#api/methods/user.api';
 import { MINUTES_IN_MS } from '#config/time';
 import { QUERY_KEYS } from '#constants/queryKeys';
 import type { SummaryUser } from '#models/user.types';
@@ -29,5 +29,14 @@ export function useGetUserSummaryById(userId: string) {
         staleTime: MINUTES_IN_MS * 5,
         retry: 2,
         enabled: !!userId,
+    });
+}
+
+export function useGetAllUsers() {
+    return useQuery({
+        queryKey: [QUERY_KEYS.USER.ALL],
+        queryFn: async () => getAllUsers(),
+        staleTime: MINUTES_IN_MS * 5,
+        retry: 2,
     });
 }

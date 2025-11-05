@@ -5,6 +5,7 @@ import Home from '#pages/Home';
 import { LoginPage } from '#pages/LoginPage';
 import { RegisterPage } from '#pages/RegisterPage';
 import User from '#pages/User';
+import Users from '#pages/Users';
 import { ProtectedRoute } from '#presentation/components/auth/ProtectedRoute';
 import { PublicRoute } from '#presentation/components/auth/PublicRoute';
 
@@ -32,6 +33,14 @@ export default function Router() {
             {/* Protected routes wrapped with Layout */}
             <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
+                <Route
+                    path="/users"
+                    element={
+                        <ProtectedRoute>
+                            <Users />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/users/:id"
                     element={

@@ -12,3 +12,11 @@ export const getUserById = async (
 
     return response?.data;
 };
+
+export const getAllUsers = async (): Promise<AppResponse_UserData_> => {
+    const response = await api.get<AppResponse_UserData_>(
+        ENDPOINTS.USERS.GET_ALL,
+    );
+
+    return response?.data;
+};
