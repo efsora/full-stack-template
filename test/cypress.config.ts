@@ -24,6 +24,32 @@ export default defineConfig({
       runMode: 2,
       openMode: 0,
     },
+    reporter: 'cypress-multi-reporters',
+    reporterOptions: {
+      reporterEnabled: 'spec, cypress-qase-reporter',
+      cypressQaseReporterReporterOptions: {
+      mode: 'testops',
+      debug: false,
+      testops: {
+         api: {
+           // API token from environment variable
+           token: process.env.QASE_API_TOKEN
+         },
+         project: process.env.QASE_PROJECT || 'ECP',
+        uploadAttachments: true,
+        run: {
+          complete: true
+        }
+      },
+      framework: {
+        cypress: {
+          screenshotsFolder: 'cypress/screenshots',
+          videosFolder: 'cypress/videos',
+          uploadDelay: 10
+        }
+      }
+    }
+  },
     env: {
       apiUrl: 'http://localhost:3000/api',
     },
