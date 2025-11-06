@@ -1012,7 +1012,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 
 #### 4. Implementation Phase
 
-11 specialist agents execute sequentially:
+11 specialist workflows execute sequentially:
 1. **schema-designer**: Database schemas + migrations
 2. **repository-builder**: Repository factory functions
 3. **external-service-builder**: External API clients
@@ -1025,11 +1025,13 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 10. **validator**: Architectural compliance (blocking)
 11. **refactoring-agent**: Align existing code (if needed)
 
+Each specialist is defined in `.claude/skills/fcis-orchestrator/agent-specs/` as a workflow specification that the orchestrator follows.
+
 **Checkpoint**: Review implementation and request iterations
 
 #### 5. Iteration Phase
 - Collect developer feedback
-- Analyze which agents need re-execution
+- Analyze which specialists need re-execution
 - Re-run affected agents only
 - Return to Phase 4 checkpoint
 
@@ -1149,7 +1151,19 @@ The orchestrator system lives in:
 .claude/
 ├── skills/fcis-orchestrator/
 │   ├── SKILL.md                  # Main skill description
-│   ├── agents/                   # 12 agent configurations
+│   ├── agent-specs/              # 12 specialist workflow specs
+│   │   ├── orchestrator.md       # Main orchestrator workflow
+│   │   ├── schema-designer.md
+│   │   ├── repository-builder.md
+│   │   ├── external-service-builder.md
+│   │   ├── value-object-creator.md
+│   │   ├── operations-builder.md
+│   │   ├── workflow-composer.md
+│   │   ├── route-generator.md
+│   │   ├── openapi-registrar.md
+│   │   ├── test-generator.md
+│   │   ├── validator.md
+│   │   └── refactoring-agent.md
 │   ├── templates/                # 11 code generation templates
 │   ├── patterns/                 # Pattern documentation
 │   └── scripts/                  # Utility scripts
@@ -1183,6 +1197,7 @@ Review validation errors in design document for architectural guidance
 ### Resources
 
 - **Skill Documentation**: `.claude/skills/fcis-orchestrator/SKILL.md`
-- **Agent Configurations**: `.claude/skills/fcis-orchestrator/agents/`
+- **Specialist Specs**: `.claude/skills/fcis-orchestrator/agent-specs/` (12 workflow specs)
 - **Pattern Documentation**: `.claude/skills/fcis-orchestrator/patterns/`
+- **Code Templates**: `.claude/skills/fcis-orchestrator/templates/`
 - **Implementation Plan**: `_plans/fcis-orchestrator-architecture.md`
