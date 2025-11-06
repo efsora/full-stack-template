@@ -1,0 +1,58 @@
+// Template for External Service
+// Location: src/infrastructure/services/{{Service}}Service.ts
+
+import { logger } from "#infrastructure/logger";
+import { config } from "#infrastructure/config/env";
+
+/**
+ * {{Service}} Service Interface
+ * {{description}}
+ */
+export interface I{{Service}}Service {
+  {{#methods}}
+  /**
+   * {{methodDescription}}
+   */
+  {{methodName}}({{params}}): Promise<{{returnType}}>;
+  {{/methods}}
+}
+
+/**
+ * {{Service}} Client Implementation
+ */
+export function create{{Service}}Client(): I{{Service}}Service {
+  // Initialize client with configuration
+  {{initialization}}
+
+  return {
+    {{#methods}}
+    {{methodName}}: async ({{params}}): Promise<{{returnType}}> => {
+      try {
+        logger.info({ {{logContext}} }, "{{Service}}.{{methodName}}");
+        {{implementation}}
+      } catch (error) {
+        logger.error({ error, {{logContext}} }, "{{Service}}.{{methodName}} failed");
+        throw error;
+      }
+    },
+    {{/methods}}
+  };
+}
+
+/**
+ * Singleton instance of {{Service}}Service
+ */
+export const {{service}}Client = create{{Service}}Client();
+
+// Variables:
+// - Service: PascalCase service name (e.g., Email, Payment, SMS)
+// - service: camelCase service name (e.g., email, payment, sms)
+// - description: Brief description of what the service does
+// - initialization: Code to initialize the service client (e.g., API key setup)
+// - methods[]: Array of method definitions
+//   - methodName: camelCase method name (e.g., sendEmail, processPayment)
+//   - methodDescription: What the method does
+//   - params: Method parameters with types
+//   - returnType: Return type (usually void or result object)
+//   - logContext: Context for logging (e.g., "to, subject")
+//   - implementation: Method body with external API calls

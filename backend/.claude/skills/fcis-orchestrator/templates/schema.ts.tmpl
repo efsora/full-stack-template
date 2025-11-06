@@ -1,0 +1,29 @@
+// Template for Drizzle ORM Schema
+// Usage: Add to src/db/schema.ts
+
+export const {{tableName}} = pgTable("{{tableNameSnake}}", {
+  {{#columns}}
+  {{name}}: {{type}}("{{columnName}}"){{#modifiers}}.{{modifier}}(){{/modifiers}},
+  {{/columns}}
+});
+
+{{#indexes}}
+// Index: {{indexName}}
+// CREATE INDEX {{indexName}} ON {{tableNameSnake}}({{columns}});
+{{/indexes}}
+
+export type {{TypeName}} = typeof {{tableName}}.$inferSelect;
+export type New{{TypeName}} = typeof {{tableName}}.$inferInsert;
+
+// Variables:
+// - tableName: camelCase table name (e.g., passwordResetTokens)
+// - tableNameSnake: snake_case table name (e.g., password_reset_tokens)
+// - TypeName: PascalCase type name (e.g., PasswordResetToken)
+// - columns[]: Array of column definitions
+//   - name: camelCase column name
+//   - type: Drizzle type (uuid, text, timestamp, integer, boolean, jsonb)
+//   - columnName: snake_case column name in database
+//   - modifiers[]: Array of modifiers (notNull, unique, primaryKey, defaultRandom, etc.)
+// - indexes[]: Array of index definitions
+//   - indexName: Name of the index
+//   - columns: Comma-separated list of columns

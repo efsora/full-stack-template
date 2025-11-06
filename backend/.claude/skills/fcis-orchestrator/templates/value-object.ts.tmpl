@@ -1,0 +1,64 @@
+// Template for Value Object (Branded Type)
+// Location: src/core/{{domain}}/value-objects/{{Name}}.ts
+
+import { success, fail, type Result } from "#lib/result";
+import type { AppError } from "#lib/types/errors";
+
+const brand: unique symbol = Symbol("{{Name}}");
+
+/**
+ * {{Name}} Value Object
+ * {{description}}
+ */
+export type {{Name}} = {{baseType}} & { readonly [brand]: typeof brand };
+
+export const {{Name}} = {
+  /**
+   * Create a {{Name}} from a {{baseType}}
+   * @param value - The raw {{baseType}} value
+   * @returns Result with {{Name}} or validation error
+   */
+  create: (value: {{baseType}}): Result<{{Name}}> => {
+    {{#validations}}
+    if ({{condition}}) {
+      return fail({
+        code: "VALIDATION_ERROR",
+        message: "{{errorMessage}}",
+        field: "{{fieldName}}",
+      } as AppError);
+    }
+    {{/validations}}
+
+    return success(value as {{Name}});
+  },
+
+  /**
+   * Unwrap {{Name}} to raw {{baseType}}
+   */
+  unwrap: (vo: {{Name}}): {{baseType}} => vo as {{baseType}},
+
+  {{#helpers}}
+  /**
+   * {{helperDescription}}
+   */
+  {{helperName}}: ({{helperParams}}): {{helperReturn}} => {
+    {{helperImplementation}}
+  },
+  {{/helpers}}
+};
+
+// Variables:
+// - domain: camelCase domain name (e.g., users)
+// - Name: PascalCase value object name (e.g., Email, Password, ResetToken)
+// - description: What this value object represents
+// - baseType: Underlying primitive type (string, number, etc.)
+// - validations[]: Array of validation rules
+//   - condition: Validation condition (e.g., "!value", "value.length < 8")
+//   - errorMessage: Error message for failed validation
+//   - fieldName: Field name for error context
+// - helpers[]: Array of helper methods
+//   - helperName: Method name (e.g., equals, format, isValid)
+//   - helperDescription: What the helper does
+//   - helperParams: Parameters with types
+//   - helperReturn: Return type
+//   - helperImplementation: Method body

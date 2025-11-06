@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "comment": "Auto-format TypeScript files with Prettier",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -q '\\.ts$'; then npx prettier --write \"$FILE\" 2>/dev/null || true; fi"
+          },
+          {
+            "type": "command",
+            "comment": "Run ESLint auto-fix on TypeScript files",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -q '\\.ts$'; then npx eslint --fix \"$FILE\" 2>/dev/null || true; fi"
+          },
+          {
+            "type": "command",
+            "comment": "Validate barrel exports for core module index files",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -q 'src/core/.*/index\\.ts$'; then .claude/hooks/validate-barrel-exports.sh \"$FILE\" || exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "comment": "Block direct operation imports in handlers (FCIS compliance)",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path' 2>/dev/null); CONTENT=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.content // .new_string' 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -q 'src/routes/.*/handlers\\.ts$'; then if echo \"$CONTENT\" | grep -qE 'from ['\\''\"]#core/.*/.*\\.(workflow|operations)'; then echo '❌ ERROR: Direct workflow/operation import in handler. Use barrel export (#core/domain/index.js)' >&2; exit 1; fi; fi"
+          },
+          {
+            "type": "command",
+            "comment": "Warn about modifying production-critical files",
+            "command": "FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.file_path // .path' 2>/dev/null); if [ -n \"$FILE\" ] && (echo \"$FILE\" | grep -qE '(src/infrastructure/config|src/db/schema\\.ts|src/middlewares/auth)'); then echo '⚠️  WARNING: Modifying critical infrastructure file. Ensure thorough testing.' >&2; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "comment": "Run TypeScript type check after code changes",
+            "command": "if git diff --name-only HEAD 2>/dev/null | grep -q '\\.ts$'; then echo '🔍 Running type check...'; npm run type-check 2>&1 | head -30 || true; fi"
+          },
+          {
+            "type": "command",
+            "comment": "Show git status for review",
+            "command": "echo '📊 Git Status:'; git status --short 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

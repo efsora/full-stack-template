@@ -1,0 +1,71 @@
+// Template for Unit Tests (Value Objects and Pure Functions)
+// Location: tests/value-objects/{{Name}}.test.ts
+
+import { describe, it, expect } from "vitest";
+import { run } from "#lib/result/index";
+import { {{Name}} } from "#core/{{domain}}/value-objects/{{Name}}";
+
+describe("{{Name}} Value Object", () => {
+  describe("create", () => {
+    {{#validCases}}
+    it("{{testDescription}}", async () => {
+      const result = await run({{Name}}.create({{input}}));
+
+      expect(result.status).toBe("Success");
+      if (result.status === "Success") {
+        expect({{Name}}.unwrap(result.value)).toBe({{expected}});
+      }
+    });
+
+    {{/validCases}}
+
+    {{#invalidCases}}
+    it("{{testDescription}}", async () => {
+      const result = await run({{Name}}.create({{input}}));
+
+      expect(result.status).toBe("Failure");
+      if (result.status === "Failure") {
+        expect(result.error.code).toBe("{{errorCode}}");
+        {{#checkMessage}}
+        expect(result.error.message).toContain("{{messageFragment}}");
+        {{/checkMessage}}
+      }
+    });
+
+    {{/invalidCases}}
+  });
+
+  {{#helpers}}
+  describe("{{helperName}}", () => {
+    {{#testCases}}
+    it("{{testDescription}}", async () => {
+      const vo = {{voCreation}};
+      const result = {{Name}}.{{helperName}}({{helperInput}});
+      expect(result).{{expectation}};
+    });
+
+    {{/testCases}}
+  });
+  {{/helpers}}
+});
+
+// Variables:
+// - Name: PascalCase value object name (e.g., Email, Password, ResetToken)
+// - domain: camelCase domain name (e.g., users)
+// - validCases[]: Array of valid test cases
+//   - testDescription: Test description (e.g., "should create valid email")
+//   - input: Input value (e.g., "'user@example.com'", "'validpass123'")
+//   - expected: Expected unwrapped value
+// - invalidCases[]: Array of invalid test cases
+//   - testDescription: Test description (e.g., "should reject empty email")
+//   - input: Input value
+//   - errorCode: Expected error code (usually "VALIDATION_ERROR")
+//   - checkMessage: Boolean - whether to check error message
+//   - messageFragment: Fragment of expected error message
+// - helpers[]: Array of helper method test suites
+//   - helperName: Helper method name (e.g., equals, format)
+//   - testCases[]: Array of test cases for this helper
+//     - testDescription: Test description
+//     - voCreation: Code to create value object for test
+//     - helperInput: Input to helper method
+//     - expectation: Expectation (e.g., "toBe(true)", "toBe('formatted')")

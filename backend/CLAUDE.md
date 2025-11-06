@@ -933,3 +933,256 @@ The middleware:
 - Verifies Bearer token from `Authorization` header
 - Attaches decoded payload to `req.user = { userId, email }`
 - Returns 401 for invalid/missing tokens
+
+## FCIS Orchestrator (AI-Powered Code Generation)
+
+The FCIS Orchestrator is an AI-powered code generation system that automates the creation of FCIS-compliant backend features using Claude Code's advanced features (Skills, Sub-agents, Slash Commands, and Hooks).
+
+### Quick Start
+
+Generate a complete FCIS feature with a single command:
+
+```bash
+/fcis:create "Add password reset functionality"
+/fcis:create "Add email verification to user registration"
+/fcis:create --plan-only "Add payment processing"
+```
+
+### What Gets Generated
+
+For each feature, the orchestrator generates:
+
+**Database Layer**:
+- Drizzle ORM schema definitions
+- Database migrations
+- Indexes for performance
+
+**Infrastructure Layer** (Imperative Shell):
+- Repository factory functions with CRUD methods
+- External service clients (email, payment, SMS, etc.)
+- Barrel exports
+
+**Core Layer** (Functional Core):
+- Value objects (branded types with validation)
+- Operations (business logic with `command()`)
+- Workflows (composition with `pipe()`)
+- Type definitions (inputs, outputs, errors, internal)
+- Barrel exports (public API only)
+
+**HTTP Layer** (Imperative Shell):
+- Zod schemas with OpenAPI metadata
+- Request handlers (barrel imports only)
+- Route definitions with middleware
+- OpenAPI path registrations
+
+**Tests**:
+- Unit tests for value objects
+- Unit tests for pure functions
+
+### How It Works
+
+The orchestrator guides you through 5 phases with interactive checkpoints:
+
+#### 1. Analysis Phase
+- Analyzes ALL existing domains in `src/core/`
+- Learns naming conventions, file structures, error patterns
+- Identifies required components
+- Determines primary domain (new or existing)
+
+**Checkpoint**: Review analysis and approve
+
+#### 2. Design Phase
+- Designs database schema (tables, columns, indexes)
+- Designs type system (inputs, outputs, errors, value objects)
+- Designs business logic (operations, workflows)
+- Designs repository methods
+- Designs external services
+- Designs HTTP layer (routes, handlers, schemas)
+- Designs tests
+
+**Checkpoint**: Review design and approve
+
+#### 3. Planning Phase
+- Creates file inventory (new files, files to modify)
+- Detects conflicts and merge strategies
+- Validates feasibility, naming, FCIS compliance
+- Creates execution plan for agents
+
+**Checkpoint**: Review plan and approve
+
+#### 4. Implementation Phase
+
+11 specialist agents execute sequentially:
+1. **schema-designer**: Database schemas + migrations
+2. **repository-builder**: Repository factory functions
+3. **external-service-builder**: External API clients
+4. **value-object-creator**: Branded type value objects
+5. **operations-builder**: Business operations
+6. **workflow-composer**: Railway-oriented workflows
+7. **route-generator**: HTTP layer components
+8. **openapi-registrar**: API documentation
+9. **test-generator**: Unit tests
+10. **validator**: Architectural compliance (blocking)
+11. **refactoring-agent**: Align existing code (if needed)
+
+**Checkpoint**: Review implementation and request iterations
+
+#### 5. Iteration Phase
+- Collect developer feedback
+- Analyze which agents need re-execution
+- Re-run affected agents only
+- Return to Phase 4 checkpoint
+
+### Architectural Guarantees
+
+The **validator** agent enforces (BLOCKING):
+
+✅ **Barrel Export Compliance**
+- Only workflows, public types, value objects exported
+- No operations, internal types, or helpers in public API
+
+✅ **Import Rules**
+- Handlers import workflows ONLY from barrel exports
+- No direct workflow/operation/internal type imports
+
+✅ **Type Conventions**
+- DTOs use `type`
+- Contracts use `interface`
+
+✅ **Result Usage**
+- Workflows use `pipe()` for composition
+- Operations use `command()` for side effects
+- Proper error handling with `fail()`
+
+✅ **Repository Pattern**
+- Factory functions for dependency injection
+- `withTransaction` support for all repositories
+
+✅ **Code Quality**
+- ESLint passes
+- TypeScript type checking passes
+
+### Hooks Integration
+
+Hooks automatically enforce FCIS patterns:
+
+**PostToolUse** (after file edits):
+- Auto-format with Prettier
+- ESLint auto-fix
+- Barrel export validation
+
+**PreToolUse** (before file edits):
+- Block direct operation imports in handlers
+- Warn about critical file modifications
+
+**Stop** (after completion):
+- Run TypeScript type check
+- Show git status for review
+
+### Pattern Learning
+
+The orchestrator learns from your existing code:
+- Naming conventions (camelCase, PascalCase, kebab-case)
+- File organization patterns
+- Common workflows (CRUD, auth patterns)
+- Error handling conventions
+- Value object usage
+
+Generated code matches your codebase style automatically.
+
+### Educational Mode
+
+As agents work, you'll see inline explanations of FCIS principles:
+- "Database schema is infrastructure (Imperative Shell)"
+- "Repository uses factory pattern for dependency injection"
+- "Workflows compose with pipe() for railway-oriented programming"
+- "Value objects prevent primitive obsession"
+
+### Design Documents
+
+All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
+- Full analysis findings
+- Complete design specifications
+- Detailed execution plan
+- Agent execution log with results
+- Iteration history
+
+Design documents provide full audit trail and traceability.
+
+### Utility Scripts
+
+Helper scripts for manual validation:
+
+```bash
+# Analyze a domain's patterns
+.claude/skills/fcis-orchestrator/scripts/analyze-domain.sh users
+
+# Validate FCIS architecture compliance
+.claude/skills/fcis-orchestrator/scripts/validate-architecture.sh
+
+# Create a design document template
+.claude/skills/fcis-orchestrator/scripts/create-design-doc.sh "My Task"
+```
+
+### Advanced Usage
+
+**Plan Only Mode** (no implementation):
+```bash
+/fcis:create --plan-only "Add payment processing"
+```
+
+Stops after Planning phase to review before implementing.
+
+**Iteration Example**:
+```
+After implementation...
+
+Developer: "Add rate limiting to password reset endpoint"
+Orchestrator: [Analyzes feedback, re-runs route-generator with rate limiting]
+```
+
+### File Structure
+
+The orchestrator system lives in:
+
+```
+.claude/
+├── skills/fcis-orchestrator/
+│   ├── SKILL.md                  # Main skill description
+│   ├── agents/                   # 12 agent configurations
+│   ├── templates/                # 11 code generation templates
+│   ├── patterns/                 # Pattern documentation
+│   └── scripts/                  # Utility scripts
+├── commands/fcis/
+│   └── create.md                 # /fcis:create command
+├── hooks/
+│   └── validate-barrel-exports.sh # Validation hook
+├── settings.json                 # Hooks configuration
+└── temp/                         # Design documents (gitignored)
+```
+
+### Best Practices
+
+1. **Be Specific**: Detailed task descriptions get better results
+2. **Review Checkpoints**: Each phase builds on previous decisions
+3. **Iterate Freely**: Request changes until implementation is right
+4. **Learn Patterns**: Watch explanations to understand FCIS
+5. **Trust Validation**: The validator catches architectural issues
+
+### Troubleshooting
+
+**Agent Keeps Failing?**
+Check design document: `.claude/temp/fcis-design-*.md` for error details
+
+**Generated Code Doesn't Match Style?**
+Ensure existing domains follow desired patterns - orchestrator learns from them
+
+**Validation Blocking Implementation?**
+Review validation errors in design document for architectural guidance
+
+### Resources
+
+- **Skill Documentation**: `.claude/skills/fcis-orchestrator/SKILL.md`
+- **Agent Configurations**: `.claude/skills/fcis-orchestrator/agents/`
+- **Pattern Documentation**: `.claude/skills/fcis-orchestrator/patterns/`
+- **Implementation Plan**: `_plans/fcis-orchestrator-architecture.md`

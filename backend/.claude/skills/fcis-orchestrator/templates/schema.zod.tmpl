@@ -1,0 +1,36 @@
+// Template for Zod Request/Response Schemas
+// Location: src/routes/{{domain}}/schemas.ts
+
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
+
+extendZodWithOpenApi(z);
+
+{{#schemas}}
+/**
+ * {{schemaDescription}}
+ */
+export const {{schemaName}} = z
+  .object({
+    {{#fields}}
+    {{fieldName}}: {{zodType}}{{#openapi}}.openapi({ {{openApiConfig}} }){{/openapi}},
+    {{/fields}}
+  })
+  .openapi("{{SchemaName}}");
+
+export type {{SchemaType}} = z.infer<typeof {{schemaName}}>;
+
+{{/schemas}}
+
+// Variables:
+// - domain: camelCase domain name (e.g., users, auth)
+// - schemas[]: Array of schema definitions
+//   - schemaName: camelCase schema constant name (e.g., createBodySchema, idParamsSchema)
+//   - SchemaName: PascalCase schema name for OpenAPI (e.g., CreateBody, IdParams)
+//   - SchemaType: PascalCase TypeScript type name (e.g., CreateBody, IdParams)
+//   - schemaDescription: What this schema validates
+//   - fields[]: Array of field definitions
+//     - fieldName: camelCase field name
+//     - zodType: Zod validation chain (e.g., "z.string().email()", "z.number().int().positive()")
+//     - openapi: Boolean - whether to add OpenAPI metadata
+//     - openApiConfig: OpenAPI configuration (e.g., "example: 'user@example.com', description: 'User email'")

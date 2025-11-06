@@ -1,0 +1,48 @@
+// Template for Repository Factory Function
+// Location: src/infrastructure/repositories/drizzle/{{Domain}}Repository.ts
+
+import { db } from "#db/client";
+import { {{tables}} } from "#db/schema";
+import type { {{Types}} } from "#db/schema";
+import { eq, and, or, desc } from "drizzle-orm";
+
+/**
+ * {{Domain}} Repository
+ * Provides data access for {{domain}} domain
+ */
+export function create{{Domain}}Repository(dbInstance: typeof db) {
+  return {
+    {{#methods}}
+    /**
+     * {{methodDescription}}
+     */
+    {{methodName}}: async ({{params}}): Promise<{{returnType}}> => {
+      {{implementation}}
+    },
+
+    {{/methods}}
+    /**
+     * Create a new repository instance with a transaction
+     */
+    withTransaction: (tx: unknown) => create{{Domain}}Repository(tx as typeof db),
+  };
+}
+
+export type {{Domain}}Repository = ReturnType<typeof create{{Domain}}Repository>;
+
+/**
+ * Singleton instance of {{Domain}}Repository
+ */
+export const {{domain}}Repository = create{{Domain}}Repository(db);
+
+// Variables:
+// - Domain: PascalCase domain name (e.g., User)
+// - domain: camelCase domain name (e.g., user)
+// - tables[]: Imported table names (e.g., users, passwordResetTokens)
+// - Types[]: Imported type names (e.g., User, NewUser, PasswordResetToken)
+// - methods[]: Array of method definitions
+//   - methodName: camelCase method name (e.g., findById, create, update)
+//   - methodDescription: What the method does
+//   - params: Method parameters with types (e.g., "id: string", "data: NewUser")
+//   - returnType: Return type (e.g., "User | null", "User[]", "User")
+//   - implementation: Method body with Drizzle ORM queries

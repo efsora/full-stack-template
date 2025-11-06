@@ -1,0 +1,73 @@
+// Template for OpenAPI Path Registration
+// Location: src/openapi/paths/{{domain}}.ts
+
+import { registry } from "../registry.js";
+import { commonErrorResponses, successResponseSchema } from "../schemas.js";
+import { {{schemas}}, {{responseSchemas}} } from "#routes/{{domain}}/schemas";
+
+{{#paths}}
+/**
+ * {{pathDescription}}
+ */
+registry.registerPath({
+  method: "{{method}}",
+  path: "/api/v1/{{domain}}{{path}}",
+  summary: "{{summary}}",
+  tags: ["{{Tag}}"],
+  {{#hasRequest}}
+  request: {
+    {{#hasBody}}
+    body: {
+      content: {
+        "application/json": {
+          schema: {{bodySchema}},
+        },
+      },
+    },
+    {{/hasBody}}
+    {{#hasParams}}
+    params: {{paramsSchema}},
+    {{/hasParams}}
+    {{#hasQuery}}
+    query: {{querySchema}},
+    {{/hasQuery}}
+  },
+  {{/hasRequest}}
+  responses: {
+    200: {
+      description: "{{successDescription}}",
+      content: {
+        "application/json": {
+          schema: successResponseSchema({{responseSchema}}),
+        },
+      },
+    },
+    {{#errorResponses}}
+    {{statusCode}}: commonErrorResponses[{{statusCode}}],
+    {{/errorResponses}}
+  },
+});
+
+{{/paths}}
+
+// Variables:
+// - domain: camelCase domain name (e.g., users, auth)
+// - Tag: PascalCase tag name for grouping (e.g., Users, Authentication)
+// - schemas[]: Imported schema names
+// - responseSchemas[]: Imported response schema names
+// - paths[]: Array of path definitions
+//   - pathDescription: Description of the endpoint
+//   - method: HTTP method (post, get, put, patch, delete)
+//   - path: Path after domain (e.g., "/create", "/:id", "/reset-request")
+//   - summary: Brief summary for OpenAPI docs
+//   - hasRequest: Boolean - whether endpoint has request body/params/query
+//   - hasBody: Boolean - whether endpoint has request body
+//   - bodySchema: Schema name for request body
+//   - hasParams: Boolean - whether endpoint has path parameters
+//   - paramsSchema: Schema name for path parameters
+//   - hasQuery: Boolean - whether endpoint has query parameters
+//   - querySchema: Schema name for query parameters
+//   - successDescription: Description of successful response
+//   - responseSchema: Schema name for response data
+//   - errorResponses[]: Array of possible error responses
+//     - statusCode: HTTP status code (400, 401, 404, 500, etc.)

@@ -1,0 +1,55 @@
+// Template for Operations (Business Logic)
+// Location: src/core/{{domain}}/{{feature}}.operations.ts
+
+import { command, success, fail, type Result } from "#lib/result";
+import { {{repositories}} } from "#infrastructure/repositories/drizzle";
+import { {{services}} } from "#infrastructure/services";
+import type { {{types}} } from "./types/{{typeFiles}}";
+
+{{#operations}}
+/**
+ * {{operationDescription}}
+ * @param input - {{inputDescription}}
+ * @returns Result with {{OutputType}} or error
+ */
+export function {{operationName}}(input: {{InputType}}): Result<{{OutputType}}> {
+  {{#isSideEffect}}
+  return command(
+    async () => {
+      {{asyncImplementation}}
+    },
+    (result) => {
+      {{resultTransformation}}
+    },
+    {
+      operation: "{{operationName}}",
+      tags: { domain: "{{domain}}", action: "{{action}}" },
+    }
+  );
+  {{/isSideEffect}}
+  {{^isSideEffect}}
+  // Pure validation/transformation
+  {{pureImplementation}}
+  {{/isSideEffect}}
+}
+
+{{/operations}}
+
+// Variables:
+// - domain: camelCase domain name (e.g., users)
+// - feature: kebab-case feature name (e.g., password-reset, user-creation)
+// - repositories[]: Imported repository names (e.g., userRepository)
+// - services[]: Imported service names (e.g., emailClient)
+// - types[]: Imported type names
+// - typeFiles[]: Type file names (inputs, outputs, errors, internal)
+// - operations[]: Array of operation definitions
+//   - operationName: camelCase operation name
+//   - operationDescription: What the operation does
+//   - inputDescription: Description of input parameter
+//   - InputType: Input type (PascalCase)
+//   - OutputType: Output type (PascalCase)
+//   - isSideEffect: Boolean - true for async operations, false for pure functions
+//   - asyncImplementation: Code for async operation (inside command)
+//   - resultTransformation: Code to transform result to Success/Failure
+//   - pureImplementation: Code for pure function (validation, transformation)
+//   - action: Action tag for observability (e.g., create, update, delete)

@@ -1,0 +1,44 @@
+// Template for HTTP Routes
+// Location: src/routes/{{domain}}/routes.ts
+
+import { Router } from "express";
+import { validate } from "#middlewares/validate";
+import { handleResult } from "#middlewares/resultHandler";
+{{#needsAuth}}
+import { auth } from "#middlewares/auth";
+{{/needsAuth}}
+import { {{handlers}} } from "./handlers.js";
+import { {{schemas}} } from "./schemas.js";
+
+const router = Router();
+
+{{#routes}}
+/**
+ * {{routeDescription}}
+ */
+router.{{method}}(
+  "{{path}}",
+  {{#middlewares}}
+  {{middleware}},
+  {{/middlewares}}
+  validate({{schema}}),
+  handleResult({{handler}})
+);
+
+{{/routes}}
+
+export default router;
+
+// Variables:
+// - domain: camelCase domain name (e.g., users, auth)
+// - needsAuth: Boolean - true if any route needs authentication
+// - handlers[]: Imported handler function names
+// - schemas[]: Imported schema names
+// - routes[]: Array of route definitions
+//   - routeDescription: Description of what the route does
+//   - method: HTTP method (get, post, put, patch, delete)
+//   - path: Route path (e.g., "/create", "/:id", "/reset-request")
+//   - middlewares[]: Array of middleware to apply
+//     - middleware: Middleware name (e.g., "auth")
+//   - schema: Schema name for validation
+//   - handler: Handler function name

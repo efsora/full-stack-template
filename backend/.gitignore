@@ -15,4 +15,4 @@ node_modules/
 
 # OS generated files
 .DS_Store
-.DS_Store?
+.DS_Store?.claude/temp/

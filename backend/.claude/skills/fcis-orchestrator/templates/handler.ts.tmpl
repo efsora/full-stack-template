@@ -1,0 +1,51 @@
+// Template for HTTP Request Handlers
+// Location: src/routes/{{domain}}/handlers.ts
+
+import { matchResponse } from "#lib/result/combinators";
+import { run } from "#lib/result/index";
+import { {{workflows}} } from "#core/{{domain}}/index.js"; // ⚠️ BARREL IMPORT ONLY
+import {
+  createSuccessResponse,
+  createFailureResponse,
+  type AppResponse,
+} from "#lib/types/response";
+import type { ValidatedRequest } from "#middlewares/validate";
+import type { {{schemas}} } from "./schemas";
+import type { {{outputTypes}} } from "#core/{{domain}}/index.js"; // ⚠️ BARREL IMPORT ONLY
+
+{{#handlers}}
+/**
+ * {{handlerDescription}}
+ */
+export async function {{handlerName}}(
+  req: ValidatedRequest<{ {{validationSources}} }>
+): Promise<AppResponse<{{OutputType}}>> {
+  {{#extractInputs}}
+  const {{inputName}} = req.validated.{{source}}; // Type: {{InputType}}
+  {{/extractInputs}}
+
+  const result = await run({{workflowCall}});
+
+  return matchResponse(result, {
+    onSuccess: (data) => createSuccessResponse(data),
+    onFailure: (error) => createFailureResponse(error),
+  });
+}
+
+{{/handlers}}
+
+// Variables:
+// - domain: camelCase domain name (e.g., users, auth)
+// - workflows[]: Imported workflow names (from barrel)
+// - schemas[]: Imported schema type names (e.g., CreateBody, IdParams)
+// - outputTypes[]: Imported output type names (e.g., CreateUserResult)
+// - handlers[]: Array of handler definitions
+//   - handlerName: camelCase handler name (e.g., handleCreate, handleGetById)
+//   - handlerDescription: What the handler does
+//   - validationSources: Validated request sources (e.g., "body: CreateBody" or "body: CreateBody, params: IdParams")
+//   - OutputType: Output type for response (PascalCase)
+//   - extractInputs[]: Array of input extractions
+//     - inputName: Variable name for extracted input
+//     - source: Source in req.validated (body, params, query)
+//     - InputType: Type of the input
+//   - workflowCall: Workflow function call (e.g., "createUser(body)", "getUserById(params.id)")

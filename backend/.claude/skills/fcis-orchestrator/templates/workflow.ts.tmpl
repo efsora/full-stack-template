@@ -1,0 +1,45 @@
+// Template for Workflow (Railway-Oriented Programming)
+// Location: src/core/{{domain}}/{{feature}}.workflow.ts
+
+import { pipe, type Result } from "#lib/result";
+import {
+  {{operations}}
+} from "./{{feature}}.operations";
+import type { {{InputType}}, {{OutputType}} } from "./types/{{typeFiles}}";
+
+/**
+ * {{workflowName}} Workflow
+ *
+ * {{workflowDescription}}
+ *
+ * Flow:
+ {{#steps}}
+ * {{stepNumber}}. {{stepDescription}}
+ {{/steps}}
+ *
+ * @param input - {{inputDescription}}
+ * @returns Result with {{OutputType}} or error
+ */
+export function {{workflowName}}(input: {{InputType}}): Result<{{OutputType}}> {
+  return pipe(
+    {{#pipeSteps}}
+    {{stepFunction}},
+    {{/pipeSteps}}
+  );
+}
+
+// Variables:
+// - domain: camelCase domain name (e.g., users)
+// - feature: kebab-case feature name (e.g., password-reset)
+// - workflowName: camelCase workflow name (e.g., requestPasswordReset)
+// - workflowDescription: What the workflow accomplishes
+// - operations[]: Imported operation function names
+// - InputType: Input type (PascalCase, e.g., RequestResetInput)
+// - OutputType: Output type (PascalCase, e.g., ResetResult)
+// - typeFiles[]: Type file names to import from (e.g., inputs, outputs)
+// - inputDescription: Description of input parameter
+// - steps[]: Array of workflow steps for documentation
+//   - stepNumber: Step number (1, 2, 3, ...)
+//   - stepDescription: What happens in this step
+// - pipeSteps[]: Array of functions in pipe composition
+//   - stepFunction: Function call or lambda (e.g., "validateInput", "(x) => transform(x)")
