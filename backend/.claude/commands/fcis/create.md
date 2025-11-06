@@ -9,7 +9,7 @@ allowed-tools:
   - Grep
   - Task
   - AskUserQuestion
-argument-hint: [--plan-only] task-description
+argument-hint: task-description
 model: sonnet
 ---
 
@@ -23,8 +23,7 @@ You are now executing the FCIS Orchestrator workflow to implement: **$ARGUMENTS*
 Arguments: $ARGUMENTS
 ```
 
-- If starts with `--plan-only`: Extract flag and task
-- Task description: Everything after flag (or entire string if no flag)
+Task description: $ARGUMENTS
 
 ## Read Orchestrator Instructions
 
@@ -56,7 +55,7 @@ The orchestrator spec defines a 5-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-4. **Phase 4: Implementation** (skip if --plan-only)
+4. **Phase 4: Implementation**
    - Execute 11 specialist workflows sequentially
    - For each specialist, read its spec from `.claude/skills/fcis-orchestrator/agent-specs/[name].md`
    - Follow the specialist's instructions to generate code

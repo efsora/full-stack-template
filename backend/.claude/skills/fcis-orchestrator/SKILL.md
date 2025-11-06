@@ -107,11 +107,6 @@ This document serves as communication between agents and provides full traceabil
 /fcis:create "Refactor authentication to use FCIS patterns"
 ```
 
-### Plan Only (No Implementation)
-```
-/fcis:create --plan-only "Add payment processing"
-```
-
 ## What Gets Generated
 
 For a typical feature, you'll get:
@@ -274,9 +269,6 @@ A: Ensure existing domains follow patterns you want. Orchestrator learns from th
 
 **Q: Validation blocking implementation?**
 A: Review validation errors in design document. Indicates architectural issue.
-
-**Q: Want to skip a phase?**
-A: Can't skip - each phase depends on previous. Use `--plan-only` to stop before implementation.
 
 ## Support
 

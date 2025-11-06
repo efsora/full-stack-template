@@ -945,7 +945,6 @@ Generate a complete FCIS feature with a single command:
 ```bash
 /fcis:create "Add password reset functionality"
 /fcis:create "Add email verification to user registration"
-/fcis:create --plan-only "Add payment processing"
 ```
 
 ### What Gets Generated
@@ -1127,13 +1126,6 @@ Helper scripts for manual validation:
 ```
 
 ### Advanced Usage
-
-**Plan Only Mode** (no implementation):
-```bash
-/fcis:create --plan-only "Add payment processing"
-```
-
-Stops after Planning phase to review before implementing.
 
 **Iteration Example**:
 ```
