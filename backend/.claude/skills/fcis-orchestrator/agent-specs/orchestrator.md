@@ -178,7 +178,7 @@ Invoke specialists sequentially using Task tool:
 7. route-generator
 8. openapi-registrar
 9. test-generator
-10. validator
+10. **validator** (includes post-implementation checklist: format, lint, type-check, test, build)
 11. refactoring-agent (if needed)
 
 After each agent:
@@ -186,6 +186,8 @@ After each agent:
 - Update design document with results
 - Provide FCIS principle explanation
 - Handle failures with retry logic
+
+**Note**: The validator agent now includes a comprehensive post-implementation checklist that ensures runtime readiness. It runs format (conditional), lint, type-check, test, and build commands with automatic fixes and retry logic. All checks must pass before implementation is considered complete.
 
 **CHECKPOINT**: Use AskUserQuestion to get approval and ask for iterations
 
@@ -249,7 +251,26 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
 
 ## Implementation
 
-[content]
+### Agent Execution Log
+
+[Agents log their execution here]
+
+### Validator
+
+#### Architectural Compliance
+[Validation results for barrel exports, imports, types, Result usage, repository pattern]
+
+#### Post-Implementation Checklist
+
+**Attempt 1**:
+- Step 1 (Lint): [status]
+- Step 2 (Type Check): [status]
+- Step 3 (Test): [status]
+- Step 4 (Build): [status]
+
+**Summary**:
+[Final summary of checks, fixes applied, duration]
+
 **Status**: ⏳ Pending
 
 ## Iteration Log

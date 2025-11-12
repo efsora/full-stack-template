@@ -1147,6 +1147,29 @@ The **validator** agent enforces (BLOCKING):
 - ESLint passes
 - TypeScript type checking passes
 
+✅ **Runtime Readiness** (Post-Implementation Checklist)
+
+The validator includes a comprehensive post-implementation checklist that ensures generated code is production-ready:
+
+1. **Format (Conditional)**: Runs Prettier only if lint detects formatting issues
+2. **Lint**: Checks code quality, auto-fixes violations (unused imports, formatting, barrel exports)
+3. **Type Check**: Verifies TypeScript types, auto-fixes common errors (missing imports, type mismatches)
+4. **Test**: Runs test suite, asks user for guidance on failures
+5. **Build**: Verifies production build, auto-fixes build errors (import paths, OpenAPI issues)
+
+**Stop-on-Failure Strategy**: If any check fails, the validator automatically fixes the issue and retries ALL checks from the beginning. This continues until all checks pass or maximum retry limit (10) is reached.
+
+**Automatic Fixes**:
+- Formatting corrections (Prettier)
+- Unused import removal
+- Missing import additions
+- Type annotation adjustments
+- Import path corrections
+- Barrel export fixes
+- OpenAPI schema corrections
+
+All validation checks are **fully blocking** - implementation cannot complete until all checks pass.
+
 ### Hooks Integration
 
 Hooks automatically enforce FCIS patterns:
