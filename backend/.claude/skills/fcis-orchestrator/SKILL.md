@@ -35,19 +35,48 @@ Or manually invoke with: `/fcis:create [task description]`
 
 ## How It Works
 
-### 5 Phases with Interactive Checkpoints
+### 6 Phases with Interactive Checkpoints
 
 ```
 1. ANALYSIS → Checkpoint (approval required)
    ↓
-2. DESIGN → Checkpoint (approval required)
+2. Q&A SESSION (resolves ambiguities)
    ↓
-3. PLANNING → Checkpoint (approval required)
+3. DESIGN → Checkpoint (approval required)
    ↓
-4. IMPLEMENTATION → Checkpoint (approval required, ask for iterations)
+4. PLANNING → Checkpoint (approval required)
    ↓
-5. ITERATION (if requested)
+5. IMPLEMENTATION → Checkpoint (approval required, ask for iterations)
+   ↓
+6. ITERATION (if requested)
 ```
+
+### Q&A Session (Phase 2)
+
+**Purpose**: Bridge Analysis and Design by resolving gaps, ambiguities, and implementation options through interactive questioning.
+
+**How It Works**:
+- Conducts gap analysis comparing task description against learned patterns
+- Generates clarifying questions in batches (max 4 per batch)
+- Asks about authentication, validation, pagination, error handling, performance, etc.
+- Dynamically generates follow-up questions based on previous answers
+- Detects contradictions and asks for clarification
+- Skips entirely if no ambiguities detected
+
+**Question Categories**:
+- Database Design (schema, relationships, constraints, indexes)
+- Business Logic (validation, error handling, state transitions)
+- API Design (endpoints, authentication, pagination, rate limiting)
+- External Services (providers, fallbacks, timeouts)
+- Testing (coverage, edge cases, test data)
+- Performance (caching, optimization, scalability)
+
+**Benefits**:
+- Ensures complete requirements before Design phase
+- Reduces back-and-forth during implementation
+- Captures architectural decisions with reasoning
+- Provides educational context for each option
+- Full traceability in design document
 
 ### Pattern Learning
 
@@ -90,6 +119,7 @@ As agents work, you'll see inline explanations of FCIS principles:
 All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
 
 - Analysis findings
+- Q&A session (questions, answers, reasoning)
 - Design specifications
 - Execution plan
 - Implementation log
@@ -307,6 +337,14 @@ For issues or feature requests:
 - Consult CLAUDE.md in backend folder
 
 ## Version
+
+**1.1.0** - Q&A Session Feature
+
+- 6-phase orchestration (added Q&A session)
+- Interactive gap analysis and clarifying questions
+- Dynamic question generation based on answers
+- Contradiction detection and resolution
+- Full Q&A traceability in design documents
 
 **1.0.0** - Initial release
 

@@ -29,7 +29,7 @@ Task description: $ARGUMENTS
 
 Read the orchestrator workflow from `.claude/skills/fcis-orchestrator/agent-specs/orchestrator.md` and follow it exactly.
 
-The orchestrator spec defines a 5-phase workflow:
+The orchestrator spec defines a 6-phase workflow:
 
 1. **Phase 1: Analysis**
    - Analyze existing domains in `src/core/`
@@ -38,8 +38,16 @@ The orchestrator spec defines a 5-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-2. **Phase 2: Design**
-   - Design database schema
+2. **Phase 1.5: Q&A Session**
+   - Conduct gap analysis on task requirements
+   - Generate clarifying questions in batches (max 4 per batch)
+   - Ask about authentication, validation, pagination, error handling, etc.
+   - Resolve ambiguities and implementation options
+   - Record all Q&A in design document
+   - **SKIPPED IF**: No ambiguities detected (shows "No ambiguities detected, proceeding to Design")
+
+3. **Phase 2: Design**
+   - Design database schema (informed by Q&A decisions)
    - Design type system
    - Design business logic
    - Design repositories
@@ -47,7 +55,7 @@ The orchestrator spec defines a 5-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-3. **Phase 3: Planning**
+4. **Phase 3: Planning**
    - Create file inventory
    - Detect conflicts
    - Pre-generation validation (feasibility, naming, compliance, dependencies)
@@ -55,7 +63,7 @@ The orchestrator spec defines a 5-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-4. **Phase 4: Implementation**
+5. **Phase 4: Implementation**
    - Execute 11 specialist workflows sequentially
    - For each specialist, read its spec from `.claude/skills/fcis-orchestrator/agent-specs/[name].md`
    - Follow the specialist's instructions to generate code
@@ -63,7 +71,7 @@ The orchestrator spec defines a 5-phase workflow:
    - Provide FCIS principle explanations
    - **CHECKPOINT**: Use AskUserQuestion for iterations
 
-5. **Phase 5: Iteration** (if requested)
+6. **Phase 5: Iteration** (if requested)
    - Collect feedback
    - Re-run affected specialists
    - Update design document
@@ -104,9 +112,11 @@ For each specialist:
 
 ## Templates and Patterns
 
-Reference these during code generation:
+Reference these during code generation and Q&A:
 - **Templates**: `.claude/skills/fcis-orchestrator/templates/*.tmpl`
+  - `qa-questions.tmpl` - Reusable question templates for common scenarios
 - **Patterns**: `.claude/skills/fcis-orchestrator/patterns/*.md`
+  - `qa-generation-patterns.md` - Gap analysis and question generation methodology
 
 ## Remember
 

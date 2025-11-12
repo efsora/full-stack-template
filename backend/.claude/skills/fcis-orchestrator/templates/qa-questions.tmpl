@@ -1,0 +1,508 @@
+# Q&A Question Templates
+
+This file provides reusable question templates for common scenarios in FCIS orchestration. Use these templates as starting points and customize based on specific task requirements.
+
+## Authentication Questions
+
+### Authentication Method
+
+**Category**: Auth
+**Question**: "What authentication method should be used?"
+**When to Ask**: Task mentions "auth", "login", "secure", or creates user-facing endpoints
+
+**Options**:
+- A) JWT tokens - Stateless, scales horizontally, 7-day default expiration
+- B) Session-based - Server-side state, easier to revoke, requires sticky sessions
+- C) OAuth2 - Third-party auth, more setup, better for social login
+- D) API keys - Simple, good for service-to-service, less secure for users
+
+### Token Expiration
+
+**Category**: Auth
+**Question**: "How long should authentication tokens remain valid?"
+**When to Ask**: User selected JWT or session-based auth
+
+**Options**:
+- A) Short (1 hour) - Maximum security, frequent re-auth required
+- B) Medium (24 hours) - Balanced security and UX
+- C) Long (7 days) - Better UX, industry standard for web apps
+- D) Very long (30 days) - Maximum convenience, lower security
+
+### Authorization Scope
+
+**Category**: Auth
+**Question**: "What authorization is required for this endpoint?"
+**When to Ask**: Creating new API endpoints
+
+**Options**:
+- A) Public - No authentication needed, anyone can access
+- B) Authenticated - Valid token required, any logged-in user
+- C) Role-based - Specific roles required (admin, moderator, etc.)
+- D) Owner-only - Users can only access their own resources
+
+### Refresh Token Strategy
+
+**Category**: Auth
+**Question**: "Should we implement refresh tokens?"
+**When to Ask**: User selected JWT with short expiration
+
+**Options**:
+- A) Yes, with refresh tokens - Long-lived refresh, short-lived access
+- B) No, re-authenticate - Simpler, user logs in again
+- C) Sliding expiration - Token renewed on each use
+
+## Database Questions
+
+### Foreign Key Cascades
+
+**Category**: Database
+**Question**: "How should we handle deleting [parent entity] with related [child entities]?"
+**When to Ask**: Database has foreign key relationships
+
+**Options**:
+- A) Cascade delete - Automatically delete all related records
+- B) Set null - Keep records but remove parent reference
+- C) Prevent deletion - Block delete if related records exist
+- D) Soft delete - Mark as deleted, keep in database
+
+### Index Strategy
+
+**Category**: Database
+**Question**: "Which columns should be indexed for query performance?"
+**When to Ask**: Creating new database tables
+
+**Options**:
+- A) Unique columns (email, username) - For lookup queries
+- B) Foreign keys - For join performance
+- C) Timestamp columns (created_at) - For sorting and filtering
+- D) All of the above - Comprehensive indexing
+- E) None initially - Optimize later based on metrics
+
+### Transaction Isolation
+
+**Category**: Database
+**Question**: "What transaction isolation level is needed?"
+**When to Ask**: Task mentions transactions, concurrent updates, or data consistency
+
+**Options**:
+- A) Read committed - Default, prevents dirty reads
+- B) Repeatable read - Prevents non-repeatable reads
+- C) Serializable - Maximum isolation, lowest concurrency
+- D) Default (let database decide) - Most common choice
+
+### Concurrency Control
+
+**Category**: Database
+**Question**: "How should concurrent updates be handled?"
+**When to Ask**: Multiple users can modify same data
+
+**Options**:
+- A) Optimistic locking - Better performance, conflict detection on commit
+- B) Pessimistic locking - Prevents conflicts upfront, may reduce throughput
+- C) Last write wins - Simplest, may lose updates
+- D) Event sourcing - Full audit trail, more complex
+
+## Validation Questions
+
+### Password Strength
+
+**Category**: Business
+**Question**: "How strict should password validation be?"
+**When to Ask**: Creating user registration or password reset
+
+**Options**:
+- A) Basic - Min 8 chars, at least one number
+- B) Moderate - Min 10 chars, mix of letters and numbers
+- C) Strict - Min 12 chars, uppercase, lowercase, number, special char
+- D) Very strict - Min 16 chars, multiple character types, no common passwords
+
+### Input Validation Strictness
+
+**Category**: Business
+**Question**: "How strict should input validation be for [field]?"
+**When to Ask**: Creating forms or API endpoints with user input
+
+**Options**:
+- A) Permissive - Basic format checks only
+- B) Standard - Format, length, and basic content rules
+- C) Strict - Comprehensive validation with detailed rules
+- D) Custom - Business-specific validation logic required
+
+### Email Validation
+
+**Category**: Business
+**Question**: "Should we verify email addresses?"
+**When to Ask**: Creating user registration with email
+
+**Options**:
+- A) Format only - Check valid email format with regex
+- B) Format + existence - Check format and verify email exists (verification email)
+- C) Format + existence + domain - Also validate domain reputation
+- D) No validation - Accept any input
+
+## Pagination Questions
+
+### Pagination Approach
+
+**Category**: API
+**Question**: "How should pagination work for [resource] listing?"
+**When to Ask**: Creating list/query endpoints with potentially many results
+
+**Options**:
+- A) Cursor-based - Better for real-time data, handles concurrent updates
+- B) Offset-based - Simpler, familiar pattern, may miss records if data changes
+- C) Page numbers - Most user-friendly, similar to offset
+- D) No pagination - For small datasets (< 100 items)
+
+### Default Page Size
+
+**Category**: API
+**Question**: "What should be the default page size?"
+**When to Ask**: User chose pagination
+
+**Options**:
+- A) Small (10) - Faster responses, more requests
+- B) Medium (20) - Balanced approach, industry standard
+- C) Large (50) - Fewer requests, slower responses
+- D) Extra large (100) - Minimize requests, may impact performance
+
+### Pagination Metadata
+
+**Category**: API
+**Question**: "What pagination metadata should be included?"
+**When to Ask**: User chose pagination
+
+**Options**:
+- A) Basic - Just next/previous cursors or page numbers
+- B) Standard - Total count, page info, next/previous
+- C) Comprehensive - All counts, page info, cursors, and has_more flags
+- D) Minimal - No metadata, client figures it out
+
+## Error Handling Questions
+
+### Retry Logic
+
+**Category**: Business
+**Question**: "How should failed operations be retried?"
+**When to Ask**: Task involves external services or potentially flaky operations
+
+**Options**:
+- A) No retries - Fail fast, let client decide
+- B) Simple retry - 3 attempts with fixed delay
+- C) Exponential backoff - 3 attempts with increasing delays (1s, 2s, 4s)
+- D) Aggressive retry - 5+ attempts with exponential backoff
+
+### Error Notification
+
+**Category**: Business
+**Question**: "How should errors be communicated to users?"
+**When to Ask**: Creating user-facing features
+
+**Options**:
+- A) Generic messages - "Something went wrong" for all errors
+- B) Specific messages - Detailed error descriptions
+- C) Categorized - Different messages for validation vs. system errors
+- D) Silent - Log errors but don't show users (for non-critical failures)
+
+### Fallback Behavior
+
+**Category**: Business
+**Question**: "What should happen when [critical service] fails?"
+**When to Ask**: Task depends on external services
+
+**Options**:
+- A) Fail operation - Return error to user
+- B) Degrade gracefully - Continue with reduced functionality
+- C) Use cached data - Serve stale data if available
+- D) Queue for retry - Process asynchronously when service recovers
+
+## External Service Questions
+
+### Email Provider
+
+**Category**: External
+**Question**: "Which email service provider should be used?"
+**When to Ask**: Task mentions sending emails
+
+**Options**:
+- A) SendGrid - Reliable, good free tier, easy setup
+- B) AWS SES - Cost-effective at scale, requires AWS account
+- C) Mailgun - Developer-friendly API, good documentation
+- D) Postmark - Excellent deliverability, transactional email focus
+
+### SMS Provider
+
+**Category**: External
+**Question**: "Which SMS service provider should be used?"
+**When to Ask**: Task mentions sending SMS or 2FA codes
+
+**Options**:
+- A) Twilio - Industry leader, comprehensive features, higher cost
+- B) AWS SNS - Cost-effective, requires AWS account
+- C) Vonage (Nexmo) - Good international coverage
+- D) Plivo - Competitive pricing, good API
+
+### Payment Provider
+
+**Category**: External
+**Question**: "Which payment processor should be integrated?"
+**When to Ask**: Task mentions payments, subscriptions, or billing
+
+**Options**:
+- A) Stripe - Developer-friendly, comprehensive features, SCA compliant
+- B) PayPal - Widely recognized, good for international
+- C) Square - Good for unified payment solutions
+- D) Braintree - Owned by PayPal, advanced features
+
+### Service Timeout
+
+**Category**: External
+**Question**: "What timeout should be set for [service] API calls?"
+**When to Ask**: Integrating external services
+
+**Options**:
+- A) Short (5 seconds) - Fast fail for better UX
+- B) Medium (15 seconds) - Balanced approach
+- C) Long (30 seconds) - Allow for slower services
+- D) Very long (60 seconds) - Maximum patience for complex operations
+
+### Rate Limiting
+
+**Category**: External
+**Question**: "Should rate limiting be applied to [endpoint]?"
+**When to Ask**: Creating public or resource-intensive endpoints
+
+**Options**:
+- A) Yes, strict (10 req/min) - Prevent abuse, may impact legitimate users
+- B) Yes, moderate (60 req/min) - Balanced protection
+- C) Yes, lenient (300 req/min) - Minimal impact on users
+- D) No rate limiting - Trust users, simpler implementation
+
+## Performance Questions
+
+### Caching Strategy
+
+**Category**: Perf
+**Question**: "Should caching be implemented for [resource]?"
+**When to Ask**: Task involves frequently accessed data
+
+**Options**:
+- A) Yes, Redis cache - Fast, distributed, requires infrastructure
+- B) Yes, in-memory cache - Simple, no infrastructure, limited scalability
+- C) Yes, CDN cache - For static or public data
+- D) No caching initially - Premature optimization, add later if needed
+
+### Cache Expiration
+
+**Category**: Perf
+**Question**: "How long should cached data remain valid?"
+**When to Ask**: User chose to implement caching
+
+**Options**:
+- A) Short (1 minute) - Fresh data, frequent cache misses
+- B) Medium (5 minutes) - Balanced, good for semi-static data
+- C) Long (1 hour) - Stale data acceptable, maximum performance
+- D) Very long (24 hours) - For rarely changing data
+
+### Query Optimization
+
+**Category**: Perf
+**Question**: "What's the priority for database query optimization?"
+**When to Ask**: Task involves database queries, performance is mentioned
+
+**Options**:
+- A) Read optimization - Most queries are reads (typical for web apps)
+- B) Write optimization - High-volume writes expected
+- C) Balanced - Optimize both read and write equally
+- D) Optimize later - Focus on functionality first
+
+### Eager vs Lazy Loading
+
+**Category**: Perf
+**Question**: "How should related data be loaded for [resource]?"
+**When to Ask**: Database has relationships, creating query endpoints
+
+**Options**:
+- A) Eager loading - Load all relations upfront (fewer queries, more data)
+- B) Lazy loading - Load relations on demand (more queries, less data)
+- C) Selective - Load some relations, lazy load others
+- D) Let ORM decide - Use database defaults
+
+## Testing Questions
+
+### Test Coverage Scope
+
+**Category**: Test
+**Question**: "What level of test coverage is needed?"
+**When to Ask**: Starting implementation, no existing tests
+
+**Options**:
+- A) Value objects only - Quick wins, core logic tested
+- B) Value objects + operations - Comprehensive business logic
+- C) Value objects + operations + workflows - Thorough, time-intensive
+- D) Full coverage including integration tests - Maximum confidence, slowest
+
+### Integration Tests
+
+**Category**: Test
+**Question**: "Should integration tests be created?"
+**When to Ask**: Task involves database operations or external services
+
+**Options**:
+- A) Yes, with testcontainers - Real database, accurate but slower
+- B) Yes, with mocks - Fast but less accurate
+- C) No, unit tests sufficient - Faster development
+- D) Later - Start with unit tests, add integration after MVP
+
+### Test Data Strategy
+
+**Category**: Test
+**Question**: "How should test data be managed?"
+**When to Ask**: Creating tests with database dependencies
+
+**Options**:
+- A) Fixtures - Pre-defined test data files
+- B) Factories - Generate test data programmatically
+- C) Inline - Define test data in each test
+- D) Minimal - Use real data where possible
+
+## API Design Questions
+
+### API Versioning
+
+**Category**: API
+**Question**: "How should the API be versioned?"
+**When to Ask**: Creating new API endpoints, long-term project
+
+**Options**:
+- A) URL path versioning - /api/v1/resource (explicit, visible)
+- B) Header versioning - Accept: application/vnd.api+json;version=1 (cleaner URLs)
+- C) Query parameter - /api/resource?version=1 (flexible)
+- D) No versioning - Not needed for MVP, add later
+
+### Response Format
+
+**Category**: API
+**Question**: "What should the API response format be?"
+**When to Ask**: Creating new API endpoints
+
+**Options**:
+- A) Minimal - Just data, no metadata
+- B) Standard - Data + status + message
+- C) JSON:API spec - Standardized format with relationships
+- D) Custom - Project-specific format
+
+### Error Response Format
+
+**Category**: API
+**Question**: "How should API errors be formatted?"
+**When to Ask**: Creating new API endpoints
+
+**Options**:
+- A) Simple - {error: "message"}
+- B) Detailed - {error: {code, message, details}}
+- C) RFC 7807 - Problem Details standard format
+- D) Custom - Match existing project format
+
+## Sorting Questions
+
+### Sort Options
+
+**Category**: API
+**Question**: "What sorting options should be available for [resource] lists?"
+**When to Ask**: Creating list endpoints with pagination
+
+**Options**:
+- A) Created date only - Simplest, most common
+- B) Created + updated dates - More flexible
+- C) Multiple fields - Any field sortable (most flexible, more complex)
+- D) No sorting - Fixed order
+
+### Default Sort Order
+
+**Category**: API
+**Question**: "What should be the default sort order?"
+**When to Ask**: User chose sorting options
+
+**Options**:
+- A) Newest first - Most recent at top (created_at DESC)
+- B) Oldest first - Chronological order (created_at ASC)
+- C) Alphabetical - By name or title
+- D) Custom - Business logic determines order
+
+## Filtering Questions
+
+### Filter Complexity
+
+**Category**: API
+**Question**: "What filtering capabilities are needed for [resource]?"
+**When to Ask**: Creating query/search endpoints
+
+**Options**:
+- A) None - Return all records (with pagination)
+- B) Basic - Filter by one or two key fields
+- C) Advanced - Multiple fields, operators (equals, contains, range)
+- D) Full-text search - Search across all text fields
+
+### Filter Operators
+
+**Category**: API
+**Question**: "What filter operators should be supported?"
+**When to Ask**: User chose advanced filtering
+
+**Options**:
+- A) Equality only - field=value
+- B) Basic operators - equals, not equals, in, not in
+- C) Comparison operators - Also greater than, less than, range
+- D) Text operators - Also contains, starts with, ends with, regex
+
+## Soft Delete Questions
+
+### Soft Delete Strategy
+
+**Category**: Database
+**Question**: "Should [resource] use soft deletes?"
+**When to Ask**: Creating resources that users might want to restore
+
+**Options**:
+- A) Yes, with deleted_at - Keep records, mark as deleted
+- B) Yes, with is_deleted - Boolean flag, simpler queries
+- C) No, hard delete - Permanently remove records
+- D) Archive table - Move deleted records to separate table
+
+### Soft Delete Visibility
+
+**Category**: API
+**Question**: "Should soft-deleted [resources] be accessible via API?"
+**When to Ask**: User chose soft delete
+
+**Options**:
+- A) Never visible - Always filtered out
+- B) Admin only - Admins can see and restore
+- C) Owner can restore - Users can restore their own
+- D) Visible with flag - Include in results with is_deleted flag
+
+## Template Usage Guidelines
+
+1. **Customize for Context**: Adjust question text to mention specific entities/resources
+2. **Filter Options**: Remove options that don't apply to the specific scenario
+3. **Add Context**: Enhance educational context based on learned patterns
+4. **Combine Related**: Batch related questions together (all auth, all DB)
+5. **Prioritize**: Ask critical questions first, defer nice-to-haves
+6. **Stay Concise**: Keep educational context to one line per option
+7. **Use Examples**: Reference specific technologies or patterns from task
+8. **Be Specific**: "JWT expiration?" not "Auth config?"
+
+## Example: Customizing Templates
+
+**Template**: "What authentication method should be used?"
+
+**Customized for User Registration Task**:
+"What authentication method should be used for user registration?"
+
+**Customized Options** (added project-specific context):
+- A) JWT tokens - Matches existing auth in users domain, 7-day expiration
+- B) Session-based - Different from current approach, requires refactoring
+- C) OAuth2 - Overkill for direct registration, better for social login
+
+This customization makes the question more relevant and options more actionable.

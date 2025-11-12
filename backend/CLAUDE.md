@@ -1027,7 +1027,7 @@ For each feature, the orchestrator generates:
 
 ### How It Works
 
-The orchestrator guides you through 5 phases with interactive checkpoints:
+The orchestrator guides you through 6 phases with interactive checkpoints:
 
 #### 1. Analysis Phase
 
@@ -1038,9 +1038,35 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 
 **Checkpoint**: Review analysis and approve
 
-#### 2. Design Phase
+#### 2. Q&A Session (Interactive Clarification)
 
-- Designs database schema (tables, columns, indexes)
+**Purpose**: Resolve gaps, ambiguities, and implementation options before Design phase.
+
+**Process**:
+- Conducts gap analysis comparing task against learned patterns
+- Generates clarifying questions in batches (max 4 per batch)
+- Asks about: authentication, validation, pagination, error handling, external services, performance
+- Dynamically generates follow-up questions based on answers
+- Detects contradictions and requests clarification
+- **Skips if no ambiguities detected**: Shows "No ambiguities detected, proceeding to Design"
+
+**Question Categories**:
+- Database Design (relationships, constraints, indexes)
+- Business Logic (validation rules, error handling)
+- API Design (auth, pagination, rate limiting)
+- External Services (providers, timeouts, fallbacks)
+- Testing (coverage scope, edge cases)
+- Performance (caching, optimization priorities)
+
+**Benefits**:
+- Ensures complete requirements before implementation
+- Captures architectural decisions with reasoning
+- Provides educational context for each option
+- Full traceability in design document
+
+#### 3. Design Phase
+
+- Designs database schema (tables, columns, indexes) - informed by Q&A decisions
 - Designs type system (inputs, outputs, errors, value objects)
 - Designs business logic (operations, workflows)
 - Designs repository methods
@@ -1050,7 +1076,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 
 **Checkpoint**: Review design and approve
 
-#### 3. Planning Phase
+#### 4. Planning Phase
 
 - Creates file inventory (new files, files to modify)
 - Detects conflicts and merge strategies
@@ -1059,7 +1085,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 
 **Checkpoint**: Review plan and approve
 
-#### 4. Implementation Phase
+#### 5. Implementation Phase
 
 11 specialist workflows execute sequentially:
 
@@ -1079,12 +1105,12 @@ Each specialist is defined in `.claude/skills/fcis-orchestrator/agent-specs/` as
 
 **Checkpoint**: Review implementation and request iterations
 
-#### 5. Iteration Phase
+#### 6. Iteration Phase
 
 - Collect developer feedback
 - Analyze which specialists need re-execution
 - Re-run affected agents only
-- Return to Phase 4 checkpoint
+- Return to Phase 5 checkpoint
 
 ### Architectural Guarantees
 
@@ -1167,6 +1193,7 @@ As agents work, you'll see inline explanations of FCIS principles:
 All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
 
 - Full analysis findings
+- Q&A session (questions, answers, and reasoning)
 - Complete design specifications
 - Detailed execution plan
 - Agent execution log with results
