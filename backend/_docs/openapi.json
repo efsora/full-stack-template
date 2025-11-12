@@ -23,6 +23,14 @@
     {
       "description": "User management endpoints",
       "name": "Users"
+    },
+    {
+      "description": "Wallet management endpoints",
+      "name": "Wallets"
+    },
+    {
+      "description": "Transaction endpoints for coin transfers",
+      "name": "Transactions"
     }
   ],
   "components": {
@@ -521,6 +529,180 @@
           "name",
           "updatedAt"
         ]
+      },
+      "WalletData": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "string",
+            "example": "100.50"
+          },
+          "coinType": {
+            "type": "string",
+            "enum": [
+              "BTC",
+              "ETH",
+              "USDT",
+              "USDC",
+              "USD"
+            ],
+            "description": "Supported cryptocurrency types",
+            "example": "BTC"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-11-07T12:16:55.139Z"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-11-07T12:16:55.139Z"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          }
+        },
+        "required": [
+          "balance",
+          "coinType",
+          "createdAt",
+          "id",
+          "updatedAt",
+          "userId"
+        ]
+      },
+      "CreateWalletBody": {
+        "type": "object",
+        "properties": {
+          "coinType": {
+            "type": "string",
+            "enum": [
+              "BTC",
+              "ETH",
+              "USDT",
+              "USDC",
+              "USD"
+            ],
+            "description": "Supported cryptocurrency types",
+            "example": "BTC"
+          },
+          "initialBalance": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Optional initial balance for the wallet",
+            "example": 100
+          }
+        },
+        "required": [
+          "coinType"
+        ]
+      },
+      "TransactionData": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "example": "50.25"
+          },
+          "coinType": {
+            "type": "string",
+            "enum": [
+              "BTC",
+              "ETH",
+              "USDT",
+              "USDC",
+              "USD"
+            ],
+            "description": "Supported cryptocurrency types",
+            "example": "BTC"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-11-07T12:16:55.140Z"
+          },
+          "fromWalletId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "failed"
+            ],
+            "example": "completed"
+          },
+          "toWalletId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-11-07T12:16:55.140Z"
+          }
+        },
+        "required": [
+          "amount",
+          "coinType",
+          "createdAt",
+          "fromWalletId",
+          "id",
+          "status",
+          "toWalletId",
+          "updatedAt"
+        ]
+      },
+      "TransferBody": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "example": 50.25,
+            "description": "Amount to transfer"
+          },
+          "coinType": {
+            "type": "string",
+            "enum": [
+              "BTC",
+              "ETH",
+              "USDT",
+              "USDC",
+              "USD"
+            ],
+            "description": "Supported cryptocurrency types",
+            "example": "BTC"
+          },
+          "toUserId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User ID to transfer coins to",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": [
+          "amount",
+          "coinType",
+          "toUserId"
+        ]
       }
     },
     "parameters": {}
@@ -814,6 +996,613 @@
           },
           "403": {
             "description": "Forbidden - Insufficient permissions for this resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallets": {
+      "post": {
+        "summary": "Create a new wallet for authenticated user",
+        "tags": [
+          "Wallets"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWalletBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/WalletData"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallets/{userId}": {
+      "get": {
+        "summary": "Get all wallets for a user across all coin types",
+        "tags": [
+          "Wallets"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "User ID to get wallets for",
+              "example": "550e8400-e29b-41d4-a716-446655440001"
+            },
+            "required": true,
+            "description": "User ID to get wallets for",
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallets retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WalletData"
+                      }
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallets/{userId}/{coinType}": {
+      "get": {
+        "summary": "Get a specific wallet for a user and coin type",
+        "tags": [
+          "Wallets"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BTC",
+                "ETH",
+                "USDT",
+                "USDC",
+                "USD"
+              ],
+              "description": "Supported cryptocurrency types",
+              "example": "BTC"
+            },
+            "required": true,
+            "description": "Supported cryptocurrency types",
+            "name": "coinType",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "User ID to get wallet for",
+              "example": "550e8400-e29b-41d4-a716-446655440001"
+            },
+            "required": true,
+            "description": "User ID to get wallet for",
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/WalletData"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/transfer": {
+      "post": {
+        "summary": "Transfer coins to another user",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Coins transferred successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "coinType": {
+                          "type": "string",
+                          "enum": [
+                            "BTC",
+                            "ETH",
+                            "USDT",
+                            "USDC",
+                            "USD"
+                          ]
+                        },
+                        "receiverBalance": {
+                          "type": "string"
+                        },
+                        "senderBalance": {
+                          "type": "string"
+                        },
+                        "transaction": {
+                          "$ref": "#/components/schemas/TransactionData"
+                        }
+                      },
+                      "required": [
+                        "coinType",
+                        "receiverBalance",
+                        "senderBalance",
+                        "transaction"
+                      ]
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/history": {
+      "get": {
+        "summary": "Get transaction history",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BTC",
+                "ETH",
+                "USDT",
+                "USDC",
+                "USD"
+              ],
+              "description": "Optional filter by coin type",
+              "example": "BTC"
+            },
+            "required": false,
+            "description": "Optional filter by coin type",
+            "name": "coinType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "default": 50,
+              "description": "Maximum number of transactions to return"
+            },
+            "required": false,
+            "description": "Maximum number of transactions to return",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "default": 0,
+              "description": "Number of transactions to skip"
+            },
+            "required": false,
+            "description": "Number of transactions to skip",
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "transactions": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TransactionData"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "transactions"
+                      ]
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication token",
             "content": {
               "application/json": {
                 "schema": {

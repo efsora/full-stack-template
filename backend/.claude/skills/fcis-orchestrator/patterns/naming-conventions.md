@@ -5,6 +5,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
 ## Files
 
 ### Workflows
+
 - **Format**: `[feature].workflow.ts`
 - **Case**: kebab-case
 - **Examples**:
@@ -13,6 +14,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `list-users.workflow.ts`
 
 ### Operations
+
 - **Format**: `[feature].operations.ts`
 - **Case**: kebab-case
 - **Examples**:
@@ -21,6 +23,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `user-validation.operations.ts`
 
 ### Value Objects
+
 - **Format**: `[Name].ts`
 - **Case**: PascalCase
 - **Examples**:
@@ -30,6 +33,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `PhoneNumber.ts`
 
 ### Type Files
+
 - **Format**: Fixed names
 - **Files**:
   - `inputs.ts` - Input types for workflows
@@ -38,6 +42,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `internal.ts` - Internal implementation types
 
 ### Repository Files
+
 - **Format**: `[Domain]Repository.ts`
 - **Case**: PascalCase for domain
 - **Examples**:
@@ -46,6 +51,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `OrderRepository.ts`
 
 ### Service Files
+
 - **Format**: `[Service]Service.ts`
 - **Case**: PascalCase for service
 - **Examples**:
@@ -56,6 +62,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
 ## Functions
 
 ### Workflows
+
 - **Format**: `verbNoun` (imperative, action-oriented)
 - **Case**: camelCase
 - **Examples**:
@@ -67,6 +74,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `deleteUser`
 
 ### Operations
+
 - **Format**: `verbNoun` or `verbAdjectiveNoun`
 - **Case**: camelCase
 - **Examples**:
@@ -78,6 +86,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `saveNewUser`
 
 ### Value Object Methods
+
 - **Format**: Fixed method names
 - **Methods**:
   - `create` - Create value object with validation
@@ -87,6 +96,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `isValid` - Check if value is valid (static)
 
 ### Repository Methods
+
 - **Format**: Standard CRUD + domain-specific
 - **Case**: camelCase
 - **Standard**:
@@ -105,6 +115,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
 ## Types
 
 ### Input Types
+
 - **Format**: `[Action]Input`
 - **Case**: PascalCase
 - **Examples**:
@@ -115,6 +126,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `ListUsersInput`
 
 ### Output Types
+
 - **Format**: `[Action]Result` or `[Entity]Data`
 - **Case**: PascalCase
 - **Examples**:
@@ -125,6 +137,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `ProfileData`
 
 ### Error Types
+
 - **Format**: `DOMAIN_ERROR_DESCRIPTION` or `CATEGORY_ERROR_DESCRIPTION`
 - **Case**: SCREAMING_SNAKE_CASE
 - **Examples**:
@@ -139,6 +152,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `FORBIDDEN`
 
 ### Value Object Types
+
 - **Format**: `[Name]` (matches file name)
 - **Case**: PascalCase
 - **Examples**:
@@ -149,6 +163,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `UUID`
 
 ### Internal Types
+
 - **Format**: `[Purpose]Data` or `[Adjective][Entity]Data`
 - **Case**: PascalCase
 - **Examples**:
@@ -158,6 +173,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `UserWithTokenData`
 
 ### Repository/Service Types
+
 - **Format**: `I[Service]Service` for interfaces, `[Domain]Repository` for types
 - **Case**: PascalCase
 - **Examples**:
@@ -169,6 +185,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
 ## Constants
 
 ### Environment Variables
+
 - **Format**: SCREAMING_SNAKE_CASE
 - **Examples**:
   - `DATABASE_URL`
@@ -178,6 +195,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `EMAIL_API_KEY`
 
 ### Configuration Values
+
 - **Format**: camelCase
 - **Examples**:
   - `jwtSecret`
@@ -186,6 +204,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `port`
 
 ### True Constants
+
 - **Format**: SCREAMING_SNAKE_CASE
 - **Examples**:
   - `MAX_LOGIN_ATTEMPTS`
@@ -196,6 +215,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
 ## Routes
 
 ### Route Paths
+
 - **Format**: kebab-case
 - **Examples**:
   - `/users`
@@ -206,6 +226,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `/users/:id/profile`
 
 ### Route Handlers
+
 - **Format**: `handle[Action]`
 - **Case**: camelCase with "handle" prefix
 - **Examples**:
@@ -218,6 +239,7 @@ This document outlines the naming conventions used in FCIS architecture for cons
   - `handleReset`
 
 ### Zod Schemas
+
 - **Format**: `[purpose]Schema`
 - **Case**: camelCase with "Schema" suffix
 - **Examples**:

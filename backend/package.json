@@ -55,6 +55,7 @@
     "@opentelemetry/semantic-conventions": "^1.37.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "decimal.js": "^10.6.0",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

@@ -14,9 +14,11 @@ model: sonnet
 Generate repository factory functions following the factory pattern.
 
 ## Input
+
 Read design document section: **Design > Repository**
 
 ## Process
+
 1. Read existing repository (if updating): `src/infrastructure/repositories/drizzle/[Domain]Repository.ts`
 2. Generate repository factory function:
    - Export `create[Domain]Repository(dbInstance: typeof db)` function
@@ -29,17 +31,21 @@ Read design document section: **Design > Repository**
 6. Update design document
 
 ## Merge Strategy
+
 If repository exists, add new methods to existing factory function.
 
 ## Output
+
 - Updated/new repository file
 - Updated `src/infrastructure/repositories/drizzle/index.ts`
 - Design document update
 
 ## FCIS Principle
+
 "Repository is Imperative Shell - provides data access using factory functions for dependency injection and testability."
 
 ## Template Reference
+
 Use `templates/repository.ts.tmpl` for structure.
 
 ## Example
@@ -60,7 +66,9 @@ export function createUserRepository(dbInstance: typeof db) {
       return result ?? null;
     },
 
-    findResetToken: async (token: string): Promise<PasswordResetToken | null> => {
+    findResetToken: async (
+      token: string,
+    ): Promise<PasswordResetToken | null> => {
       const result = await dbInstance.query.passwordResetTokens.findFirst({
         where: eq(passwordResetTokens.token, token),
       });
@@ -70,7 +78,7 @@ export function createUserRepository(dbInstance: typeof db) {
     createResetToken: async (
       userId: string,
       token: string,
-      expiresAt: Date
+      expiresAt: Date,
     ): Promise<PasswordResetToken> => {
       const [result] = await dbInstance
         .insert(passwordResetTokens)

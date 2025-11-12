@@ -14,9 +14,11 @@ model: sonnet
 Generate workflow files that compose operations with pipe().
 
 ## Input
+
 Read design document section: **Design > Business Logic** (Workflows subsection)
 
 ## Process
+
 1. Create workflow file: `src/core/[domain]/[feature].workflow.ts`
 2. Import operations from operations file
 3. Define workflow function:
@@ -42,17 +44,21 @@ Read design document section: **Design > Business Logic** (Workflows subsection)
 7. Update design document
 
 ## Merge Strategy
+
 If updating existing domain, add workflow export to barrel.
 
 ## Output
+
 - New workflow file
 - Updated barrel export
 - Design document update
 
 ## FCIS Principle
+
 "Workflows are Functional Core - compose operations with pipe() for railway-oriented programming. Automatic error short-circuiting on Failure."
 
 ## Template Reference
+
 Use `templates/workflow.ts.tmpl` for structure.
 
 ## Example
@@ -79,7 +85,7 @@ import type { RequestResetInput, ResetResult } from "./types/inputs";
  * @returns Result with success message or error
  */
 export function requestPasswordReset(
-  input: RequestResetInput
+  input: RequestResetInput,
 ): Result<ResetResult> {
   return pipe(
     validateResetRequest(input),
@@ -100,21 +106,25 @@ export function requestPasswordReset(
  * @param input - Token and new password
  * @returns Result with success message or error
  */
-export function resetPassword(
-  input: ResetPasswordInput
-): Result<ResetResult> {
+export function resetPassword(input: ResetPasswordInput): Result<ResetResult> {
   return pipe(
     validateResetToken(input.token),
     (tokenData) => hashPasswordForReset(input.newPassword),
-    (hashedData) => updateUserPassword(tokenData.userId, hashedData.hashedPassword),
+    (hashedData) =>
+      updateUserPassword(tokenData.userId, hashedData.hashedPassword),
     (result) => invalidateResetToken(input.token),
   );
 }
 ```
 
 **Barrel Export Update** (`src/core/users/index.ts`):
+
 ```typescript
 // Add these exports
 export { requestPasswordReset, resetPassword } from "./password-reset.workflow";
-export type { RequestResetInput, ResetPasswordInput, ResetResult } from "./types/inputs";
+export type {
+  RequestResetInput,
+  ResetPasswordInput,
+  ResetResult,
+} from "./types/inputs";
 ```

@@ -13,9 +13,11 @@ model: sonnet
 Generate external service interfaces and clients.
 
 ## Input
+
 Read design document section: **Design > External Services**
 
 ## Process
+
 1. Create service interface (contract):
    - Use `interface I[Service]Service` for contracts
    - Define method signatures (async operations)
@@ -30,14 +32,17 @@ Read design document section: **Design > External Services**
 5. Update design document
 
 ## Output
+
 - New service file: `src/infrastructure/services/[Service]Service.ts`
 - Updated/new barrel: `src/infrastructure/services/index.ts`
 - Design document update
 
 ## FCIS Principle
+
 "External services are Imperative Shell - wrapped with clean interfaces for Functional Core consumption."
 
 ## Template Reference
+
 Use `templates/service.ts.tmpl` for structure.
 
 ## Example
@@ -80,7 +85,10 @@ export function createEmailClient(): IEmailService {
         logger.info({ to, token }, "EmailService.sendVerificationEmail");
         // Implementation: Send email via API
       } catch (error) {
-        logger.error({ error, to }, "EmailService.sendVerificationEmail failed");
+        logger.error(
+          { error, to },
+          "EmailService.sendVerificationEmail failed",
+        );
         throw error;
       }
     },

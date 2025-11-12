@@ -14,11 +14,12 @@ export function createUser(input: CreateUserInput): Result<CreateUserResult> {
     validateUserInput(input),
     (validated) => checkEmailAvailability(validated.email),
     (email) => hashPassword(input.password),
-    (hashedData) => saveUser({
-      email: input.email,
-      password: hashedData.hashedPassword,
-      name: input.name,
-    }),
+    (hashedData) =>
+      saveUser({
+        email: input.email,
+        password: hashedData.hashedPassword,
+        name: input.name,
+      }),
     (user) => generateAuthToken(user.id, user.email),
     (userWithToken) => formatUserResult(userWithToken),
   );
@@ -26,6 +27,7 @@ export function createUser(input: CreateUserInput): Result<CreateUserResult> {
 ```
 
 **Steps**:
+
 1. Validate input
 2. Check uniqueness constraints
 3. Hash sensitive data
@@ -49,6 +51,7 @@ export function getUserById(id: string): Result<UserData> {
 ```
 
 **Steps**:
+
 1. Validate ID
 2. Fetch from database
 3. Check resource state/permissions
@@ -71,6 +74,7 @@ export function listUsers(input: ListUsersInput): Result<ListUsersResult> {
 ```
 
 **Steps**:
+
 1. Validate input (pagination, filters)
 2. Build query filters
 3. Fetch data
@@ -84,7 +88,7 @@ export function listUsers(input: ListUsersInput): Result<ListUsersResult> {
 ```typescript
 export function updateUserProfile(
   userId: string,
-  input: UpdateProfileInput
+  input: UpdateProfileInput,
 ): Result<UpdateProfileResult> {
   return pipe(
     validateUpdateInput(input),
@@ -98,6 +102,7 @@ export function updateUserProfile(
 ```
 
 **Steps**:
+
 1. Validate input
 2. Fetch existing resource
 3. Check permissions
@@ -123,6 +128,7 @@ export function deleteUser(userId: string): Result<DeleteResult> {
 ```
 
 **Steps**:
+
 1. Validate ID
 2. Fetch existing resource
 3. Check permissions
@@ -142,11 +148,12 @@ export function registerUser(input: RegisterInput): Result<RegisterResult> {
     validateRegistrationInput(input),
     (validated) => checkEmailAvailability(validated.email),
     (email) => hashPassword(input.password),
-    (hashedData) => createUser({
-      email: input.email,
-      password: hashedData.hashedPassword,
-      name: input.name,
-    }),
+    (hashedData) =>
+      createUser({
+        email: input.email,
+        password: hashedData.hashedPassword,
+        name: input.name,
+      }),
     (user) => generateVerificationToken(user.id),
     (userData) => sendVerificationEmail(userData.user.email, userData.token),
     (userData) => formatRegistrationResult(userData),
@@ -155,6 +162,7 @@ export function registerUser(input: RegisterInput): Result<RegisterResult> {
 ```
 
 **Steps**:
+
 1. Validate registration input
 2. Check email availability
 3. Hash password
@@ -182,6 +190,7 @@ export function loginUser(input: LoginInput): Result<LoginResult> {
 ```
 
 **Steps**:
+
 1. Validate login input
 2. Find user by email
 3. Check user is active
@@ -196,7 +205,7 @@ export function loginUser(input: LoginInput): Result<LoginResult> {
 
 ```typescript
 export function requestPasswordReset(
-  input: RequestResetInput
+  input: RequestResetInput,
 ): Result<ResetResult> {
   return pipe(
     validateResetRequest(input),
@@ -210,6 +219,7 @@ export function requestPasswordReset(
 ```
 
 **Steps**:
+
 1. Validate email
 2. Find user
 3. Generate reset token
@@ -222,15 +232,14 @@ export function requestPasswordReset(
 **Purpose**: Complete password reset with token validation
 
 ```typescript
-export function resetPassword(
-  input: ResetPasswordInput
-): Result<ResetResult> {
+export function resetPassword(input: ResetPasswordInput): Result<ResetResult> {
   return pipe(
     validateResetPasswordInput(input),
     (validated) => validateResetToken(validated.token),
     (tokenData) => checkTokenNotExpired(tokenData),
     (tokenData) => hashPassword(input.newPassword),
-    (hashedData) => updateUserPassword(tokenData.userId, hashedData.hashedPassword),
+    (hashedData) =>
+      updateUserPassword(tokenData.userId, hashedData.hashedPassword),
     (result) => invalidateResetToken(input.token),
     (result) => formatResetResult(result),
   );
@@ -238,6 +247,7 @@ export function resetPassword(
 ```
 
 **Steps**:
+
 1. Validate input
 2. Validate reset token
 3. Check token not expired
@@ -253,21 +263,17 @@ export function resetPassword(
 **Purpose**: Execute different paths based on conditions
 
 ```typescript
-export function processOrder(
-  orderId: string
-): Result<ProcessOrderResult> {
+export function processOrder(orderId: string): Result<ProcessOrderResult> {
   return pipe(
     fetchOrder(orderId),
     (order) => {
       if (order.status === "paid") {
-        return pipe(
-          fulfillOrder(order),
-          (fulfilled) => sendShippingNotification(fulfilled),
+        return pipe(fulfillOrder(order), (fulfilled) =>
+          sendShippingNotification(fulfilled),
         );
       }
-      return pipe(
-        processPendingPayment(order),
-        (processed) => sendPaymentReminder(processed),
+      return pipe(processPendingPayment(order), (processed) =>
+        sendPaymentReminder(processed),
       );
     },
     (result) => formatProcessResult(result),
@@ -285,12 +291,13 @@ import { allNamed } from "#lib/result";
 export function getUserDashboard(userId: string): Result<DashboardData> {
   return pipe(
     validateUserId(userId),
-    (validId) => allNamed({
-      user: fetchUserData(validId),
-      orders: fetchUserOrders(validId),
-      notifications: fetchUserNotifications(validId),
-      stats: fetchUserStats(validId),
-    }),
+    (validId) =>
+      allNamed({
+        user: fetchUserData(validId),
+        orders: fetchUserOrders(validId),
+        notifications: fetchUserNotifications(validId),
+        stats: fetchUserStats(validId),
+      }),
     (data) => formatDashboardData(data),
   );
 }
@@ -329,12 +336,13 @@ export function getActiveUser(userId: string): Result<User> {
     fetchUserFromDatabase(userId),
     filter(
       (user) => user.isActive,
-      (user) => fail({
-        code: "USER_INACTIVE",
-        message: `User ${user.id} is inactive`,
-        resourceType: "user",
-        resourceId: user.id,
-      })
+      (user) =>
+        fail({
+          code: "USER_INACTIVE",
+          message: `User ${user.id} is inactive`,
+          resourceType: "user",
+          resourceId: user.id,
+        }),
     ),
     (user) => formatUserData(user),
   );
@@ -368,12 +376,8 @@ export function createUser(input: CreateUserInput): Result<CreateUserResult> {
 export function getUserWithFallback(userId: string): Result<UserData> {
   return pipe(
     fetchUserFromDatabase(userId),
-    (user) => user
-      ? success(user)
-      : fetchUserFromCache(userId),
-    (user) => user
-      ? success(user)
-      : fetchDefaultUser(),
+    (user) => (user ? success(user) : fetchUserFromCache(userId)),
+    (user) => (user ? success(user) : fetchDefaultUser()),
     (user) => formatUserData(user),
   );
 }
@@ -387,7 +391,7 @@ export function getUserWithFallback(userId: string): Result<UserData> {
 export function transferFunds(
   fromUserId: string,
   toUserId: string,
-  amount: number
+  amount: number,
 ): Result<TransferResult> {
   return command(
     async () => {
@@ -408,11 +412,15 @@ export function transferFunds(
         return { fromAccount, toAccount, amount };
       });
     },
-    (result) => success({
-      success: true,
-      message: `Transferred ${amount} from ${result.fromAccount.id} to ${result.toAccount.id}`,
-    }),
-    { operation: "transferFunds", tags: { domain: "payments", action: "transfer" } }
+    (result) =>
+      success({
+        success: true,
+        message: `Transferred ${amount} from ${result.fromAccount.id} to ${result.toAccount.id}`,
+      }),
+    {
+      operation: "transferFunds",
+      tags: { domain: "payments", action: "transfer" },
+    },
   );
 }
 ```

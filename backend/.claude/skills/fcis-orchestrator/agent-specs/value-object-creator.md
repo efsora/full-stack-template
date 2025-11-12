@@ -13,9 +13,11 @@ model: sonnet
 Generate value objects using opaque branded types.
 
 ## Input
+
 Read design document section: **Design > Type System** (Value Objects subsection)
 
 ## Process
+
 1. Create value object file: `src/core/[domain]/value-objects/[Name].ts`
 2. Define opaque branded type:
    ```typescript
@@ -39,13 +41,16 @@ Read design document section: **Design > Type System** (Value Objects subsection
 5. Update design document
 
 ## Output
+
 - New value object file
 - Design document update
 
 ## FCIS Principle
+
 "Value objects are Functional Core - type-safe domain primitives preventing primitive obsession."
 
 ## Template Reference
+
 Use `templates/value-object.ts.tmpl` for structure.
 
 ## Example

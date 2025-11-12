@@ -14,9 +14,11 @@ model: sonnet
 Generate operation files with pure business logic.
 
 ## Input
+
 Read design document section: **Design > Business Logic** (Operations subsection)
 
 ## Process
+
 1. Create operations file: `src/core/[domain]/[feature].operations.ts`
 2. For each operation:
    - Import required dependencies (repositories, services, types)
@@ -38,7 +40,7 @@ Read design document section: **Design > Business Logic** (Operations subsection
          {
            operation: "operationName",
            tags: { domain: "[domain]", action: "[action]" },
-         }
+         },
        );
      }
      ```
@@ -55,19 +57,23 @@ Read design document section: **Design > Business Logic** (Operations subsection
 4. Update design document
 
 ## Important
+
 - DO NOT export operations from barrel (internal implementation)
 - Use `command()` for side effects (async operations)
 - Use plain functions for pure validation
 - Add observability metadata (operation name, tags)
 
 ## Output
+
 - New operations file
 - Design document update
 
 ## FCIS Principle
+
 "Operations are Functional Core - pure business logic with explicit side effects wrapped in command() for automatic observability."
 
 ## Template Reference
+
 Use `templates/operation.ts.tmpl` for structure.
 
 ## Example
@@ -87,7 +93,7 @@ import { hashPassword } from "#lib/crypto";
  * Pure validation function
  */
 export function validateResetRequest(
-  input: RequestResetInput
+  input: RequestResetInput,
 ): Result<RequestResetInput> {
   if (!input.email || !input.email.includes("@")) {
     return fail({
@@ -130,7 +136,7 @@ export function generateResetToken(email: string): Result<ResetResult> {
     {
       operation: "generateResetToken",
       tags: { domain: "users", action: "password-reset" },
-    }
+    },
   );
 }
 
@@ -138,7 +144,7 @@ export function generateResetToken(email: string): Result<ResetResult> {
  * Hash password for reset
  */
 export function hashPasswordForReset(
-  password: string
+  password: string,
 ): Result<HashedPasswordData> {
   return command(
     async () => {
@@ -151,7 +157,7 @@ export function hashPasswordForReset(
     {
       operation: "hashPasswordForReset",
       tags: { domain: "users", action: "password-reset" },
-    }
+    },
   );
 }
 ```

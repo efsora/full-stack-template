@@ -13,6 +13,8 @@
  */
 
 import type { UserError } from "#core/users/types/errors";
+import type { WalletError } from "#core/wallets/types/errors";
+import type { TransactionError } from "#core/transactions/types/errors";
 
 /**
  * Global application error union.
@@ -26,6 +28,8 @@ import type { UserError } from "#core/users/types/errors";
  *
  * Domain errors:
  * - UserError: User-related errors (USER_NOT_FOUND, USER_FORBIDDEN, etc.)
+ * - WalletError: Wallet-related errors (WALLET_NOT_FOUND, WALLET_INSUFFICIENT_BALANCE, etc.)
+ * - TransactionError: Transaction-related errors (TRANSACTION_INSUFFICIENT_BALANCE, etc.)
  *
  * To add new domains, import the domain error type and add to this union:
  * @example
@@ -38,7 +42,9 @@ export type AppError =
   | CommandExecutionError
   | InternalError
   | UnauthorizedError
-  | UserError;
+  | UserError
+  | WalletError
+  | TransactionError;
 
 /**
  * Command execution error - effect execution failure.

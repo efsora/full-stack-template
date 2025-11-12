@@ -14,9 +14,11 @@ model: sonnet
 Register API paths in OpenAPI specification.
 
 ## Input
+
 Read design document section: **Design > HTTP Layer**
 
 ## Process
+
 1. Create/update path file: `src/openapi/paths/[domain].ts`
 2. Import schemas from routes
 3. Register each path:
@@ -54,15 +56,18 @@ Read design document section: **Design > HTTP Layer**
 6. Update design document
 
 ## Output
+
 - Updated/new path file
 - Updated `src/openapi/generate.ts`
 - Regenerated OpenAPI spec
 - Design document update
 
 ## FCIS Principle
+
 "API documentation is derived from type-safe schemas - single source of truth for request/response contracts."
 
 ## Template Reference
+
 Use `templates/openapi-path.ts.tmpl`.
 
 ## Example
@@ -114,6 +119,7 @@ registry.registerPath({
 ```
 
 **Update generate.ts**:
+
 ```typescript
 // src/openapi/generate.ts
 // ... existing imports ...

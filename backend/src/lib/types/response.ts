@@ -149,29 +149,30 @@ export function createFailureResponse(error: AppError): FailureResponse {
 }
 
 /**
- * Create a paginated success response
+ * Create a paginated success response with named parameters
  *
- * @param data - Response data payload (array)
- * @param pagination - Pagination metadata
+ * @param options - Response options
+ * @param options.data - Response data payload
+ * @param options.pagination - Pagination metadata
  * @returns Typed success response with pagination
  *
  * @example
  * ```typescript
- * return createPaginatedSuccessResponse(
- *   users,
- *   { page: 1, size: 10, total: 100 }
- * );
+ * return createPaginatedSuccessResponse({
+ *   data: users,
+ *   pagination: { page: 1, size: 10, total: 100 }
+ * });
  * ```
  */
-export function createPaginatedSuccessResponse<T>(
-  data: T,
-  pagination: PaginationMeta,
-): SuccessResponse<T> {
+export function createPaginatedSuccessResponse<T>(options: {
+  data: T;
+  pagination: PaginationMeta;
+}): SuccessResponse<T> {
   return {
-    data,
+    data: options.data,
     error: null,
     message: null,
-    meta: { cursor: null, pagination },
+    meta: { cursor: null, pagination: options.pagination },
     success: true,
     traceId: getTraceId(),
   };

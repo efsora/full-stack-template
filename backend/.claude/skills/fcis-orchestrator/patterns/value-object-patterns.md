@@ -7,6 +7,7 @@ This document outlines common value object patterns in FCIS architecture using b
 Value objects are immutable, self-validating domain primitives that prevent "primitive obsession" by encapsulating validation rules and domain logic.
 
 **Benefits**:
+
 - Type safety (can't mix up email with password)
 - Self-validation (invalid values can't exist)
 - Encapsulation of domain rules
@@ -190,7 +191,8 @@ export type UUID = string & { readonly [brand]: typeof brand };
 
 export const UUID = {
   create: (value: string): Result<UUID> => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
     if (!uuidRegex.test(value)) {
       return fail({
@@ -308,7 +310,8 @@ export const Slug = {
     if (!/^[a-z0-9-]+$/.test(value)) {
       return fail({
         code: "VALIDATION_ERROR",
-        message: "Slug must contain only lowercase letters, numbers, and hyphens",
+        message:
+          "Slug must contain only lowercase letters, numbers, and hyphens",
         field: "slug",
       } as AppError);
     }
@@ -398,7 +401,10 @@ export const Age = {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
 
@@ -510,6 +516,7 @@ export function createUser(input: CreateUserInput): Result<CreateUserResult> {
 ## When to Create a Value Object
 
 Create a value object when:
+
 - ✅ The value has validation rules
 - ✅ The value has domain meaning beyond its primitive type
 - ✅ Mixing it with other values would be an error
@@ -517,6 +524,7 @@ Create a value object when:
 - ✅ It appears in multiple places
 
 Don't create a value object when:
+
 - ❌ It's just a simple primitive with no validation
 - ❌ It's only used in one place
 - ❌ The primitive type is sufficient

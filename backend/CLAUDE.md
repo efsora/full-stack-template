@@ -99,11 +99,11 @@ Workflows compose operations using `pipe()`:
 // src/core/users/create-user.workflow.ts
 export function createUser(input: CreateUserInput): Result<CreateUserResult> {
   return pipe(
-    validateUserCreation(input),     // Effect<ValidatedInput>
-    checkEmailAvailability,          // Effect<ValidatedInput>
-    hashPasswordForCreation,         // Effect<HashedInput>
-    saveNewUser,                     // Effect<CreateUserResult>
-    addAuthToken,                    // Effect<CreateUserResult>
+    validateUserCreation(input), // Effect<ValidatedInput>
+    checkEmailAvailability, // Effect<ValidatedInput>
+    hashPasswordForCreation, // Effect<HashedInput>
+    saveNewUser, // Effect<CreateUserResult>
+    addAuthToken, // Effect<CreateUserResult>
   );
 }
 ```
@@ -139,6 +139,7 @@ export function saveNewUser(input: HashedInput): Result<CreateUserResult> {
 ```
 
 **Command automatically provides**:
+
 - OpenTelemetry span creation
 - Prometheus metrics recording
 - Pino logging with correlation IDs
@@ -151,9 +152,9 @@ export function saveNewUser(input: HashedInput): Result<CreateUserResult> {
 pipe(effect1, effect2, effect3);
 
 // Parallel composition (all effects run concurrently)
-allNamed({ 
-  email: Email.create(email), 
-  password: Password.create(password) 
+allNamed({
+  email: Email.create(email),
+  password: Password.create(password),
 });
 
 // Transformation
@@ -162,7 +163,7 @@ map((user) => ({ id: user.id, email: user.email }));
 // Conditional logic
 filter(
   (user) => user.isActive,
-  (user) => fail({ code: "FORBIDDEN", message: `User ${user.id} is inactive` })
+  (user) => fail({ code: "FORBIDDEN", message: `User ${user.id} is inactive` }),
 );
 
 // Side effects without transformation
@@ -171,7 +172,9 @@ tap((user) => logger.info({ userId: user.id }, "User created"));
 // Pattern matching
 match(result, {
   onSuccess: (value) => value,
-  onFailure: (error) => { throw error; },
+  onFailure: (error) => {
+    throw error;
+  },
 });
 ```
 
@@ -185,7 +188,7 @@ import { invariant } from "#lib/result";
 // ✅ CORRECT - Programming error (API misuse)
 invariant(
   result.status !== "Command",
-  "matchResponse() must be called after run()"
+  "matchResponse() must be called after run()",
 );
 
 // ❌ INCORRECT - Business error (use Failure instead)
@@ -203,11 +206,13 @@ return user
 ```
 
 **When to use `invariant()`:**
+
 - API misuse: Calling functions with invalid preconditions
 - Type system gaps: Exhaustiveness checking in switch statements
 - Internal consistency: "This should never happen" scenarios
 
 **When NOT to use `invariant()`:**
+
 - Expected runtime failures → Return `Failure` result
 - User input validation → Use `fail()` with VALIDATION_ERROR
 - Business rule violations → Use `fail()` with appropriate error code
@@ -240,6 +245,7 @@ This is enforced by a custom ESLint rule: `local/no-direct-core-imports`
 ### Correct vs Incorrect Imports
 
 **✅ Correct** - Import from barrel:
+
 ```typescript
 // src/routes/users/handlers.ts
 import { createUser, getUserById } from "#core/users/index.js";
@@ -247,6 +253,7 @@ import type { CreateUserResult } from "#core/users/index.js";
 ```
 
 **❌ Incorrect** - Direct imports (ESLint error):
+
 ```typescript
 // Direct workflow import
 import { createUser } from "#core/users/create-user.workflow.js";
@@ -289,6 +296,7 @@ export { Password } from "./value-objects/Password.js";
 ### What to Export from Barrel
 
 **✅ Export**:
+
 - Workflows (`*.workflow.ts`) - Main entry points for handlers
 - Public input types (`types/inputs.ts`) - Request data structures
 - Public output types (`types/outputs.ts`) - Response data structures
@@ -296,6 +304,7 @@ export { Password } from "./value-objects/Password.js";
 - Value objects - If used in workflow signatures
 
 **❌ DO NOT Export**:
+
 - Operations (`*.operations.ts`) - Implementation details
 - Internal types (`types/internal.ts`) - Implementation-only types
 - Compositions (`*.compositions.ts`) - Internal orchestration
@@ -312,11 +321,21 @@ Repositories use **factory functions** for dependency injection and testing.
 // src/infrastructure/repositories/drizzle/UserRepository.ts
 export function createUserRepository(dbInstance: typeof db) {
   return {
-    findById: (id: string) => { /* ... */ },
-    findByEmail: (email: string) => { /* ... */ },
-    create: (data: NewUser) => { /* ... */ },
-    update: (id: string, data: Partial<NewUser>) => { /* ... */ },
-    delete: (id: string) => { /* ... */ },
+    findById: (id: string) => {
+      /* ... */
+    },
+    findByEmail: (email: string) => {
+      /* ... */
+    },
+    create: (data: NewUser) => {
+      /* ... */
+    },
+    update: (id: string, data: Partial<NewUser>) => {
+      /* ... */
+    },
+    delete: (id: string) => {
+      /* ... */
+    },
     withTransaction: (tx: unknown) => createUserRepository(tx as typeof db),
   };
 }
@@ -369,6 +388,7 @@ export type CreateUserResult = {
 ```
 
 **When to use `type`:**
+
 - Input types (`types/inputs.ts`) - Request data from external sources
 - Output types (`types/outputs.ts`) - Response data to external consumers
 - Internal types (`types/internal.ts`) - Domain-internal data shapes
@@ -386,6 +406,7 @@ export interface IUserRepository {
 ```
 
 **When to use `interface`:**
+
 - Repository contracts and service interfaces
 - Class hierarchies and inheritance
 - Declaration merging (extending third-party types)
@@ -417,6 +438,7 @@ cursor?: null | string;
 1. **Create domain folder**: `src/routes/[domain]/`
 
 2. **Define Zod schemas** (`schemas.ts`):
+
 ```typescript
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
@@ -434,6 +456,7 @@ export type CreateBody = z.infer<typeof createBodySchema>;
 ```
 
 3. **Create handlers** (`handlers.ts`):
+
 ```typescript
 import { matchResponse } from "#lib/result/combinators";
 import { run } from "#lib/result/index";
@@ -460,6 +483,7 @@ export async function handleCreate(
 ```
 
 4. **Define routes** (`routes.ts`):
+
 ```typescript
 import { validate } from "#middlewares/validate";
 import { handleResult } from "#middlewares/resultHandler";
@@ -468,6 +492,7 @@ router.post("/create", validate(createBodySchema), handleResult(handleCreate));
 ```
 
 5. **Register in main router** (`src/routes/index.ts`):
+
 ```typescript
 import domainRoutes from "./domain/routes";
 router.use("/domain", domainRoutes);
@@ -572,12 +597,14 @@ Tests use Vitest v4.0.4 and Docker testcontainers for integration tests.
 ### Test Categories
 
 **Unit Tests** (`tests/value-objects/`):
+
 - Pure value objects, utility functions
 - No database, no external dependencies
 - Fast execution
 - Example: Email validation, Password strength
 
 **Integration Tests** (`tests/integration/`):
+
 - Complete workflows with real database operations
 - Uses PostgreSQL testcontainers
 - Tests end-to-end business logic
@@ -641,7 +668,7 @@ describe("Workflow Integration Tests", () => {
     expect(result.status).toBe("Success");
     if (result.status === "Success") {
       expect(result.value.email).toBe("test@example.com");
-      
+
       // Verify in database
       const db = getTestDb();
       const users = await db.query.users.findMany({
@@ -654,6 +681,7 @@ describe("Workflow Integration Tests", () => {
 ```
 
 **Testcontainer Lifecycle**:
+
 1. **beforeAll**: Starts PostgreSQL 18 container, runs migrations (shared across tests)
 2. **beforeEach**: Truncates all tables with CASCADE (ensures test isolation)
 3. **Test Execution**: All tests share the same container (parallel execution)
@@ -666,6 +694,7 @@ npm run test:coverage  # Generate coverage report
 ```
 
 **Coverage Scope**:
+
 - **Included**: `src/core/**/*.ts` (business logic only)
 - **Excluded**: Infrastructure, routes, config, tests
 - **Thresholds**: 35% (lines, functions, branches, statements)
@@ -706,6 +735,7 @@ For development: `npx drizzle-kit push` (applies schema changes directly)
 ### Logging (Pino)
 
 The logger automatically includes:
+
 - Request correlation IDs (via AsyncLocalStorage)
 - Service name and environment
 - Timestamp and log level
@@ -722,6 +752,7 @@ logger.error({ error, requestId }, "Operation failed");
 The request logger automatically sanitizes sensitive data:
 
 **What Gets Redacted**:
+
 - **Authentication**: passwords, tokens, API keys, Bearer tokens, sessions
 - **Payment**: credit card numbers, CVV, account numbers
 - **PII**: SSN, passport, driver's license, national ID
@@ -734,6 +765,7 @@ The request logger automatically sanitizes sensitive data:
 ### Metrics (Prometheus)
 
 Metrics automatically collected:
+
 - HTTP requests (count, duration, response size)
 - Result executions (count, duration, errors)
 - Database queries (count, duration)
@@ -744,11 +776,13 @@ Access metrics: `GET /metrics`
 ### Tracing (OpenTelemetry)
 
 Distributed tracing automatically enabled for:
+
 - HTTP requests (via auto-instrumentation)
 - Database queries (via Drizzle instrumentation)
 - Result operations (via Command metadata)
 
 **Tracing Behavior**:
+
 - When `OTEL_EXPORTER_OTLP_ENDPOINT` is **not set**: Traces log to console
 - When `OTEL_EXPORTER_OTLP_ENDPOINT` is **set**: Traces export to OTLP endpoint
 
@@ -759,6 +793,7 @@ Distributed tracing automatically enabled for:
 The OpenAPI spec is **automatically generated** from Zod schemas using `@asteasolutions/zod-to-openapi`.
 
 **File Structure**:
+
 ```
 src/openapi/
 ├── generate.ts          # Generation script
@@ -772,6 +807,7 @@ src/openapi/
 ### Adding Endpoints
 
 1. **Define Zod schemas with OpenAPI metadata** (`routes/domain/schemas.ts`):
+
 ```typescript
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
@@ -786,6 +822,7 @@ export const createBodySchema = z
 ```
 
 2. **Create path registration** (`src/openapi/paths/domain.ts`):
+
 ```typescript
 import { createBodySchema } from "#routes/domain/schemas";
 import { registry } from "../registry.js";
@@ -821,6 +858,7 @@ registry.registerPath({
 ```
 
 3. **Import path registration** (`src/openapi/generate.ts`):
+
 ```typescript
 import "./paths/users.js";
 import "./paths/domain.js"; // Add your new path file
@@ -875,6 +913,7 @@ responses: {
 Configuration is validated at startup using Zod in `src/infrastructure/config/env.ts`.
 
 Required variables (see `.env.example`):
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Minimum 32 characters for token signing
 - `NODE_ENV` - "development" or "production"
@@ -884,6 +923,7 @@ Required variables (see `.env.example`):
 - `METRICS_ENABLED` - "true" or "false"
 
 Optional variables:
+
 - `OTEL_EXPORTER_OTLP_ENDPOINT` - OTLP endpoint URL (if not set, traces log to console)
 - `OTEL_SERVICE_NAME` - Service name for tracing (default: "backend")
 
@@ -900,6 +940,7 @@ The project uses ES Module import aliases configured in `package.json`:
 ```
 
 Usage:
+
 ```typescript
 import { logger } from "#infrastructure/logger";
 import { userRepository } from "#infrastructure/repositories/drizzle";
@@ -930,6 +971,7 @@ router.get("/protected", auth, handleProtected);
 ```
 
 The middleware:
+
 - Verifies Bearer token from `Authorization` header
 - Attaches decoded payload to `req.user = { userId, email }`
 - Returns 401 for invalid/missing tokens
@@ -952,16 +994,19 @@ Generate a complete FCIS feature with a single command:
 For each feature, the orchestrator generates:
 
 **Database Layer**:
+
 - Drizzle ORM schema definitions
 - Database migrations
 - Indexes for performance
 
 **Infrastructure Layer** (Imperative Shell):
+
 - Repository factory functions with CRUD methods
 - External service clients (email, payment, SMS, etc.)
 - Barrel exports
 
 **Core Layer** (Functional Core):
+
 - Value objects (branded types with validation)
 - Operations (business logic with `command()`)
 - Workflows (composition with `pipe()`)
@@ -969,12 +1014,14 @@ For each feature, the orchestrator generates:
 - Barrel exports (public API only)
 
 **HTTP Layer** (Imperative Shell):
+
 - Zod schemas with OpenAPI metadata
 - Request handlers (barrel imports only)
 - Route definitions with middleware
 - OpenAPI path registrations
 
 **Tests**:
+
 - Unit tests for value objects
 - Unit tests for pure functions
 
@@ -983,6 +1030,7 @@ For each feature, the orchestrator generates:
 The orchestrator guides you through 5 phases with interactive checkpoints:
 
 #### 1. Analysis Phase
+
 - Analyzes ALL existing domains in `src/core/`
 - Learns naming conventions, file structures, error patterns
 - Identifies required components
@@ -991,6 +1039,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 **Checkpoint**: Review analysis and approve
 
 #### 2. Design Phase
+
 - Designs database schema (tables, columns, indexes)
 - Designs type system (inputs, outputs, errors, value objects)
 - Designs business logic (operations, workflows)
@@ -1002,6 +1051,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 **Checkpoint**: Review design and approve
 
 #### 3. Planning Phase
+
 - Creates file inventory (new files, files to modify)
 - Detects conflicts and merge strategies
 - Validates feasibility, naming, FCIS compliance
@@ -1012,6 +1062,7 @@ The orchestrator guides you through 5 phases with interactive checkpoints:
 #### 4. Implementation Phase
 
 11 specialist workflows execute sequentially:
+
 1. **schema-designer**: Database schemas + migrations
 2. **repository-builder**: Repository factory functions
 3. **external-service-builder**: External API clients
@@ -1029,6 +1080,7 @@ Each specialist is defined in `.claude/skills/fcis-orchestrator/agent-specs/` as
 **Checkpoint**: Review implementation and request iterations
 
 #### 5. Iteration Phase
+
 - Collect developer feedback
 - Analyze which specialists need re-execution
 - Re-run affected agents only
@@ -1039,27 +1091,33 @@ Each specialist is defined in `.claude/skills/fcis-orchestrator/agent-specs/` as
 The **validator** agent enforces (BLOCKING):
 
 ✅ **Barrel Export Compliance**
+
 - Only workflows, public types, value objects exported
 - No operations, internal types, or helpers in public API
 
 ✅ **Import Rules**
+
 - Handlers import workflows ONLY from barrel exports
 - No direct workflow/operation/internal type imports
 
 ✅ **Type Conventions**
+
 - DTOs use `type`
 - Contracts use `interface`
 
 ✅ **Result Usage**
+
 - Workflows use `pipe()` for composition
 - Operations use `command()` for side effects
 - Proper error handling with `fail()`
 
 ✅ **Repository Pattern**
+
 - Factory functions for dependency injection
 - `withTransaction` support for all repositories
 
 ✅ **Code Quality**
+
 - ESLint passes
 - TypeScript type checking passes
 
@@ -1068,21 +1126,25 @@ The **validator** agent enforces (BLOCKING):
 Hooks automatically enforce FCIS patterns:
 
 **PostToolUse** (after file edits):
+
 - Auto-format with Prettier
 - ESLint auto-fix
 - Barrel export validation
 
 **PreToolUse** (before file edits):
+
 - Block direct operation imports in handlers
 - Warn about critical file modifications
 
 **Stop** (after completion):
+
 - Run TypeScript type check
 - Show git status for review
 
 ### Pattern Learning
 
 The orchestrator learns from your existing code:
+
 - Naming conventions (camelCase, PascalCase, kebab-case)
 - File organization patterns
 - Common workflows (CRUD, auth patterns)
@@ -1094,6 +1156,7 @@ Generated code matches your codebase style automatically.
 ### Educational Mode
 
 As agents work, you'll see inline explanations of FCIS principles:
+
 - "Database schema is infrastructure (Imperative Shell)"
 - "Repository uses factory pattern for dependency injection"
 - "Workflows compose with pipe() for railway-oriented programming"
@@ -1102,6 +1165,7 @@ As agents work, you'll see inline explanations of FCIS principles:
 ### Design Documents
 
 All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
+
 - Full analysis findings
 - Complete design specifications
 - Detailed execution plan
@@ -1128,6 +1192,7 @@ Helper scripts for manual validation:
 ### Advanced Usage
 
 **Iteration Example**:
+
 ```
 After implementation...
 

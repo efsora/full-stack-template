@@ -11,10 +11,12 @@ This skill provides a complete orchestration system for implementing FCIS archit
 ## What is FCIS Architecture?
 
 **Functional Core, Imperative Shell** separates:
+
 - **Functional Core**: Pure business logic with no side effects (workflows, operations, value objects)
 - **Imperative Shell**: Infrastructure and I/O (repositories, services, HTTP routes)
 
 Benefits:
+
 - Testable business logic without mocks
 - Clear separation of concerns
 - Type-safe domain modeling
@@ -23,6 +25,7 @@ Benefits:
 ## When This Skill Activates
 
 This skill automatically activates when you:
+
 - Ask to create new backend features or domains
 - Request FCIS-compliant implementations
 - Need to refactor existing code to FCIS patterns
@@ -49,6 +52,7 @@ Or manually invoke with: `/fcis:create [task description]`
 ### Pattern Learning
 
 Before designing, the orchestrator analyzes ALL existing domains in `src/core/` to learn:
+
 - Naming conventions
 - File organization patterns
 - Common workflows
@@ -60,6 +64,7 @@ This ensures generated code matches your codebase style.
 ### Specialist Agents (Sequential Execution)
 
 11 specialist agents execute in order:
+
 1. **schema-designer**: Database schemas + migrations
 2. **repository-builder**: Repository factory functions
 3. **external-service-builder**: External API clients (email, payment, etc.)
@@ -75,6 +80,7 @@ This ensures generated code matches your codebase style.
 ### Educational Explanations
 
 As agents work, you'll see inline explanations of FCIS principles:
+
 - Why certain patterns are used
 - How components fit together
 - Best practices and conventions
@@ -82,6 +88,7 @@ As agents work, you'll see inline explanations of FCIS principles:
 ### State Management
 
 All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
+
 - Analysis findings
 - Design specifications
 - Execution plan
@@ -93,16 +100,19 @@ This document serves as communication between agents and provides full traceabil
 ## Usage Examples
 
 ### Create New Domain
+
 ```
 /fcis:create "Add user profile management with avatar upload"
 ```
 
 ### Add Feature to Existing Domain
+
 ```
 /fcis:create "Add password reset functionality to users domain"
 ```
 
 ### Refactor Existing Code
+
 ```
 /fcis:create "Refactor authentication to use FCIS patterns"
 ```
@@ -112,15 +122,18 @@ This document serves as communication between agents and provides full traceabil
 For a typical feature, you'll get:
 
 **Database Layer**:
+
 - Schema definitions (Drizzle ORM)
 - Migration files
 
 **Infrastructure Layer** (Imperative Shell):
+
 - Repository factory functions
 - External service clients
 - Barrel exports
 
 **Core Layer** (Functional Core):
+
 - Value objects (branded types)
 - Operations (business logic with `command()`)
 - Workflows (composition with `pipe()`)
@@ -128,12 +141,14 @@ For a typical feature, you'll get:
 - Barrel exports
 
 **HTTP Layer** (Imperative Shell):
+
 - Zod schemas with OpenAPI metadata
 - Request handlers (barrel imports only)
 - Route definitions
 - OpenAPI path registrations
 
 **Tests**:
+
 - Unit tests for value objects
 - Unit tests for pure functions
 
@@ -142,27 +157,33 @@ For a typical feature, you'll get:
 The **validator** agent enforces:
 
 ✅ **Barrel Export Compliance**
+
 - Only workflows, public types, and value objects exported
 - No operations, internal types, or helpers in public API
 
 ✅ **Import Rules**
+
 - Handlers import workflows ONLY from barrel exports
 - No direct operation or internal type imports
 
 ✅ **Type Conventions**
+
 - DTOs use `type`
 - Contracts use `interface`
 
 ✅ **Result Usage**
+
 - Workflows use `pipe()` for composition
 - Operations use `command()` for side effects
 - Proper error handling with `fail()`
 
 ✅ **Repository Pattern**
+
 - Factory functions for dependency injection
 - `withTransaction` support for all repositories
 
 ✅ **Code Quality**
+
 - ESLint passes
 - TypeScript type checking passes
 
@@ -173,26 +194,31 @@ Validation is **blocking** - failures must be resolved before proceeding.
 Project-level hooks in `.claude/settings.json` provide:
 
 **PostToolUse** (after file edits):
+
 - Auto-formatting with Prettier
 - ESLint auto-fix
 - Barrel export validation
 
 **PreToolUse** (before file edits):
+
 - Import rule checking
 - Architectural compliance
 
 **Stop** (after completion):
+
 - Type checking
 - Final validation
 
 ## Iteration Support
 
 After implementation, you can request changes:
+
 - "Make email validation stricter"
 - "Add rate limiting to the endpoint"
 - "Change password requirements"
 
 The orchestrator:
+
 1. Analyzes your feedback
 2. Identifies affected agents
 3. Re-runs only necessary agents
@@ -202,6 +228,7 @@ The orchestrator:
 ## Error Handling
 
 If an agent fails:
+
 1. Error logged to design document
 2. Failure reason analyzed
 3. Parameters adjusted (different approach)
@@ -273,6 +300,7 @@ A: Review validation errors in design document. Indicates architectural issue.
 ## Support
 
 For issues or feature requests:
+
 - Check design document: `.claude/temp/fcis-design-*.md`
 - Review agent logs in design document
 - Check hook outputs in terminal
@@ -281,6 +309,7 @@ For issues or feature requests:
 ## Version
 
 **1.0.0** - Initial release
+
 - 5-phase orchestration
 - 11 specialist agents
 - Interactive checkpoints

@@ -5,11 +5,13 @@ This document outlines error handling patterns in FCIS architecture using the Re
 ## Error Code Structure
 
 ### Format
+
 `[DOMAIN]_[DESCRIPTION]` or `[CATEGORY]_[DESCRIPTION]`
 
 ### Examples
 
 **Domain-Specific Errors**:
+
 - `USER_NOT_FOUND`
 - `USER_EMAIL_ALREADY_EXISTS`
 - `USER_INACTIVE`
@@ -19,6 +21,7 @@ This document outlines error handling patterns in FCIS architecture using the Re
 - `PAYMENT_DECLINED`
 
 **Category Errors**:
+
 - `VALIDATION_ERROR` - Input validation failed
 - `NOT_FOUND` - Resource doesn't exist
 - `ALREADY_EXISTS` - Resource already exists (unique constraint)
@@ -123,7 +126,7 @@ export function findUserById(id: string): Result<User> {
             resourceId: id,
           });
     },
-    { operation: "findUserById", tags: { domain: "users" } }
+    { operation: "findUserById", tags: { domain: "users" } },
   );
 }
 ```
@@ -148,7 +151,7 @@ export function checkEmailAvailability(email: string): Result<string> {
           })
         : success(email);
     },
-    { operation: "checkEmailAvailability", tags: { domain: "users" } }
+    { operation: "checkEmailAvailability", tags: { domain: "users" } },
   );
 }
 ```
@@ -198,7 +201,7 @@ export function checkAuthentication(token: string): Result<TokenData> {
             message: "Invalid or expired authentication token",
           });
     },
-    { operation: "checkAuthentication", tags: { domain: "auth" } }
+    { operation: "checkAuthentication", tags: { domain: "auth" } },
   );
 }
 ```
@@ -210,11 +213,14 @@ export function checkAuthentication(token: string): Result<TokenData> {
 ```typescript
 export function checkUserPermission(
   userId: string,
-  resourceId: string
+  resourceId: string,
 ): Result<void> {
   return command(
     async () => {
-      const hasPermission = await permissionRepository.check(userId, resourceId);
+      const hasPermission = await permissionRepository.check(
+        userId,
+        resourceId,
+      );
       return hasPermission;
     },
     (hasPermission) => {
@@ -227,7 +233,7 @@ export function checkUserPermission(
             resourceId: resourceId,
           });
     },
-    { operation: "checkUserPermission", tags: { domain: "auth" } }
+    { operation: "checkUserPermission", tags: { domain: "auth" } },
   );
 }
 ```
@@ -243,7 +249,7 @@ export function sendEmail(to: string, subject: string): Result<void> {
       await emailClient.send({ to, subject, body: "..." });
     },
     () => success(undefined),
-    { operation: "sendEmail", tags: { domain: "email", action: "send" } }
+    { operation: "sendEmail", tags: { domain: "email", action: "send" } },
   ).catch((error) => {
     return fail({
       code: "EXTERNAL_SERVICE_ERROR",
@@ -298,7 +304,10 @@ export function activateUser(userId: string): Result<User> {
       return await userRepository.update(userId, { isActive: true });
     },
     (user) => success(user),
-    { operation: "activateUser", tags: { domain: "users", action: "activate" } }
+    {
+      operation: "activateUser",
+      tags: { domain: "users", action: "activate" },
+    },
   ).catch((error) => {
     if (error.message === "User not found") {
       return fail({
@@ -332,9 +341,9 @@ Workflows automatically propagate errors through the pipe:
 ```typescript
 export function createUser(input: CreateUserInput): Result<CreateUserResult> {
   return pipe(
-    validateEmail(input.email),          // If fails, stops here
+    validateEmail(input.email), // If fails, stops here
     (email) => checkEmailAvailability(email), // Only runs if previous succeeds
-    (email) => hashPassword(input.password),  // Only runs if previous succeeds
+    (email) => hashPassword(input.password), // Only runs if previous succeeds
     (hashed) => saveUser({ email: input.email, password: hashed }), // Only runs if previous succeeds
   );
 }

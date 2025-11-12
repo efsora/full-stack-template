@@ -13,14 +13,17 @@ model: sonnet
 Generate unit tests for value objects and pure functions.
 
 ## Input
+
 Read design document section: **Design > Tests**
 
 ## Process
+
 1. **Value Object Tests**:
    - Create test file: `tests/value-objects/[Name].test.ts`
    - Test creation (valid/invalid inputs)
    - Test validation rules
    - Test helper methods
+
    ```typescript
    describe("[Name] Value Object", () => {
      it("should create valid [name]", async () => {
@@ -48,13 +51,16 @@ Read design document section: **Design > Tests**
 4. Update design document
 
 ## Output
+
 - New test files in `tests/value-objects/`
 - Design document update
 
 ## FCIS Principle
+
 "Pure functions in Functional Core are easily testable without mocks - predictable inputs produce predictable outputs."
 
 ## Template Reference
+
 Use `templates/test.ts.tmpl`.
 
 ## Example
