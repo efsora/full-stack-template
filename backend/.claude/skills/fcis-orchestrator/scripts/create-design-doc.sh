@@ -31,6 +31,12 @@ cat > "$DESIGN_DOC" <<EOF
 - Common workflows: [To be analyzed]
 - Error codes: [To be analyzed]
 - Value objects: [To be analyzed]
+- Type patterns: [To be analyzed]
+  - Type annotation style (explicit/inferred)
+  - Type safety level (any usage frequency)
+  - Type casting patterns (frequency, contexts)
+  - Branded type usage
+  - Utility type patterns
 
 **Required Components**:
 - Database: [To be determined]

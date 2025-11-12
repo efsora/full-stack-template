@@ -1,5 +1,11 @@
 // Template for HTTP Request Handlers
 // Location: src/routes/{{domain}}/handlers.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit parameter and return types
+// - Avoid type casting unless absolutely necessary
+// - Use patterns from existing domains
 
 import { matchResponse } from "#lib/result/combinators";
 import { run } from "#lib/result/index";

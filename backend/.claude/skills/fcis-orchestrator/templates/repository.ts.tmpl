@@ -1,5 +1,11 @@
 // Template for Repository Factory Function
 // Location: src/infrastructure/repositories/drizzle/{{Domain}}Repository.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit parameter and return types
+// - Avoid type casting unless absolutely necessary (tx as typeof db is acceptable)
+// - Use patterns from existing repositories
 
 import { db } from "#db/client";
 import { {{tables}} } from "#db/schema";

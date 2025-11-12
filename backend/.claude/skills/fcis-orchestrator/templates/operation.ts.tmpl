@@ -1,5 +1,11 @@
 // Template for Operations (Business Logic)
 // Location: src/core/{{domain}}/{{feature}}.operations.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit parameter and return types
+// - Avoid type casting unless absolutely necessary
+// - Use patterns from existing domains
 
 import { command, success, fail, type Result } from "#lib/result";
 import { {{repositories}} } from "#infrastructure/repositories/drizzle";

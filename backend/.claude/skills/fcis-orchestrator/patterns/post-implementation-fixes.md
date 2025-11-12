@@ -341,6 +341,213 @@ error: Could not find file: 'src/core/transactions/types/outputs.ts'
 
 ---
 
+## TypeScript Code Quality Fixes
+
+### Detecting TypeScript Quality Violations
+
+Use 3 detection methods for comprehensive coverage.
+
+### Detection Methods
+
+**Method 1: Grep Search**
+```bash
+# Find 'any' type usage
+grep -rn ": any\|<any>\|as any\|Array<any>\|Record<string, any>" src/core/
+
+# Find type casting
+grep -rn " as [A-Z]" src/core/
+
+# Find implicit any in parameters
+grep -rn "function.*([^)]*[a-z])" src/core/ | grep -v ": "
+```
+
+**Method 2: TypeScript Compiler**
+```bash
+tsc --noImplicitAny --noEmit
+```
+
+**Method 3: ESLint**
+```bash
+npm run lint
+```
+
+Check for `@typescript-eslint/no-explicit-any` and `@typescript-eslint/no-unnecessary-type-assertion` violations.
+
+### Common TypeScript Quality Violations and Fixes
+
+#### 1. `any` Type Usage
+
+**Detection**: `: any`, `<any>`, `as any`, `Array<any>`, `Record<string, any>`
+
+**Example Violation**:
+```typescript
+const user: any = await userRepository.findById(id);
+function process(data: any) { return data.value; }
+```
+
+**Fix Strategy**:
+1. Read file with violation
+2. Analyze context:
+   - For variables: Check assignment right-hand side type
+   - For parameters: Check how parameter is used in function body
+   - For return types: Check return statements
+3. Infer proper type
+4. Replace `any` with inferred type
+
+**Example Fix**:
+```typescript
+// BEFORE
+const user: any = await userRepository.findById(id);
+
+// Context: userRepository.findById returns Promise<User | null>
+// AFTER
+const user: User | null = await userRepository.findById(id);
+
+// BEFORE
+function process(data: any) {
+  return data.value;
+}
+
+// Context: data has 'value' property, likely ProcessInput type
+// AFTER
+function process(data: ProcessInput): string {
+  return data.value;
+}
+```
+
+#### 2. Missing Type Annotations
+
+**Detection**: TypeScript compiler reports implicit `any` or ESLint flags missing types
+
+**Example Violation**:
+```typescript
+function createUser(email, password) { // Parameters missing types
+  return { email, password };
+}
+
+function getUser(id: string) { // Return type missing
+  return userRepository.findById(id);
+}
+```
+
+**Fix Strategy**:
+1. Identify missing annotation location
+2. Analyze usage context
+3. Infer proper type
+4. Add explicit type annotation
+
+**Example Fix**:
+```typescript
+// BEFORE
+function createUser(email, password) {
+  return { email, password };
+}
+
+// AFTER
+function createUser(
+  email: string,
+  password: string
+): { email: string; password: string } {
+  return { email, password };
+}
+
+// BEFORE
+function getUser(id: string) {
+  return userRepository.findById(id);
+}
+
+// AFTER (inferred from repository method)
+function getUser(id: string): Promise<User | null> {
+  return userRepository.findById(id);
+}
+```
+
+#### 3. Unnecessary Type Casting
+
+**Detection**: Value cast to type it already has
+
+**Example Violation**:
+```typescript
+const email: string = getEmail();
+const lower = email as string; // Unnecessary, email already string
+
+const result = await run(workflow(input));
+const data = result.value as UserData; // Might be unnecessary with type narrowing
+```
+
+**Fix Strategy**:
+1. Identify type cast
+2. Check actual type of value
+3. Check target type of cast
+4. If types match: Remove cast
+5. Use type narrowing instead when possible
+
+**Example Fix**:
+```typescript
+// BEFORE
+const email: string = getEmail();
+const lower = email as string;
+
+// AFTER
+const email: string = getEmail();
+const lower = email; // Cast removed
+
+// BEFORE
+const result = await run(workflow(input));
+const data = result.value as UserData;
+
+// AFTER (with type narrowing)
+const result = await run(workflow(input));
+if (result.status === "Success") {
+  const data = result.value; // TypeScript knows it's UserData
+}
+```
+
+#### 4. Type Casting Without Justification
+
+**Detection**: Type cast found without explaining comment
+
+**Example Violation**:
+```typescript
+const validated = input as ValidatedInput;
+const data = json as ApiResponse;
+```
+
+**Fix Strategy**:
+1. Analyze why cast is needed
+2. Determine if it's acceptable (after validation, type guard, external data)
+3. Add justification comment
+
+**Example Fix**:
+```typescript
+// BEFORE
+const validated = input as ValidatedInput;
+
+// AFTER
+const validated = input as ValidatedInput; // After Zod schema validation confirms shape
+
+// BEFORE
+const data = json as ApiResponse;
+
+// AFTER
+const data = json as ApiResponse; // External API response validated with runtime checks
+```
+
+---
+
+## TypeScript Quality Fix Mapping
+
+| Violation Type | Detection Method | Fix Strategy |
+|----------------|------------------|--------------|
+| `any` type | Grep, tsc, ESLint | Infer proper type from context |
+| Implicit any | tsc | Add explicit type annotation |
+| Missing param type | tsc, ESLint | Analyze usage, add type |
+| Missing return type | ESLint | Infer from return statements |
+| Unnecessary cast | ESLint | Remove if types match |
+| Cast no justification | Grep | Add comment explaining necessity |
+
+---
+
 ## Fix Application Workflow
 
 ### General Pattern

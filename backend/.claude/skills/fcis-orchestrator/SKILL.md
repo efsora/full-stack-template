@@ -272,6 +272,35 @@ The **validator** agent enforces:
 - Factory functions for dependency injection
 - `withTransaction` support for all repositories
 
+✅ **TypeScript Code Quality**
+
+The validator enforces TypeScript quality rules with multi-method detection and automatic fixes:
+
+**Rule 1: Never Use `any` Type**
+- All values have proper types (User, string, CreateInput)
+- Use `unknown` for truly unknown values, then validate
+- Detection: Grep + tsc --noImplicitAny + ESLint no-explicit-any
+
+**Rule 2: All Values Properly Typed**
+- Function parameters: Always explicitly typed
+- Function return types: Always explicit
+- Variables: Typed when not obvious from context
+
+**Rule 3: Minimal Type Casting**
+- Avoid `as Type` unless absolutely necessary
+- Only allowed after: Runtime validation (Zod), type guards, external data validation
+- Required: Justification comment explaining necessity
+
+**Rule 4: Pattern Consistency**
+- Use type patterns learned from existing domains
+- Branded types for domain primitives (Email, UserId, TransactionId)
+- Utility types for updates (Partial<Pick<>>)
+- Consistent type file organization
+
+**Enforcement**: Multi-layer (pattern learning + specialist guidelines + validator checks)
+**Auto-Fix**: Replaces `any`, adds type annotations, removes unnecessary casts
+**Blocking**: Unfixable violations block implementation
+
 ✅ **Code Quality**
 
 - ESLint passes
@@ -430,6 +459,15 @@ For issues or feature requests:
 - Consult CLAUDE.md in backend folder
 
 ## Version
+
+**1.4.0** - TypeScript Code Quality Rules
+
+- Integrated TypeScript quality rules enforcement (no `any`, proper types, minimal casting, pattern consistency)
+- Multi-layer strategy: Pattern learning (Analysis) + Guidelines (Specialists) + Enforcement (Validator)
+- Multi-method detection: Grep + tsc --noImplicitAny + ESLint
+- Automatic fixes for violations (replace `any`, add annotations, remove unnecessary casts)
+- Blocking enforcement: Unfixable violations block implementation
+- Type pattern learning from existing domains
 
 **1.3.0** - Deterministic Implementation
 

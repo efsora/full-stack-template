@@ -40,6 +40,12 @@ You are the main orchestrator for generating FCIS (Functional Core, Imperative S
    - Common workflows (CRUD patterns)
    - Error handling (error codes, types)
    - Value object usage
+   - **Type patterns** (TypeScript quality):
+     - Type annotation style: `grep "function.*:" src/core/` (check return types)
+     - `any` usage frequency: `grep -r ": any" src/core/ | wc -l` (should be 0)
+     - Type casting patterns: `grep -r " as [A-Z]" src/core/` (check frequency and contexts)
+     - Branded type usage: `grep -r "Branded<" src/core/` (which primitives wrapped)
+     - Utility type patterns: `grep -r "Partial<\|Pick<\|Omit<" src/core/` (how used)
 4. Identify primary domain (new or existing)
 5. Determine required components
 6. Write analysis to design document
@@ -293,6 +299,95 @@ Execute specialists in **5 logical groups** with automatic execution within grou
 - Generated code follows Design spec exactly
 - Pattern learning fills minor gaps automatically
 - Design validation (Phase 2.5) should prevent incomplete specs
+
+#### TypeScript Code Quality Requirements
+
+**All specialists must follow these TypeScript quality rules when generating code:**
+
+For detailed rules and examples, see `.claude/skills/fcis-orchestrator/patterns/typescript-quality-rules.md`
+
+**Rule 1: Never Use `any` Type**
+- ❌ NO: `const data: any = ...`, `function foo(x: any)`, `Array<any>`, `Record<string, any>`
+- ✅ YES: Use proper types (`User`, `string`, `CreateInput`) or `unknown` for truly unknown values
+
+**Rule 2: All Values Have Proper Types**
+- ✅ Function parameters: Always explicitly typed
+- ✅ Function return types: Always explicit (even if TypeScript can infer)
+- ✅ Variables: Type annotated when type not obvious from context
+- ✅ All type properties: Fully specified
+
+**Rule 3: Minimal Type Casting**
+- ❌ Avoid: `value as Type` unless absolutely necessary
+- ✅ Only allow: After runtime validation (Zod), type guards, external data validation
+- ✅ Required: Justification comment explaining why casting is necessary
+- Example: `const validated = input as ValidatedInput; // After Zod schema validation`
+
+**Rule 4: Use Patterns from Existing Domains**
+- ✅ Follow learned type patterns from Analysis phase
+- ✅ Use branded types like existing domains (Email, UserId, TransactionId)
+- ✅ Match existing type file organization (inputs.ts, outputs.ts, errors.ts, internal.ts)
+- ✅ Use utility types consistently (Partial<Pick<>> for updates)
+- ✅ Follow existing error type structure
+
+**Enforcement**:
+- Validator will check all generated code for violations
+- Violations will be automatically fixed when possible
+- Unfixable violations will block implementation
+
+**Examples of Compliant Code**:
+
+```typescript
+// ✅ Workflow with explicit types
+export function createTransaction(
+  input: CreateTransactionInput
+): Result<CreateTransactionResult> {
+  return pipe(
+    validateTransaction(input),
+    saveTransaction
+  );
+}
+
+// ✅ Operation with explicit types
+export function saveTransaction(
+  input: ValidatedTransactionInput
+): Result<TransactionData> {
+  return command(
+    async () => {
+      const transactions = await transactionRepository.create(input);
+      return first(transactions);
+    },
+    (transaction) =>
+      transaction
+        ? success({ id: transaction.id, amount: transaction.amount })
+        : fail({ code: "INTERNAL_ERROR", message: "Failed to create transaction" }),
+    {
+      operation: "saveTransaction",
+      tags: { domain: "transactions", action: "create" },
+    }
+  );
+}
+
+// ✅ Handler with explicit types
+export async function handleCreate(
+  req: ValidatedRequest<{ body: CreateTransactionBody }>
+): Promise<AppResponse<CreateTransactionResult>> {
+  const body = req.validated.body;
+  const result = await run(createTransaction(body));
+  return matchResponse(result, {
+    onSuccess: (data) => createSuccessResponse(data),
+    onFailure: (error) => createFailureResponse(error),
+  });
+}
+
+// ✅ Value object with explicit types
+export type TransactionId = Branded<string, "TransactionId">;
+
+export const TransactionId = {
+  create: (value: string): Result<TransactionId> => {
+    // No 'any' types, proper validation
+  }
+};
+```
 
 #### Group 1: Foundation (Data Layer)
 
@@ -763,6 +858,25 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
 ##### Architectural Compliance
 [Validation results for barrel exports, imports, types, Result usage, repository pattern]
 
+##### TypeScript Code Quality
+
+**Detection Results**:
+- Grep: [N violations found - any types, type casts]
+- tsc --noImplicitAny: [N implicit any errors]
+- ESLint no-explicit-any: [N violations]
+
+**Total Violations**: [N]
+
+**Automatic Fixes Applied**:
+[List of fixes: "Replaced 'any' with User in operations.ts:15", etc.]
+
+**Re-validation**:
+- Grep: [0 violations]
+- tsc: [0 errors]
+- ESLint: [0 violations]
+
+**Status**: [✅ Passed / ❌ Blocked]
+
 ##### Post-Implementation Checklist
 
 **Attempt 1**:
@@ -839,6 +953,16 @@ When analyzing existing domains, look for:
 - Which primitives are wrapped (email, password, phone)
 - Validation patterns (regex, length, format)
 - Branded type usage
+
+**Type Patterns** (TypeScript Quality):
+
+- Type annotation style (explicit vs inferred, when to annotate)
+- Type safety level (`any` usage: should be 0, strict types preferred)
+- Type casting frequency (rare/never, with justifications)
+- Branded type patterns (which primitives use Branded<>, naming conventions)
+- Utility type usage (Partial, Pick, Omit for update types)
+- Type composition (union types, intersection types)
+- Type file organization (inputs.ts, outputs.ts, errors.ts, internal.ts structure)
 
 ## Educational Explanations
 

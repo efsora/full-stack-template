@@ -1179,6 +1179,22 @@ The **validator** agent enforces (BLOCKING):
 - Factory functions for dependency injection
 - `withTransaction` support for all repositories
 
+✅ **TypeScript Code Quality**
+
+The validator enforces strict TypeScript quality rules:
+
+**The 4 Rules**:
+1. **Never use `any` type** - All values have proper types (User, string, CreateInput) or `unknown` with validation
+2. **All values properly typed** - Explicit types on function parameters, return types, and non-obvious variables
+3. **Minimal type casting** - Avoid `as Type` except after runtime validation (Zod), type guards, or external data validation
+4. **Pattern consistency** - Use type patterns from existing domains (branded types, utility types, type structure)
+
+**Enforcement**:
+- Multi-layer: Pattern learning (Analysis) + Specialist guidelines + Validator checks
+- Multi-method detection: Grep + tsc --noImplicitAny + ESLint no-explicit-any
+- Automatic fixes: Replace `any`, add type annotations, remove unnecessary casts
+- Blocking: Unfixable violations block implementation
+
 ✅ **Code Quality**
 
 - ESLint passes

@@ -51,7 +51,139 @@ Read design document section: **Implementation > Agent Execution Log**
 - Check `withTransaction` method exists
 - Check singleton export
 
-### 6. Post-Implementation Checklist
+### 6. TypeScript Code Quality
+
+**Purpose**: Ensure all generated TypeScript code follows quality rules (no `any`, proper types, minimal casting, pattern consistency).
+
+**Detection Strategy**: Use 3 methods for comprehensive coverage
+
+**Method 1: Grep Search for Violations**
+
+Search all generated files for violations:
+
+```bash
+# Search for 'any' type usage
+grep -rn ": any\|<any>\|as any\|Array<any>\|Record<string, any>" src/core/[domain]/
+
+# Search for type casting
+grep -rn " as [A-Z]" src/core/[domain]/
+
+# Search for implicit any in parameters (heuristic)
+grep -rn "function.*([^)]*[a-z])" src/core/[domain]/ | grep -v ": "
+```
+
+Parse output for file paths and line numbers.
+
+**Method 2: TypeScript Compiler Check**
+
+Run TypeScript with strict flags:
+
+```bash
+tsc --noImplicitAny --noEmit
+```
+
+Captures implicit `any` types and missing type annotations.
+
+**Method 3: ESLint Rules**
+
+Run ESLint with TypeScript quality rules:
+
+```bash
+npm run lint
+```
+
+Check for violations of:
+- `@typescript-eslint/no-explicit-any`
+- `@typescript-eslint/no-unnecessary-type-assertion`
+
+**Aggregation**: Combine results from all 3 methods, deduplicate violations.
+
+**Automatic Fix Process**:
+
+If violations found:
+
+1. **Fix `any` Types**:
+   - Read file with violation
+   - Analyze context (how variable/parameter is used)
+   - Infer proper type from:
+     - Function calls on the value
+     - Property access patterns
+     - Assignment right-hand side
+     - Existing domain type patterns
+   - Replace `any` with inferred type
+   - Example: `const user: any = await repo.find()` → `const user: User | null = await repo.find()`
+
+2. **Add Missing Type Annotations**:
+   - Identify location (parameter, return type, variable)
+   - Analyze usage to infer type
+   - Add explicit type annotation
+   - Example: `function foo(x)` → `function foo(x: string)`
+
+3. **Remove Unnecessary Type Casting**:
+   - Check if value already has target type
+   - Remove `as Type` if unnecessary
+   - Example: `const x: string = value as string` → `const x: string = value` (if value is already string)
+
+4. **Add Justification Comments**:
+   - For remaining necessary type casts
+   - Add comment explaining why necessary
+   - Example: Add `// After Zod validation` to `as ValidatedInput`
+
+**Validation Result**:
+
+- If all violations fixed automatically: ✅ Proceed to post-implementation checklist
+- If violations remain: ❌ Block implementation
+  - Report remaining violations with locations
+  - Provide manual fix suggestions
+  - User must fix before proceeding
+
+**Recording**:
+
+Update design document with TypeScript quality results:
+
+```markdown
+#### TypeScript Code Quality
+
+**Detection Results**:
+- Method 1 (Grep): 3 violations found
+  - 2x 'any' type usage
+  - 1x unnecessary type casting
+- Method 2 (tsc): 1 implicit any
+- Method 3 (ESLint): 2 explicit any violations
+
+**Total Unique Violations**: 3
+
+**Automatic Fixes Applied**:
+1. Replaced 'any' with User type in operations.ts:15
+2. Replaced 'any' with string[] in workflow.ts:42
+3. Removed unnecessary cast in handlers.ts:28
+
+**Re-validation**:
+- Grep: 0 violations
+- tsc: 0 errors
+- ESLint: 0 violations
+
+**Status**: ✅ Passed (all violations fixed)
+```
+
+**If Violations Can't Be Fixed**:
+
+```markdown
+#### TypeScript Code Quality
+
+**Remaining Violations** (could not auto-fix):
+1. src/core/transactions/operations.ts:67
+   - Issue: Parameter 'data' has implicit any type
+   - Suggestion: Add explicit type based on usage context
+
+2. src/core/wallets/workflow.ts:34
+   - Issue: Type casting without justification
+   - Suggestion: Add comment or remove cast
+
+**Status**: ❌ Blocked - Manual fixes required
+```
+
+### 7. Post-Implementation Checklist
 
 **Purpose**: Ensure runtime readiness with automatic fixes and full blocking enforcement.
 

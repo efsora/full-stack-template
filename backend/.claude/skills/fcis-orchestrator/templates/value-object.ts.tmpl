@@ -1,5 +1,11 @@
 // Template for Value Object (Branded Type)
 // Location: src/core/{{domain}}/value-objects/{{Name}}.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit parameter and return types
+// - Type casting for branded types is acceptable (necessary for opaque types)
+// - Use patterns from existing domains
 
 import { success, fail, type Result } from "#lib/result";
 import type { AppError } from "#lib/types/errors";

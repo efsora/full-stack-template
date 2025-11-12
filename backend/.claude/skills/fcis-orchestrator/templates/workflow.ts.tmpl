@@ -1,5 +1,11 @@
 // Template for Workflow (Railway-Oriented Programming)
 // Location: src/core/{{domain}}/{{feature}}.workflow.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit parameter and return types
+// - Avoid type casting unless absolutely necessary
+// - Use patterns from existing domains
 
 import { pipe, type Result } from "#lib/result";
 import {

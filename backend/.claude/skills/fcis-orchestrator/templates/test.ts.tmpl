@@ -1,5 +1,11 @@
 // Template for Unit Tests (Value Objects and Pure Functions)
 // Location: tests/value-objects/{{Name}}.test.ts
+//
+// TypeScript Quality Rules:
+// - Never use 'any' type
+// - Always add explicit types to test data and expectations
+// - Avoid type casting unless absolutely necessary
+// - Use patterns from existing test files
 
 import { describe, it, expect } from "vitest";
 import { run } from "#lib/result/index";
