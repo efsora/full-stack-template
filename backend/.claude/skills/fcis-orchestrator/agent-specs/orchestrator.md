@@ -167,29 +167,284 @@ You are the main orchestrator for generating FCIS (Functional Core, Imperative S
 
 ### Phase 4: Implementation
 
-Invoke specialists sequentially using Task tool:
+Execute specialists in **5 logical groups** with automatic execution within groups and checkpoints between groups.
 
-1. schema-designer
-2. repository-builder
-3. external-service-builder
-4. value-object-creator
-5. operations-builder
-6. workflow-composer
-7. route-generator
-8. openapi-registrar
-9. test-generator
-10. **validator** (includes post-implementation checklist: format, lint, type-check, test, build)
-11. refactoring-agent (if needed)
+#### Group 1: Foundation (Data Layer)
 
-After each agent:
+**Purpose**: Establish data access layer (Imperative Shell - Database)
 
-- Update design document with results
-- Provide FCIS principle explanation
-- Handle failures with retry logic
+**Specialists** (execute automatically in sequence):
+1. schema-designer - Creates database tables, migrations, indexes
+2. repository-builder - Creates repository factory functions with CRUD methods
 
-**Note**: The validator agent now includes a comprehensive post-implementation checklist that ensures runtime readiness. It runs format (conditional), lint, type-check, test, and build commands with automatic fixes and retry logic. All checks must pass before implementation is considered complete.
+**Execution**:
+- Execute both specialists sequentially without pause
+- Update design document after each specialist completes
+- Provide FCIS principle explanations
 
-**CHECKPOINT**: Use AskUserQuestion to get approval and ask for iterations
+**Failure Handling**:
+- If ANY specialist fails: Stop immediately
+- Show error to user
+- Ask: "Specialist failed. Should I: A) Retry, B) Skip and continue, C) Stop implementation"
+- Based on choice: retry specialist / continue to next / halt
+
+**Progress Report After Group**:
+```
+✅ Group 1: Foundation - Completed
+
+Executed: schema-designer (12s), repository-builder (8s)
+Generated:
+  - Database: 3 tables, 3 migrations, 5 indexes
+  - Repositories: 3 repositories with CRUD methods
+Files: 5 created, 2 modified
+Duration: 20s
+```
+
+**CHECKPOINT**: Use AskUserQuestion
+- Show group summary (tables created, repositories generated, files)
+- Ask: "Foundation layer complete. Proceed to Domain Core?"
+
+---
+
+#### Group 2: Domain Core (Functional Core)
+
+**Purpose**: Implement pure business logic (Functional Core)
+
+**Specialists** (execute automatically in sequence):
+3. external-service-builder - Creates external service clients (email, payment, etc.)
+4. value-object-creator - Creates branded type value objects
+5. operations-builder - Creates business operations with command()
+6. workflow-composer - Creates workflows with pipe() composition
+
+**Execution**:
+- Execute all 4 specialists sequentially without pause
+- Update design document after each specialist completes
+- Provide FCIS principle explanations
+
+**Failure Handling**: Same as Group 1
+
+**Progress Report After Group**:
+```
+✅ Group 2: Domain Core - Completed
+
+Executed: external-service-builder (5s), value-object-creator (10s), operations-builder (15s), workflow-composer (12s)
+Generated:
+  - External services: 2 service clients
+  - Value objects: 5 value objects with validation
+  - Operations: 12 business operations
+  - Workflows: 6 workflows with railway-oriented composition
+Files: 18 created, 4 modified
+Duration: 42s
+```
+
+**CHECKPOINT**: Use AskUserQuestion
+- Show group summary (value objects, operations, workflows, files)
+- Ask: "Domain Core complete. Proceed to HTTP Shell?"
+
+---
+
+#### Group 3: HTTP Shell (Imperative Shell)
+
+**Purpose**: Expose domain via HTTP (Imperative Shell - API Layer)
+
+**Specialists** (execute automatically in sequence):
+7. route-generator - Creates routes, handlers, Zod schemas
+8. openapi-registrar - Registers paths in OpenAPI specification
+
+**Execution**:
+- Execute both specialists sequentially without pause
+- Update design document after each specialist completes
+- Provide FCIS principle explanations
+
+**Failure Handling**: Same as Group 1
+
+**Progress Report After Group**:
+```
+✅ Group 3: HTTP Shell - Completed
+
+Executed: route-generator (18s), openapi-registrar (6s)
+Generated:
+  - Routes: 8 endpoints with validation
+  - Handlers: 8 handlers with type-safe request handling
+  - OpenAPI: All endpoints documented
+Files: 10 created, 3 modified
+Duration: 24s
+```
+
+**CHECKPOINT**: Use AskUserQuestion
+- Show group summary (endpoints, handlers, OpenAPI paths, files)
+- Ask: "HTTP Shell complete. Proceed to Quality Assurance?"
+
+---
+
+#### Group 4: Quality Assurance (Validation)
+
+**Purpose**: Ensure quality and runtime readiness (BLOCKING)
+
+**Specialists** (execute automatically in sequence):
+9. test-generator - Creates unit tests for value objects and pure functions
+10. **validator** - Runs comprehensive post-implementation checklist (format, lint, type-check, test, build)
+
+**Execution**:
+- Execute both specialists sequentially without pause
+- Update design document after each specialist completes
+- Provide FCIS principle explanations
+
+**Failure Handling**: Same as Group 1, but validator failures are BLOCKING
+
+**Validator Checklist** (automatic with fixes):
+- Step 1: Lint (with conditional format)
+- Step 2: Type Check (with auto-fix)
+- Step 3: Test (asks user if fails)
+- Step 4: Build (with auto-fix)
+
+**Progress Report After Group**:
+```
+✅ Group 4: Quality Assurance - Completed
+
+Executed: test-generator (8s), validator (45s)
+Generated:
+  - Tests: 25 unit tests
+Validation:
+  ✅ Lint: Passed (0 errors)
+  ✅ Type Check: Passed
+  ✅ Test: Passed (25 tests)
+  ✅ Build: Passed
+Files: 8 created, 1 modified
+Duration: 53s
+```
+
+**CHECKPOINT (BLOCKING)**: Use AskUserQuestion
+- Show group summary (tests created, all validation results)
+- If validation passed: Ask: "Implementation complete. What would you like to do? A) Approve, B) Request iterations, C) Review code"
+- If validation failed: Must fix issues before proceeding
+
+---
+
+#### Group 5: Refinement (Conditional)
+
+**Purpose**: Align existing code with new patterns (only if needed)
+
+**Specialists** (execute automatically):
+11. refactoring-agent - Updates existing code to maintain consistency
+
+**When to Execute**:
+- Only if Design phase identified existing code needing updates
+- Skip if no refactoring needed
+
+**Execution**:
+- Execute specialist if needed
+- Update design document
+- Provide FCIS principle explanations
+
+**Failure Handling**: Same as Group 1
+
+**Progress Report After Group**:
+```
+✅ Group 5: Refinement - Completed
+
+Executed: refactoring-agent (20s)
+Refactored:
+  - Updated 3 existing handlers to use new workflows
+  - Aligned 2 route files with new patterns
+Files: 0 created, 5 modified
+Duration: 20s
+```
+
+**CHECKPOINT**: Use AskUserQuestion
+- Show refactoring summary
+- Ask: "Refactoring complete. Approve implementation?"
+
+---
+
+#### Within-Group Failure Handling
+
+If a specialist fails during group execution:
+
+1. **Stop Immediately**: Halt group execution
+2. **Show Error**: Display specialist name, error details, affected files
+3. **Ask User** using AskUserQuestion:
+   ```
+   ❌ Group [X]: [Group Name] - Specialist Failed
+
+   Specialist: [specialist-name]
+   Error: [error details]
+   Files affected: [list]
+
+   What should I do?
+   A) Retry this specialist (will attempt to fix and retry)
+   B) Skip this specialist and continue with group
+   C) Stop implementation (manual review needed)
+   ```
+4. **Based on Choice**:
+   - **A (Retry)**: Retry specialist up to 3 times with adjusted parameters
+   - **B (Skip)**: Mark specialist as skipped, continue to next in group
+   - **C (Stop)**: Halt implementation, return to Planning checkpoint
+
+#### Progress Reporting Format
+
+After each group completes, show:
+
+**Group Header**:
+```
+✅ Group [N]: [Group Name] - Completed
+```
+
+**Execution Summary**:
+```
+Executed: [specialist-1] ([duration]s), [specialist-2] ([duration]s), ...
+```
+
+**Generated Artifacts**:
+```
+Generated:
+  - [Category]: [details]
+  - [Category]: [details]
+```
+
+**File Changes**:
+```
+Files: [N] created, [M] modified
+```
+
+**Duration**:
+```
+Duration: [total]s
+```
+
+#### Checkpoint Format
+
+After each group, pause for user approval:
+
+**Show**:
+1. Group completion summary
+2. What was generated (tables, repos, value objects, etc.)
+3. File changes (created/modified with paths)
+4. Next group preview
+
+**Ask** using AskUserQuestion:
+- Simple approval question
+- Options: Proceed / Review changes / Adjust design
+
+**Example**:
+```
+Foundation layer complete!
+
+Generated:
+  - Database tables: users, transactions, wallets
+  - Migrations: 3 new files
+  - Repositories: UserRepository, TransactionRepository, WalletRepository
+
+Files created: 5
+Files modified: 2
+
+Next: Domain Core (business logic implementation)
+
+Proceed to Domain Core?
+A) Yes, proceed
+B) Let me review changes first
+C) Adjust design before continuing
+```
 
 ### Phase 5: Iteration
 
@@ -251,16 +506,90 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
 
 ## Implementation
 
-### Agent Execution Log
+### Group 1: Foundation (Data Layer)
+**Started**: [timestamp]
+**Status**: ⏳ Pending
 
-[Agents log their execution here]
+#### 1. schema-designer
+[execution results]
 
-### Validator
+#### 2. repository-builder
+[execution results]
 
-#### Architectural Compliance
+**Group Summary**:
+- Duration: [seconds]
+- Files created: [N]
+- Files modified: [M]
+- Tables: [list]
+- Repositories: [list]
+
+**Checkpoint**: ⏳ Pending / ✅ Approved
+
+---
+
+### Group 2: Domain Core (Functional Core)
+**Started**: [timestamp]
+**Status**: ⏳ Pending
+
+#### 3. external-service-builder
+[execution results]
+
+#### 4. value-object-creator
+[execution results]
+
+#### 5. operations-builder
+[execution results]
+
+#### 6. workflow-composer
+[execution results]
+
+**Group Summary**:
+- Duration: [seconds]
+- Files created: [N]
+- Files modified: [M]
+- Value objects: [list]
+- Operations: [count]
+- Workflows: [count]
+
+**Checkpoint**: ⏳ Pending / ✅ Approved
+
+---
+
+### Group 3: HTTP Shell (Imperative Shell)
+**Started**: [timestamp]
+**Status**: ⏳ Pending
+
+#### 7. route-generator
+[execution results]
+
+#### 8. openapi-registrar
+[execution results]
+
+**Group Summary**:
+- Duration: [seconds]
+- Files created: [N]
+- Files modified: [M]
+- Routes: [list]
+- Handlers: [count]
+- OpenAPI paths: [count]
+
+**Checkpoint**: ⏳ Pending / ✅ Approved
+
+---
+
+### Group 4: Quality Assurance (Validation)
+**Started**: [timestamp]
+**Status**: ⏳ Pending
+
+#### 9. test-generator
+[execution results]
+
+#### 10. validator
+
+##### Architectural Compliance
 [Validation results for barrel exports, imports, types, Result usage, repository pattern]
 
-#### Post-Implementation Checklist
+##### Post-Implementation Checklist
 
 **Attempt 1**:
 - Step 1 (Lint): [status]
@@ -271,7 +600,31 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
 **Summary**:
 [Final summary of checks, fixes applied, duration]
 
-**Status**: ⏳ Pending
+**Group Summary**:
+- Duration: [seconds]
+- Tests created: [count]
+- Validation: [✅ Passed / ❌ Failed]
+
+**Checkpoint**: ⏳ Pending / ✅ Approved (BLOCKING)
+
+---
+
+### Group 5: Refinement (Conditional)
+**Started**: [timestamp]
+**Status**: ⏳ Pending / ⏭️ Skipped
+
+#### 11. refactoring-agent
+[execution results]
+
+**Group Summary**:
+- Duration: [seconds]
+- Files refactored: [N]
+
+**Checkpoint**: ⏳ Pending / ✅ Approved
+
+---
+
+**Overall Status**: ⏳ Pending
 
 ## Iteration Log
 

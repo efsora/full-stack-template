@@ -90,21 +90,41 @@ Before designing, the orchestrator analyzes ALL existing domains in `src/core/` 
 
 This ensures generated code matches your codebase style.
 
-### Specialist Agents (Sequential Execution)
+### Grouped Automation (5 Logical Groups)
 
-11 specialist agents execute in order:
+11 specialist agents execute in **5 logical groups** with automatic execution within groups and checkpoints between groups:
 
-1. **schema-designer**: Database schemas + migrations
-2. **repository-builder**: Repository factory functions
-3. **external-service-builder**: External API clients (email, payment, etc.)
-4. **value-object-creator**: Type-safe domain primitives
-5. **operations-builder**: Pure business operations
-6. **workflow-composer**: Railway-oriented workflows
-7. **route-generator**: HTTP layer (routes, handlers, schemas)
-8. **openapi-registrar**: API documentation
-9. **test-generator**: Unit tests for pure functions
-10. **validator**: Architectural compliance (blocking)
-11. **refactoring-agent**: Align existing code (conditional)
+#### Group 1: Foundation (Data Layer)
+- **schema-designer**: Database schemas + migrations
+- **repository-builder**: Repository factory functions
+- **Checkpoint**: Review database design
+
+#### Group 2: Domain Core (Functional Core)
+- **external-service-builder**: External API clients (email, payment, etc.)
+- **value-object-creator**: Type-safe domain primitives
+- **operations-builder**: Pure business operations
+- **workflow-composer**: Railway-oriented workflows
+- **Checkpoint**: Review business logic
+
+#### Group 3: HTTP Shell (Imperative Shell)
+- **route-generator**: HTTP layer (routes, handlers, schemas)
+- **openapi-registrar**: API documentation
+- **Checkpoint**: Review API design
+
+#### Group 4: Quality Assurance (Validation)
+- **test-generator**: Unit tests for pure functions
+- **validator**: Comprehensive validation (architectural + runtime checks)
+- **Checkpoint (BLOCKING)**: Must pass all validation checks
+
+#### Group 5: Refinement (Conditional)
+- **refactoring-agent**: Align existing code (only if needed)
+- **Checkpoint**: Approve refactoring
+
+**Execution Strategy**:
+- Specialists execute automatically within each group
+- Checkpoints between groups for user review and approval
+- Stop-on-failure within groups (ask user: Retry/Skip/Stop)
+- Progress reported after each group completes
 
 ### Educational Explanations
 
@@ -122,10 +142,13 @@ All work is tracked in `.claude/temp/fcis-design-[timestamp].md`:
 - Q&A session (questions, answers, reasoning)
 - Design specifications
 - Execution plan
-- Implementation log
+- Implementation log (organized by groups)
+- Group checkpoints and approvals
 - Iteration history
 
 This document serves as communication between agents and provides full traceability.
+
+**Grouped Implementation Log**: The implementation section is organized by the 5 logical groups (Foundation, Domain Core, HTTP Shell, Quality Assurance, Refinement), with each group showing its specialists, execution results, and checkpoint status.
 
 ## Usage Examples
 
@@ -364,6 +387,15 @@ For issues or feature requests:
 - Consult CLAUDE.md in backend folder
 
 ## Version
+
+**1.2.0** - Grouped Automation & Post-Implementation Checklist
+
+- 5 logical groups for implementation phase (Foundation, Domain Core, HTTP Shell, QA, Refinement)
+- Automatic execution within groups, checkpoints between groups
+- Stop-on-failure with user interaction (Retry/Skip/Stop)
+- Grouped progress reporting after each group
+- Comprehensive post-implementation checklist in validator (format, lint, type-check, test, build)
+- Automatic fixes with retry-all logic
 
 **1.1.0** - Q&A Session Feature
 

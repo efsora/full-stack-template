@@ -1087,23 +1087,41 @@ The orchestrator guides you through 6 phases with interactive checkpoints:
 
 #### 5. Implementation Phase
 
-11 specialist workflows execute sequentially:
+11 specialist workflows execute in **5 logical groups** with automatic execution within groups and checkpoints between groups:
 
-1. **schema-designer**: Database schemas + migrations
-2. **repository-builder**: Repository factory functions
-3. **external-service-builder**: External API clients
-4. **value-object-creator**: Branded type value objects
-5. **operations-builder**: Business operations
-6. **workflow-composer**: Railway-oriented workflows
-7. **route-generator**: HTTP layer components
-8. **openapi-registrar**: API documentation
-9. **test-generator**: Unit tests
-10. **validator**: Architectural compliance (blocking)
-11. **refactoring-agent**: Align existing code (if needed)
+**Group 1: Foundation** (Data Layer)
+- **schema-designer**: Database schemas + migrations
+- **repository-builder**: Repository factory functions
+- **Checkpoint**: Review database design
+
+**Group 2: Domain Core** (Functional Core)
+- **external-service-builder**: External API clients
+- **value-object-creator**: Branded type value objects
+- **operations-builder**: Business operations
+- **workflow-composer**: Railway-oriented workflows
+- **Checkpoint**: Review business logic
+
+**Group 3: HTTP Shell** (Imperative Shell)
+- **route-generator**: HTTP layer components
+- **openapi-registrar**: API documentation
+- **Checkpoint**: Review API design
+
+**Group 4: Quality Assurance** (Validation - BLOCKING)
+- **test-generator**: Unit tests
+- **validator**: Architectural compliance + post-implementation checklist (format, lint, type-check, test, build)
+- **Checkpoint**: Must pass all validation checks
+
+**Group 5: Refinement** (Conditional)
+- **refactoring-agent**: Align existing code (only if needed)
+- **Checkpoint**: Approve refactoring
+
+**Execution Strategy**:
+- Specialists execute automatically within each group
+- Progress reported after each group completes
+- Checkpoints between groups for user review
+- Stop-on-failure within groups (ask user: Retry/Skip/Stop)
 
 Each specialist is defined in `.claude/skills/fcis-orchestrator/agent-specs/` as a workflow specification that the orchestrator follows.
-
-**Checkpoint**: Review implementation and request iterations
 
 #### 6. Iteration Phase
 

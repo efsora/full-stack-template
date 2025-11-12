@@ -21,16 +21,16 @@
       "name": "Hello"
     },
     {
+      "description": "Authentication and authorization endpoints",
+      "name": "Auth"
+    },
+    {
       "description": "User management endpoints",
       "name": "Users"
     },
     {
-      "description": "Wallet management endpoints",
-      "name": "Wallets"
-    },
-    {
-      "description": "Transaction endpoints for coin transfers",
-      "name": "Transactions"
+      "description": "Multi-tenant organization management endpoints",
+      "name": "Tenants"
     }
   ],
   "components": {
@@ -530,178 +530,352 @@
           "updatedAt"
         ]
       },
-      "WalletData": {
+      "AuthResult": {
         "type": "object",
         "properties": {
-          "balance": {
+          "accessToken": {
             "type": "string",
-            "example": "100.50"
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           },
-          "coinType": {
+          "refreshToken": {
+            "type": "string",
+            "example": "a1b2c3d4e5f6..."
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 900
+          },
+          "tokenType": {
             "type": "string",
             "enum": [
-              "BTC",
-              "ETH",
-              "USDT",
-              "USDC",
-              "USD"
-            ],
-            "description": "Supported cryptocurrency types",
-            "example": "BTC"
+              "Bearer"
+            ]
           },
-          "createdAt": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "example": "user@example.com"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "example": "John Doe"
+              },
+              "currentTenantId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440001"
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "name",
+              "currentTenantId"
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresIn",
+          "tokenType",
+          "user"
+        ]
+      },
+      "LoginWithPasswordBody": {
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string",
-            "format": "date",
-            "example": "2025-11-07T12:16:55.139Z"
+            "format": "email",
+            "example": "user@example.com"
           },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "example": "securePassword123"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LoginWithGoogleBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "example": "oauth_authorization_code"
+          },
+          "codeVerifier": {
+            "type": "string",
+            "minLength": 1,
+            "example": "pkce_code_verifier"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": [
+          "code",
+          "codeVerifier"
+        ]
+      },
+      "RefreshResult": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "a1b2c3d4e5f6..."
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 900
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresIn",
+          "tokenType"
+        ]
+      },
+      "RefreshTokenBody": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1,
+            "example": "refresh_token_string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "RevokeResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "RevokeTokenBody": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1,
+            "example": "refresh_token_string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "GoogleAuthUrl": {
+        "type": "object",
+        "properties": {
+          "authUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://accounts.google.com/o/oauth2/v2/auth?client_id=..."
+          },
+          "codeVerifier": {
+            "type": "string",
+            "example": "pkce_code_verifier_store_this"
+          },
+          "state": {
+            "type": "string",
+            "example": "csrf_state_token_store_this"
+          }
+        },
+        "required": [
+          "authUrl",
+          "codeVerifier",
+          "state"
+        ]
+      },
+      "TenantData": {
+        "type": "object",
+        "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
             "example": "550e8400-e29b-41d4-a716-446655440000"
           },
-          "updatedAt": {
+          "name": {
             "type": "string",
+            "example": "My Company"
+          },
+          "slug": {
+            "type": "string",
+            "example": "my-company"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
             "format": "date",
-            "example": "2025-11-07T12:16:55.139Z"
+            "example": "2025-11-12T10:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "example": "2025-11-12T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateTenantBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "My Company"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 63,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "example": "my-company"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "UserTenantData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
           },
           "userId": {
             "type": "string",
             "format": "uuid",
             "example": "550e8400-e29b-41d4-a716-446655440001"
-          }
-        },
-        "required": [
-          "balance",
-          "coinType",
-          "createdAt",
-          "id",
-          "updatedAt",
-          "userId"
-        ]
-      },
-      "CreateWalletBody": {
-        "type": "object",
-        "properties": {
-          "coinType": {
-            "type": "string",
-            "enum": [
-              "BTC",
-              "ETH",
-              "USDT",
-              "USDC",
-              "USD"
-            ],
-            "description": "Supported cryptocurrency types",
-            "example": "BTC"
           },
-          "initialBalance": {
-            "type": "number",
-            "minimum": 0,
-            "description": "Optional initial balance for the wallet",
-            "example": 100
-          }
-        },
-        "required": [
-          "coinType"
-        ]
-      },
-      "TransactionData": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "string",
-            "example": "50.25"
-          },
-          "coinType": {
-            "type": "string",
-            "enum": [
-              "BTC",
-              "ETH",
-              "USDT",
-              "USDC",
-              "USD"
-            ],
-            "description": "Supported cryptocurrency types",
-            "example": "BTC"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date",
-            "example": "2025-11-07T12:16:55.140Z"
-          },
-          "fromWalletId": {
-            "type": "string",
-            "format": "uuid",
-            "example": "550e8400-e29b-41d4-a716-446655440000"
-          },
-          "id": {
+          "tenantId": {
             "type": "string",
             "format": "uuid",
             "example": "550e8400-e29b-41d4-a716-446655440002"
           },
-          "status": {
+          "role": {
             "type": "string",
-            "enum": [
-              "pending",
-              "completed",
-              "failed"
-            ],
-            "example": "completed"
+            "example": "member"
           },
-          "toWalletId": {
+          "isDefault": {
+            "type": "boolean",
+            "example": true
+          },
+          "joinedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "example": "2025-11-12T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "tenantId",
+          "role",
+          "isDefault",
+          "joinedAt"
+        ]
+      },
+      "AddUserToTenantBody": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "tenantId": {
             "type": "string",
             "format": "uuid",
             "example": "550e8400-e29b-41d4-a716-446655440001"
           },
-          "updatedAt": {
-            "type": "string",
-            "format": "date",
-            "example": "2025-11-07T12:16:55.140Z"
-          }
-        },
-        "required": [
-          "amount",
-          "coinType",
-          "createdAt",
-          "fromWalletId",
-          "id",
-          "status",
-          "toWalletId",
-          "updatedAt"
-        ]
-      },
-      "TransferBody": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "exclusiveMinimum": 0,
-            "example": 50.25,
-            "description": "Amount to transfer"
-          },
-          "coinType": {
+          "role": {
             "type": "string",
             "enum": [
-              "BTC",
-              "ETH",
-              "USDT",
-              "USDC",
-              "USD"
+              "member",
+              "admin",
+              "owner"
             ],
-            "description": "Supported cryptocurrency types",
-            "example": "BTC"
+            "example": "member"
           },
-          "toUserId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "User ID to transfer coins to",
-            "example": "550e8400-e29b-41d4-a716-446655440000"
+          "isDefault": {
+            "type": "boolean",
+            "example": true
           }
         },
         "required": [
-          "amount",
-          "coinType",
-          "toUserId"
+          "userId",
+          "tenantId"
         ]
       }
     },
@@ -1027,36 +1201,32 @@
         }
       }
     },
-    "/api/v1/wallets": {
+    "/api/v1/auth/login": {
       "post": {
-        "summary": "Create a new wallet for authenticated user",
+        "summary": "Login with email and password",
+        "description": "Authenticate user with email and password, returns access and refresh tokens",
         "tags": [
-          "Wallets"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
+          "Auth"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateWalletBody"
+                "$ref": "#/components/schemas/LoginWithPasswordBody"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Wallet created successfully",
+            "description": "Login successful",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "data": {
-                      "$ref": "#/components/schemas/WalletData"
+                      "$ref": "#/components/schemas/AuthResult"
                     },
                     "error": {
                       "type": "null"
@@ -1130,270 +1300,32 @@
         }
       }
     },
-    "/api/v1/wallets/{userId}": {
-      "get": {
-        "summary": "Get all wallets for a user across all coin types",
-        "tags": [
-          "Wallets"
-        ],
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "description": "User ID to get wallets for",
-              "example": "550e8400-e29b-41d4-a716-446655440001"
-            },
-            "required": true,
-            "description": "User ID to get wallets for",
-            "name": "userId",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Wallets retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/WalletData"
-                      }
-                    },
-                    "error": {
-                      "type": "null"
-                    },
-                    "message": {
-                      "type": "null"
-                    },
-                    "meta": {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/Meta"
-                        },
-                        {
-                          "type": [
-                            "object",
-                            "null"
-                          ]
-                        }
-                      ]
-                    },
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        true
-                      ]
-                    },
-                    "traceId": {
-                      "type": "string",
-                      "example": "00-1234567890abcdef-1234567890abcdef-01"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "success",
-                    "traceId"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - Requested resource does not exist",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - Unexpected server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/wallets/{userId}/{coinType}": {
-      "get": {
-        "summary": "Get a specific wallet for a user and coin type",
-        "tags": [
-          "Wallets"
-        ],
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "enum": [
-                "BTC",
-                "ETH",
-                "USDT",
-                "USDC",
-                "USD"
-              ],
-              "description": "Supported cryptocurrency types",
-              "example": "BTC"
-            },
-            "required": true,
-            "description": "Supported cryptocurrency types",
-            "name": "coinType",
-            "in": "path"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "description": "User ID to get wallet for",
-              "example": "550e8400-e29b-41d4-a716-446655440001"
-            },
-            "required": true,
-            "description": "User ID to get wallet for",
-            "name": "userId",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Wallet retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/WalletData"
-                    },
-                    "error": {
-                      "type": "null"
-                    },
-                    "message": {
-                      "type": "null"
-                    },
-                    "meta": {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/Meta"
-                        },
-                        {
-                          "type": [
-                            "object",
-                            "null"
-                          ]
-                        }
-                      ]
-                    },
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        true
-                      ]
-                    },
-                    "traceId": {
-                      "type": "string",
-                      "example": "00-1234567890abcdef-1234567890abcdef-01"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "success",
-                    "traceId"
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - Requested resource does not exist",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - Unexpected server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/transactions/transfer": {
+    "/api/v1/auth/login/google": {
       "post": {
-        "summary": "Transfer coins to another user",
+        "summary": "Login with Google OAuth",
+        "description": "Authenticate user with Google OAuth authorization code, returns access and refresh tokens",
         "tags": [
-          "Transactions"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
+          "Auth"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TransferBody"
+                "$ref": "#/components/schemas/LoginWithGoogleBody"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Coins transferred successfully",
+            "description": "OAuth login successful",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "coinType": {
-                          "type": "string",
-                          "enum": [
-                            "BTC",
-                            "ETH",
-                            "USDT",
-                            "USDC",
-                            "USD"
-                          ]
-                        },
-                        "receiverBalance": {
-                          "type": "string"
-                        },
-                        "senderBalance": {
-                          "type": "string"
-                        },
-                        "transaction": {
-                          "$ref": "#/components/schemas/TransactionData"
-                        }
-                      },
-                      "required": [
-                        "coinType",
-                        "receiverBalance",
-                        "senderBalance",
-                        "transaction"
-                      ]
+                      "$ref": "#/components/schemas/AuthResult"
                     },
                     "error": {
                       "type": "null"
@@ -1454,16 +1386,6 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found - Requested resource does not exist",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal Server Error - Unexpected server error",
             "content": {
@@ -1477,90 +1399,32 @@
         }
       }
     },
-    "/api/v1/transactions/history": {
-      "get": {
-        "summary": "Get transaction history",
+    "/api/v1/auth/refresh": {
+      "post": {
+        "summary": "Refresh access token",
+        "description": "Exchange refresh token for new access and refresh tokens (token rotation)",
         "tags": [
-          "Transactions"
+          "Auth"
         ],
-        "security": [
-          {
-            "bearerAuth": []
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenBody"
+              }
+            }
           }
-        ],
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "enum": [
-                "BTC",
-                "ETH",
-                "USDT",
-                "USDC",
-                "USD"
-              ],
-              "description": "Optional filter by coin type",
-              "example": "BTC"
-            },
-            "required": false,
-            "description": "Optional filter by coin type",
-            "name": "coinType",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "maximum": 100,
-              "default": 50,
-              "description": "Maximum number of transactions to return"
-            },
-            "required": false,
-            "description": "Maximum number of transactions to return",
-            "name": "limit",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": [
-                "integer",
-                "null"
-              ],
-              "minimum": 0,
-              "default": 0,
-              "description": "Number of transactions to skip"
-            },
-            "required": false,
-            "description": "Number of transactions to skip",
-            "name": "offset",
-            "in": "query"
-          }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Transaction history retrieved successfully",
+            "description": "Token refreshed successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "total": {
-                          "type": "number"
-                        },
-                        "transactions": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/TransactionData"
-                          }
-                        }
-                      },
-                      "required": [
-                        "total",
-                        "transactions"
-                      ]
+                      "$ref": "#/components/schemas/RefreshResult"
                     },
                     "error": {
                       "type": "null"
@@ -1601,8 +1465,355 @@
               }
             }
           },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized - Invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/revoke": {
+      "post": {
+        "summary": "Revoke refresh token",
+        "description": "Revoke refresh token to logout user (access token remains valid until expiration)",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token revoked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RevokeResult"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/google/url": {
+      "get": {
+        "summary": "Get Google OAuth URL",
+        "description": "Generate Google OAuth authorization URL with PKCE for client-side OAuth flow",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OAuth URL generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/GoogleAuthUrl"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tenants": {
+      "post": {
+        "summary": "Create tenant",
+        "description": "Create a new multi-tenant organization",
+        "tags": [
+          "Tenants"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/TenantData"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tenants/users": {
+      "post": {
+        "summary": "Add user to tenant",
+        "description": "Add a user to a tenant organization with specified role",
+        "tags": [
+          "Tenants"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddUserToTenantBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User added to tenant successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/UserTenantData"
+                    },
+                    "error": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "null"
+                    },
+                    "meta": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Meta"
+                        },
+                        {
+                          "type": [
+                            "object",
+                            "null"
+                          ]
+                        }
+                      ]
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "traceId": {
+                      "type": "string",
+                      "example": "00-1234567890abcdef-1234567890abcdef-01"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "success",
+                    "traceId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error - Invalid request body, params, or query",
             "content": {
               "application/json": {
                 "schema": {
