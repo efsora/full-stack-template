@@ -32,7 +32,7 @@ The Implementation Phase (Phase 4) executes 11 specialist workflows organized in
 - Migrations generate successfully
 - Repositories follow factory pattern
 
-**Checkpoint Question**: "Foundation layer complete. Proceed to Domain Core?"
+**Checkpoint Question**: "Foundation layer complete. Proceed to Domain Core? A) Yes proceed, B) Review files first"
 
 ---
 
@@ -61,7 +61,7 @@ The Implementation Phase (Phase 4) executes 11 specialist workflows organized in
 - Workflows properly use `pipe()` composition
 - No side effects in functional core
 
-**Checkpoint Question**: "Domain Core complete. Proceed to HTTP Shell?"
+**Checkpoint Question**: "Domain Core complete. Proceed to HTTP Shell? A) Yes proceed, B) Review files first"
 
 ---
 
@@ -88,7 +88,7 @@ The Implementation Phase (Phase 4) executes 11 specialist workflows organized in
 - Routes use validation middleware
 - OpenAPI spec generates without errors
 
-**Checkpoint Question**: "HTTP Shell complete. Proceed to Quality Assurance?"
+**Checkpoint Question**: "HTTP Shell complete. Proceed to Quality Assurance? A) Yes proceed, B) Review files first"
 
 ---
 
@@ -150,7 +150,66 @@ The Implementation Phase (Phase 4) executes 11 specialist workflows organized in
 - No breaking changes to existing functionality
 - Patterns consistent across old and new code
 
-**Checkpoint Question**: "Refactoring complete. Approve implementation?"
+**Checkpoint Question**: "Refactoring complete. A) Approve implementation, B) Review files first"
+
+---
+
+## Deterministic Execution
+
+### Core Principle
+
+**Implementation Phase Should Not Ask Design Questions**
+
+All design decisions are made in:
+- Q&A Session (Phase 1.5): Resolve ambiguities and options
+- Design Phase (Phase 2): Specify all implementation details
+- Design Validation (Phase 2.5): Ensure specifications are complete
+
+Implementation Phase (Phase 4) executes the plan deterministically.
+
+### Specialist Behavior
+
+**Specialists Should**:
+- ✅ Follow Design spec exactly
+- ✅ Use pattern learning for minor gaps (naming conventions, file structure)
+- ✅ Stop and report if Design spec incomplete
+- ✅ Generate consistent code given same Design spec
+
+**Specialists Should NOT**:
+- ❌ Ask design questions ("Should I add method X?")
+- ❌ Ask for missing specifications ("What validation rule?")
+- ❌ Make random choices ("I'll use optimistic locking")
+- ❌ Guess at unclear requirements
+
+### When Specialists Stop vs. Continue
+
+**STOP and Report Design Incomplete** (Critical Info Missing):
+- Validation rules not defined
+- Cascade behavior not specified
+- Error codes not provided
+- Authentication requirements unclear
+- Method signatures not specified
+
+**CONTINUE with Pattern Learning** (Minor Gaps):
+- Exact method names not specified (copy from existing repos)
+- File naming not specified (use learned conventions)
+- Error message format not specified (match existing pattern)
+- Import alias style not specified (use project standard)
+
+**The Difference**:
+- **Critical**: Affects business logic, security, data integrity
+- **Minor**: Affects style, conventions, structure
+
+### Design Validation Prevents Questions
+
+If Design Validation (Phase 2.5) passes:
+- All critical information is present in Design spec
+- Specialists should NOT encounter missing critical info
+- Implementation should flow smoothly without questions
+
+If specialists ask questions during implementation:
+- **Root Cause**: Design validation incomplete or Design spec has gaps
+- **Solution**: Improve Design validation checklist
 
 ---
 
@@ -200,32 +259,53 @@ Checkpoint (Ask User)
 
 **User Options**:
 - Proceed to next group
-- Review changes before continuing
-- Adjust design/plan
+- Review files first (pause to inspect code)
+
+**No Design Adjustments**: Design changes happen in Iteration phase (Phase 5), not at checkpoints
 
 ### Failure Handling
 
 **If Specialist Fails Within Group**:
 
+Two types of failures:
+
+**Type 1: Design Incompleteness** (missing critical info)
 ```
 Specialist Executing
   ↓
-❌ Error Occurs
+❌ Design Spec Incomplete
   ↓
 Stop Group Execution Immediately
   ↓
-Show Error Details to User
+Report to User: "Design spec incomplete: [specific missing item]"
   ↓
-Ask User: "What should I do?"
-  A) Retry this specialist
-  B) Skip this specialist
-  C) Stop implementation
+Automatically Return to Design Phase
+  ↓
+User completes Design spec
+  ↓
+Re-validate Design
+  ↓
+Restart Implementation from Group 1
+```
+
+**Type 2: Technical Error** (execution issue)
+```
+Specialist Executing
+  ↓
+❌ Technical Error (syntax, tools, compilation)
+  ↓
+Stop Group Execution Immediately
+  ↓
+Ask User: "Technical error. Retry specialist? A) Yes, B) No (skip)"
   ↓
 Based on User Choice:
   A) Retry up to 3 times → If success, continue group
-  B) Mark as skipped → Continue to next specialist
-  C) Halt implementation → Return to Planning checkpoint
+  B) Mark as skipped → Continue to next specialist in group
 ```
+
+**Key Difference**:
+- Design Incompleteness → Automatic return to Design (no user choice)
+- Technical Error → Ask user to retry or skip
 
 **Retry Strategy**:
 - Attempt 1: Same parameters
@@ -314,9 +394,10 @@ Next: [Next Group Name] ([what it will do])
 
 Proceed to [Next Group]?
 A) Yes, proceed
-B) Let me review changes first
-C) Adjust design before continuing
+B) Review files first
 ```
+
+**Note**: Design adjustments are NOT available at checkpoints. Design changes happen in Iteration phase (Phase 5) after full implementation.
 
 **Blocking Checkpoint** (Group 4):
 ```
@@ -543,8 +624,7 @@ Next: Domain Core (business logic implementation)
 
 Proceed to Domain Core?
 A) Yes, proceed
-B) Let me review changes first
-C) Adjust design before continuing
+B) Review files first
 
 User selects: A) Yes, proceed
 ```
@@ -607,8 +687,7 @@ Next: HTTP Shell (API layer implementation)
 
 Proceed to HTTP Shell?
 A) Yes, proceed
-B) Let me review changes first
-C) Adjust design before continuing
+B) Review files first
 
 User selects: A) Yes, proceed
 ```
@@ -661,8 +740,7 @@ Next: Quality Assurance (testing & validation)
 
 Proceed to Quality Assurance?
 A) Yes, proceed
-B) Let me review changes first
-C) Adjust design before continuing
+B) Review files first
 
 User selects: A) Yes, proceed
 ```

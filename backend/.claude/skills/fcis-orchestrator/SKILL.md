@@ -35,7 +35,7 @@ Or manually invoke with: `/fcis:create [task description]`
 
 ## How It Works
 
-### 6 Phases with Interactive Checkpoints
+### 7 Phases with Interactive Checkpoints
 
 ```
 1. ANALYSIS → Checkpoint (approval required)
@@ -44,12 +44,26 @@ Or manually invoke with: `/fcis:create [task description]`
    ↓
 3. DESIGN → Checkpoint (approval required)
    ↓
+3.5. DESIGN VALIDATION (ensures completeness)
+   ↓
 4. PLANNING → Checkpoint (approval required)
    ↓
-5. IMPLEMENTATION → Checkpoint (approval required, ask for iterations)
+5. IMPLEMENTATION (5 groups with checkpoints between each)
    ↓
 6. ITERATION (if requested)
 ```
+
+### Deterministic Implementation
+
+**Key Feature**: Implementation phase executes deterministically without asking design questions.
+
+**How**:
+- Q&A Session resolves all ambiguities upfront
+- Design phase specifies all implementation details
+- **Design Validation** ensures completeness before implementation
+- Specialists follow Design specs exactly
+- Pattern learning fills minor gaps (naming, structure)
+- Only ask if Design spec genuinely unclear (very rare)
 
 ### Q&A Session (Phase 2)
 
@@ -77,6 +91,29 @@ Or manually invoke with: `/fcis:create [task description]`
 - Captures architectural decisions with reasoning
 - Provides educational context for each option
 - Full traceability in design document
+
+### Design Validation (Phase 3.5)
+
+**Purpose**: Ensure Design specifications are complete before implementation begins, preventing specialists from asking uncertain questions.
+
+**What Gets Validated**:
+- Database schema completeness (tables, columns, types, constraints, indexes, cascades)
+- Type system completeness (inputs, outputs, errors with codes, value objects with validation)
+- Business logic completeness (operations, workflows, error handling, validation rules)
+- Repository completeness (methods specified, transaction support)
+- HTTP layer completeness (routes, handlers, schemas, auth requirements)
+- External services completeness (providers, interfaces, timeouts if applicable)
+- Test completeness (coverage scope, scenarios)
+
+**Validation Result**:
+- ✅ **Complete**: Proceed to Planning phase
+- ❌ **Incomplete**: Return to Design phase with specific missing items listed
+
+**Why This Matters**:
+- Prevents specialists from encountering gaps during implementation
+- Enables deterministic execution (same Design → same code)
+- Eliminates uncertain questions during implementation
+- Ensures smooth execution from Group 1 through Group 5
 
 ### Pattern Learning
 
@@ -368,6 +405,9 @@ src/
 
 ## Troubleshooting
 
+**Q: Specialists asking questions during implementation?**
+A: Design spec is incomplete. This should not happen if Design Validation (Phase 3.5) passed. The specialist will report what's missing and return to Design phase.
+
 **Q: Agent keeps failing?**
 A: Check design document for error details. May need to adjust task description.
 
@@ -376,6 +416,9 @@ A: Ensure existing domains follow patterns you want. Orchestrator learns from th
 
 **Q: Validation blocking implementation?**
 A: Review validation errors in design document. Indicates architectural issue.
+
+**Q: Design validation failed?**
+A: Complete the missing Design specifications listed in the validation report, then proceed to Planning.
 
 ## Support
 
@@ -387,6 +430,14 @@ For issues or feature requests:
 - Consult CLAUDE.md in backend folder
 
 ## Version
+
+**1.3.0** - Deterministic Implementation
+
+- Added Design Validation checkpoint (Phase 3.5) to ensure spec completeness
+- Deterministic specialist execution (no design questions during implementation)
+- Simplified group checkpoints (Proceed/Review only, no design adjustments)
+- Specialist failure handling distinguishes Design incompleteness from technical errors
+- Design incompleteness automatically returns to Design phase
 
 **1.2.0** - Grouped Automation & Post-Implementation Checklist
 

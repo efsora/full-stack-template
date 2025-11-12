@@ -1027,7 +1027,7 @@ For each feature, the orchestrator generates:
 
 ### How It Works
 
-The orchestrator guides you through 6 phases with interactive checkpoints:
+The orchestrator guides you through 7 phases with interactive checkpoints:
 
 #### 1. Analysis Phase
 
@@ -1075,6 +1075,25 @@ The orchestrator guides you through 6 phases with interactive checkpoints:
 - Designs tests
 
 **Checkpoint**: Review design and approve
+
+#### 3.5. Design Validation
+
+**Purpose**: Ensure Design specifications are complete before implementation, enabling deterministic execution.
+
+**Validates**:
+- Database schema completeness (all tables, columns, constraints, indexes, cascades fully specified)
+- Type system completeness (all inputs, outputs, errors with codes, value objects with validation rules)
+- Business logic completeness (operations, workflows, error handling, validation rules defined)
+- Repository completeness (all methods specified, transaction support identified)
+- HTTP layer completeness (routes, handlers, schemas, auth requirements defined)
+- External services completeness (providers, interfaces, timeouts specified if applicable)
+- Test completeness (coverage scope, scenarios identified)
+
+**Result**:
+- ✅ **Complete**: Proceed to Planning phase
+- ❌ **Incomplete**: Return to Design phase with specific missing items listed
+
+**Why**: Prevents specialists from asking uncertain questions during implementation by ensuring all design decisions are documented upfront.
 
 #### 4. Planning Phase
 

@@ -29,7 +29,7 @@ Task description: $ARGUMENTS
 
 Read the orchestrator workflow from `.claude/skills/fcis-orchestrator/agent-specs/orchestrator.md` and follow it exactly.
 
-The orchestrator spec defines a 6-phase workflow:
+The orchestrator spec defines a 7-phase workflow:
 
 1. **Phase 1: Analysis**
    - Analyze existing domains in `src/core/`
@@ -55,7 +55,14 @@ The orchestrator spec defines a 6-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-4. **Phase 3: Planning**
+4. **Phase 2.5: Design Validation**
+   - Validate Design completeness before implementation
+   - Check all sections: database, types, business logic, repository, HTTP, external services, tests
+   - If incomplete: Return to Design phase with missing items listed
+   - If complete: Proceed to Planning
+   - **PURPOSE**: Enables deterministic implementation (no questions during specialist execution)
+
+5. **Phase 3: Planning**
    - Create file inventory
    - Detect conflicts
    - Pre-generation validation (feasibility, naming, compliance, dependencies)
@@ -63,17 +70,20 @@ The orchestrator spec defines a 6-phase workflow:
    - Update design document
    - **CHECKPOINT**: Use AskUserQuestion for approval
 
-5. **Phase 4: Implementation**
-   - Execute 11 specialist workflows sequentially
-   - For each specialist, read its spec from `.claude/skills/fcis-orchestrator/agent-specs/[name].md`
-   - Follow the specialist's instructions to generate code
-   - Update design document after each
-   - Provide FCIS principle explanations
-   - **CHECKPOINT**: Use AskUserQuestion for iterations
+6. **Phase 4: Implementation** (Grouped with Deterministic Execution)
+   - Execute 11 specialists in 5 logical groups
+   - Group 1: Foundation → Checkpoint
+   - Group 2: Domain Core → Checkpoint
+   - Group 3: HTTP Shell → Checkpoint
+   - Group 4: Quality Assurance (BLOCKING) → Checkpoint
+   - Group 5: Refinement (conditional) → Checkpoint
+   - Specialists follow Design specs exactly (no design questions)
+   - Pattern learning fills minor gaps (naming, structure)
+   - If Design incomplete: Specialist stops and reports (returns to Design phase)
 
-6. **Phase 5: Iteration** (if requested)
+7. **Phase 5: Iteration** (if requested)
    - Collect feedback
-   - Re-run affected specialists
+   - Re-run affected specialists or groups
    - Update design document
 
 ## Design Document
