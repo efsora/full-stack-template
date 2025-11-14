@@ -17,7 +17,11 @@
     "format:check": "prettier --check .",
     "test": "vitest",
     "test:run": "vitest --run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "check:any": "! grep -rn ': any\\|<any>\\|as any\\|Array<any>\\|Record<string, any>' src/",
+    "check:types": "tsc --noImplicitAny --strict --noEmit",
+    "check:casting": "grep -rn ' as [A-Z]' src/ || echo 'No type casting found'",
+    "check:typescript-quality": "npm run check:any && npm run check:types && npm run check:casting"
   },
   "keywords": [],
   "author": "",

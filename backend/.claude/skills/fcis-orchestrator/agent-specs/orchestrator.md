@@ -860,20 +860,28 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
 
 ##### TypeScript Code Quality
 
-**Detection Results**:
-- Grep: [N violations found - any types, type casts]
-- tsc --noImplicitAny: [N implicit any errors]
-- ESLint no-explicit-any: [N violations]
+**Detection Results** (4 methods):
+- Method 1 (Grep): [N violations - any types, type casts]
+- Method 2 (tsc --noImplicitAny): [N implicit any errors]
+- Method 3 (ESLint): [N violations]
+- Method 4 (npm scripts):
+  - check:any: [✅ Passed / ❌ Failed - N any types]
+  - check:types: [✅ Passed / ❌ Failed - N errors]
+  - check:casting: [N instances found]
 
 **Total Violations**: [N]
 
 **Automatic Fixes Applied**:
 [List of fixes: "Replaced 'any' with User in operations.ts:15", etc.]
 
-**Re-validation**:
-- Grep: [0 violations]
-- tsc: [0 errors]
-- ESLint: [0 violations]
+**Re-validation** (all 4 methods):
+- Method 1 (Grep): 0 violations
+- Method 2 (tsc): 0 errors
+- Method 3 (ESLint): 0 violations
+- Method 4 (npm scripts):
+  - check:any: ✅ Passed
+  - check:types: ✅ Passed
+  - check:casting: [0 instances / N instances with justification]
 
 **Status**: [✅ Passed / ❌ Blocked]
 

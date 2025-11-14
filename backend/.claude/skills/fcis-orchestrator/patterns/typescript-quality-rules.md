@@ -448,6 +448,92 @@ src/core/users/operations.ts
   15:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 ```
 
+### Detection Method 4: npm Scripts (Project-Configured)
+
+**Purpose**: Use project-configured npm scripts for holistic TypeScript quality validation.
+
+**Script 1: check:any** (Blocking)
+```bash
+npm run check:any
+```
+
+**What It Does**:
+- Searches for all forms of `any` type usage in src/
+- Fails with exit code 1 if any `any` types found
+- Uses inverted grep (`!`) to fail on matches
+
+**Example Output** (violations found):
+```bash
+$ npm run check:any
+
+src/core/users/operations.ts:15:  const data: any = await repository.find();
+src/core/transactions/workflow.ts:42:  function process(x: any) { }
+
+Command failed with exit code 1
+```
+
+**Example Output** (clean):
+```bash
+$ npm run check:any
+✓ No any types found
+```
+
+**Script 2: check:types** (Blocking)
+```bash
+npm run check:types
+```
+
+**What It Does**:
+- Runs TypeScript compiler with --noImplicitAny --strict --noEmit
+- Stricter than regular `type-check` (includes all strict flags)
+- Catches implicit any, unsafe operations, missing types
+
+**Example Output** (violations found):
+```bash
+$ npm run check:types
+
+src/core/users/operations.ts(15,7): error TS7006: Parameter 'input' implicitly has an 'any' type.
+src/core/transactions/workflow.ts(42,10): error TS2304: Cannot find name 'pipe'.
+
+Found 2 errors.
+```
+
+**Script 3: check:casting** (Informational)
+```bash
+npm run check:casting
+```
+
+**What It Does**:
+- Reports all type casting instances (` as Type`)
+- Non-failing (uses `|| echo` to always exit 0)
+- For review to ensure casts have justification comments
+
+**Example Output** (casts found):
+```bash
+$ npm run check:casting
+
+src/core/users/value-objects/Email.ts:32:    return success(value as Email);
+src/routes/auth/handlers.ts:18:  const validated = input as ValidatedInput; // After Zod validation
+
+2 instances of type casting found
+```
+
+**Script 4: check:typescript-quality** (Combined)
+```bash
+npm run check:typescript-quality
+```
+
+**What It Does**:
+- Runs all 3 checks in sequence: check:any && check:types && check:casting
+- Fails if check:any or check:types fails
+- Single command for complete TypeScript quality validation
+
+**Integration with Validator**:
+- Methods 1-3 (Grep, tsc, ESLint) provide detailed parsing for automatic fixes
+- Method 4 (npm scripts) provides holistic validation with project configuration
+- All 4 methods run to ensure comprehensive coverage
+- Results aggregated and deduplicated
+
 ---
 
 ## Automatic Fix Strategies

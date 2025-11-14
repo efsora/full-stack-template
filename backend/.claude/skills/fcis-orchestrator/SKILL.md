@@ -279,7 +279,7 @@ The validator enforces TypeScript quality rules with multi-method detection and 
 **Rule 1: Never Use `any` Type**
 - All values have proper types (User, string, CreateInput)
 - Use `unknown` for truly unknown values, then validate
-- Detection: Grep + tsc --noImplicitAny + ESLint no-explicit-any
+- Detection: Grep + tsc + ESLint + npm scripts (check:any, check:types)
 
 **Rule 2: All Values Properly Typed**
 - Function parameters: Always explicitly typed
@@ -297,9 +297,16 @@ The validator enforces TypeScript quality rules with multi-method detection and 
 - Utility types for updates (Partial<Pick<>>)
 - Consistent type file organization
 
+**Detection**: 4 methods (Grep + tsc + ESLint + npm scripts)
 **Enforcement**: Multi-layer (pattern learning + specialist guidelines + validator checks)
 **Auto-Fix**: Replaces `any`, adds type annotations, removes unnecessary casts
 **Blocking**: Unfixable violations block implementation
+
+**npm Scripts Available**:
+- `npm run check:any` - Detect any type usage
+- `npm run check:types` - Strict type checking
+- `npm run check:casting` - Report type casting instances
+- `npm run check:typescript-quality` - All checks combined
 
 ✅ **Code Quality**
 

@@ -55,7 +55,7 @@ Read design document section: **Implementation > Agent Execution Log**
 
 **Purpose**: Ensure all generated TypeScript code follows quality rules (no `any`, proper types, minimal casting, pattern consistency).
 
-**Detection Strategy**: Use 3 methods for comprehensive coverage
+**Detection Strategy**: Use 4 methods for comprehensive coverage
 
 **Method 1: Grep Search for Violations**
 
@@ -96,7 +96,33 @@ Check for violations of:
 - `@typescript-eslint/no-explicit-any`
 - `@typescript-eslint/no-unnecessary-type-assertion`
 
-**Aggregation**: Combine results from all 3 methods, deduplicate violations.
+**Method 4: npm Scripts (Project-Configured Validation)**
+
+Run TypeScript quality scripts from package.json:
+
+```bash
+# Detect any type usage (blocking - fails if found)
+npm run check:any
+
+# Comprehensive strict type checking
+npm run check:types
+
+# Report type casting instances (informational)
+npm run check:casting
+```
+
+**What Each Script Does**:
+- `check:any`: Searches for all `any` type usage, exits with error if found
+- `check:types`: Runs tsc with --noImplicitAny --strict --noEmit (stricter than regular type-check)
+- `check:casting`: Reports all type casting instances for review (non-failing)
+
+**Combined Script**:
+```bash
+# Run all TypeScript quality checks
+npm run check:typescript-quality
+```
+
+**Aggregation**: Combine results from all 4 methods, deduplicate violations.
 
 **Automatic Fix Process**:
 
@@ -150,6 +176,10 @@ Update design document with TypeScript quality results:
   - 1x unnecessary type casting
 - Method 2 (tsc): 1 implicit any
 - Method 3 (ESLint): 2 explicit any violations
+- Method 4 (npm scripts):
+  - check:any: ❌ Failed (2 any types found)
+  - check:types: ❌ Failed (1 implicit any)
+  - check:casting: 3 instances found
 
 **Total Unique Violations**: 3
 
@@ -158,10 +188,14 @@ Update design document with TypeScript quality results:
 2. Replaced 'any' with string[] in workflow.ts:42
 3. Removed unnecessary cast in handlers.ts:28
 
-**Re-validation**:
-- Grep: 0 violations
-- tsc: 0 errors
-- ESLint: 0 violations
+**Re-validation** (all 4 methods):
+- Method 1 (Grep): 0 violations
+- Method 2 (tsc): 0 errors
+- Method 3 (ESLint): 0 violations
+- Method 4 (npm scripts):
+  - check:any: ✅ Passed
+  - check:types: ✅ Passed
+  - check:casting: 0 instances (or 2 instances with justification comments)
 
 **Status**: ✅ Passed (all violations fixed)
 ```

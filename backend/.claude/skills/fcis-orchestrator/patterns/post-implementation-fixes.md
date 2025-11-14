@@ -345,7 +345,7 @@ error: Could not find file: 'src/core/transactions/types/outputs.ts'
 
 ### Detecting TypeScript Quality Violations
 
-Use 3 detection methods for comprehensive coverage.
+Use 4 detection methods for comprehensive coverage.
 
 ### Detection Methods
 
@@ -372,6 +372,18 @@ npm run lint
 ```
 
 Check for `@typescript-eslint/no-explicit-any` and `@typescript-eslint/no-unnecessary-type-assertion` violations.
+
+**Method 4: npm Scripts**
+
+Run project-configured TypeScript quality scripts:
+
+```bash
+npm run check:any        # Detect any type usage (blocking)
+npm run check:types      # Strict type checking (blocking)
+npm run check:casting    # Report type casting (informational)
+```
+
+**Why Method 4**: Uses project's exact configuration from package.json, provides holistic validation alongside detailed Methods 1-3.
 
 ### Common TypeScript Quality Violations and Fixes
 

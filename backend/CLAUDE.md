@@ -24,6 +24,12 @@ npm run test             # Run tests in watch mode
 npm run test:run         # Run tests once
 npm run test:coverage    # Run tests with coverage report
 
+# TypeScript Quality Checks
+npm run check:any              # Detect any type usage (fails if found)
+npm run check:types            # Strict type checking (stricter than type-check)
+npm run check:casting          # Report type casting instances
+npm run check:typescript-quality # All TypeScript quality checks combined
+
 # Database (Drizzle ORM)
 npx drizzle-kit generate # Generate migrations from schema changes
 npx drizzle-kit migrate  # Apply migrations to database
@@ -1191,9 +1197,11 @@ The validator enforces strict TypeScript quality rules:
 
 **Enforcement**:
 - Multi-layer: Pattern learning (Analysis) + Specialist guidelines + Validator checks
-- Multi-method detection: Grep + tsc --noImplicitAny + ESLint no-explicit-any
+- 4-method detection: Grep + tsc + ESLint + npm scripts (check:any, check:types, check:casting)
 - Automatic fixes: Replace `any`, add type annotations, remove unnecessary casts
 - Blocking: Unfixable violations block implementation
+
+**TypeScript Quality Scripts**: `npm run check:typescript-quality` runs all checks (check:any, check:types, check:casting)
 
 ✅ **Code Quality**
 
