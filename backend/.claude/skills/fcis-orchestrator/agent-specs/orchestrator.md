@@ -389,6 +389,47 @@ export const TransactionId = {
 };
 ```
 
+#### Code Pattern Quality Requirements
+
+**All specialists must follow layer-specific code pattern best practices:**
+
+For detailed patterns, see layer-specific documentation:
+- **Core Layer**: `.claude/skills/fcis-orchestrator/patterns/core-layer-patterns.md`
+- **Infrastructure Layer**: `.claude/skills/fcis-orchestrator/patterns/infrastructure-patterns.md`
+- **HTTP Layer**: `.claude/skills/fcis-orchestrator/patterns/http-layer-patterns.md`
+
+**Critical Patterns** (Must Follow - Blocking):
+
+**HTTP Layer**:
+- ✅ Use current Zod v4 API: `z.uuid()` not `z.string().uuid()` (ZODB001)
+- ✅ Check Zod docs for other deprecations
+
+**Infrastructure Layer**:
+- ✅ Use Drizzle schema types (User, NewUser) not inline types (INFR001)
+- ✅ Import types from #db/schema: `Promise<User | null>` not `Promise<{ id: string }>`
+
+**Core Layer**:
+- ✅ Workflows use `pipe()` composition
+- ✅ Operations with side effects use `command()`
+- ✅ Value objects use branded types
+
+**Important Patterns** (Should Follow - Warning):
+
+**HTTP Layer**:
+- Explicit field returns in handlers for API clarity (HTTP001)
+- Example: `createSuccessResponse({ id: data.id, email: data.email })` not `createSuccessResponse(data)`
+
+**Infrastructure Layer**:
+- Service interface contracts for external services
+- Timeout configuration for external calls
+- Index strategy for database queries
+
+**Enforcement**:
+- Validator Step 6.5 checks for pattern violations
+- Critical patterns: Auto-fixed (Zod APIs) or block implementation
+- Important patterns: Report with suggestions, warn user
+- Tiered enforcement ensures quality without being overly strict
+
 #### Group 1: Foundation (Data Layer)
 
 **Purpose**: Establish data access layer (Imperative Shell - Database)
@@ -884,6 +925,22 @@ Use this structure for `.claude/temp/fcis-design-[timestamp].md`:
   - check:casting: [0 instances / N instances with justification]
 
 **Status**: [✅ Passed / ❌ Blocked]
+
+##### Code Pattern Quality
+
+**Critical Violations** (Blocking):
+- Zod deprecated APIs: [N found, N auto-fixed]
+  [List fixes: "Fixed z.string().uuid() → z.uuid() in schemas.ts:15"]
+
+**Important Violations** (Warning):
+- Handler implicit returns: [N found]
+  [List locations if found]
+- Infrastructure inline types: [N found]
+  [List locations if found]
+
+**User Acknowledgment**: [✅ Acknowledged / ⏳ Pending]
+
+**Status**: [✅ Passed / ⚠️ Passed with warnings / ❌ Blocked]
 
 ##### Post-Implementation Checklist
 

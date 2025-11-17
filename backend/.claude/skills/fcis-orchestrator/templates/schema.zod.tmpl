@@ -1,5 +1,10 @@
 // Template for Zod Request/Response Schemas
 // Location: src/routes/{{domain}}/schemas.ts
+//
+// Code Pattern Quality:
+// - Use z.uuid() not z.string().uuid() (Zod v4 API)
+// - All schemas should have .openapi() metadata
+// - Use current Zod v4 API (check docs for deprecations)
 
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";

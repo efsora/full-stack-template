@@ -6,6 +6,11 @@
 // - Always add explicit parameter and return types
 // - Avoid type casting unless absolutely necessary
 // - Use patterns from existing domains
+//
+// Code Pattern Quality:
+// - Prefer explicit field mapping in createSuccessResponse() for API clarity
+// - Example: createSuccessResponse({ id: data.id, email: data.email })
+// - Use matchResponse for Result handling
 
 import { matchResponse } from "#lib/result/combinators";
 import { run } from "#lib/result/index";

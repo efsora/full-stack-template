@@ -308,6 +308,27 @@ The validator enforces TypeScript quality rules with multi-method detection and 
 - `npm run check:casting` - Report type casting instances
 - `npm run check:typescript-quality` - All checks combined
 
+✅ **Code Pattern Quality**
+
+The validator enforces layer-specific code patterns with tiered severity:
+
+**Critical Patterns** (Blocking):
+- Zod deprecated APIs: Auto-fix `z.string().uuid()` → `z.uuid()` (ZODB001)
+- Use current API versions (Zod v4+)
+
+**Important Patterns** (Warning):
+- Handler response explicitness: Prefer explicit field mapping over implicit data returns (HTTP001)
+- Infrastructure types: Use Drizzle schema types, not inline types `Promise<{ ... }>` (INFR001)
+
+**Layer-Specific Documentation**:
+- Core patterns: Workflows, operations, value objects, type organization
+- Infrastructure patterns: Repositories, services, database schemas
+- HTTP patterns: Zod schemas, handlers, routes, OpenAPI
+
+**Enforcement**: Tiered (Critical blocks, Important warns, Style informs)
+**Extensible**: Pattern detection registry allows easy addition of new patterns
+**Auto-Fix**: Safe replacements (deprecated APIs), reports for structural issues
+
 ✅ **Code Quality**
 
 - ESLint passes
@@ -467,11 +488,21 @@ For issues or feature requests:
 
 ## Version
 
+**1.5.0** - Code Pattern Quality System
+
+- Extensible code pattern quality system with layer-specific documentation
+- 3 layer-specific pattern files: core-layer, infrastructure, http-layer
+- Pattern detection registry for easy addition of new patterns
+- Tiered enforcement: Critical (blocking), Important (warning), Style (info)
+- Initial patterns: Zod deprecated APIs, handler explicitness, infrastructure type preferences
+- Auto-fix for safe replacements (Zod APIs), reports for structural issues
+- Multi-layer integration: Templates + Guidelines + Validator
+
 **1.4.0** - TypeScript Code Quality Rules
 
 - Integrated TypeScript quality rules enforcement (no `any`, proper types, minimal casting, pattern consistency)
 - Multi-layer strategy: Pattern learning (Analysis) + Guidelines (Specialists) + Enforcement (Validator)
-- Multi-method detection: Grep + tsc --noImplicitAny + ESLint
+- Multi-method detection: Grep + tsc --noImplicitAny + ESLint + npm scripts
 - Automatic fixes for violations (replace `any`, add annotations, remove unnecessary casts)
 - Blocking enforcement: Unfixable violations block implementation
 - Type pattern learning from existing domains

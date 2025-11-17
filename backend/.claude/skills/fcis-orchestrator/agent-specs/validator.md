@@ -217,6 +217,146 @@ Update design document with TypeScript quality results:
 **Status**: ❌ Blocked - Manual fixes required
 ```
 
+### 6.5. Code Pattern Quality
+
+**Purpose**: Ensure generated code follows layer-specific best practices, uses current APIs (not deprecated), and maintains consistency with existing patterns.
+
+**Pattern Documentation**: See layer-specific pattern files:
+- Core patterns: `.claude/skills/fcis-orchestrator/patterns/core-layer-patterns.md`
+- Infrastructure patterns: `.claude/skills/fcis-orchestrator/patterns/infrastructure-patterns.md`
+- HTTP patterns: `.claude/skills/fcis-orchestrator/patterns/http-layer-patterns.md`
+
+**Detection Process** (Tiered by Severity):
+
+**Critical Patterns** (Blocking - Must Fix):
+
+1. **Zod Deprecated APIs** (ZODB001)
+   ```bash
+   # Detect deprecated z.string().uuid()
+   grep -rn "z\.string\(\)\.uuid\(\)" src/routes/
+   ```
+   - If found: Auto-fix by replacing with `z.uuid()`
+   - Re-validate after fix
+   - If still found: Block implementation
+
+**Important Patterns** (Warning - Acknowledge to Proceed):
+
+2. **Handler Response Explicitness** (HTTP001)
+   ```bash
+   # Detect implicit returns
+   grep -rn "createSuccessResponse([a-z][a-z]*)" src/routes/
+   ```
+   - If found: Report with suggestion for explicit field mapping
+   - Show: File, line number, suggested fix
+   - Ask user: "Important pattern violations found. A) Acknowledge and proceed, B) Review violations first"
+
+3. **Infrastructure Inline Types** (INFR001)
+   ```bash
+   # Detect inline types in repositories
+   grep -rn "Promise<{ [a-z]" src/infrastructure/repositories/
+   ```
+   - If found: Report with suggestion to use Drizzle schema types
+   - Show: File, line number, schema type to use, import needed
+   - Ask user: "Important pattern violations found. A) Acknowledge and proceed, B) Review violations first"
+
+**Auto-Fix Process** (Critical Patterns Only):
+
+**Zod Deprecated API Fix**:
+1. Detect: Grep finds `z.string().uuid()`
+2. Read file containing violation
+3. Replace `z.string().uuid()` with `z.uuid()`
+4. Log: "Fixed Zod deprecated API in [file]:[line]"
+5. Re-run detection
+6. If clean: Continue
+
+**Example Fix**:
+```typescript
+// BEFORE
+export const createUserSchema = z.object({
+  id: z.string().uuid(), // Deprecated
+});
+
+// AFTER (auto-fixed)
+export const createUserSchema = z.object({
+  id: z.uuid(), // Current Zod v4 API
+});
+```
+
+**Report Process** (Important Patterns):
+
+**Handler Explicitness Report**:
+```
+⚠️ Important Pattern Violation: Handler Response Explicitness
+
+File: src/routes/users/handlers.ts:25
+Pattern: Implicit data return in createSuccessResponse
+
+Current:
+  return matchResponse(result, {
+    onSuccess: (data) => createSuccessResponse(data),
+    ...
+  });
+
+Suggested:
+  return matchResponse(result, {
+    onSuccess: (data) => createSuccessResponse({
+      id: data.id,
+      email: data.email,
+      name: data.name
+    }),
+    ...
+  });
+
+Why: Explicit field mapping prevents accidental exposure of sensitive fields and makes API contract clear.
+```
+
+**Infrastructure Type Report**:
+```
+⚠️ Important Pattern Violation: Use Drizzle Schema Types
+
+File: src/infrastructure/repositories/drizzle/UserRepository.ts:12
+Pattern: Inline type instead of schema type
+
+Current:
+  findById: (id: string): Promise<{ id: string; email: string } | null> => { }
+
+Suggested:
+  import type { User } from "#db/schema";
+  findById: (id: string): Promise<User | null> => { }
+
+Why: Schema types are single source of truth, auto-update when schema changes.
+```
+
+**Recording in Design Document**:
+
+```markdown
+#### Code Pattern Quality
+
+**Critical Violations** (Blocking):
+- Zod deprecated APIs: 2 found, 2 auto-fixed
+  - Fixed: z.string().uuid() → z.uuid() in schemas.ts:15
+  - Fixed: z.string().uuid() → z.uuid() in schemas.ts:42
+
+**Important Violations** (Warning):
+- Handler implicit returns: 3 found
+  - src/routes/users/handlers.ts:25
+  - src/routes/transactions/handlers.ts:18
+  - src/routes/wallets/handlers.ts:33
+- Infrastructure inline types: 2 found
+  - src/infrastructure/repositories/drizzle/UserRepository.ts:12
+  - src/infrastructure/repositories/drizzle/TransactionRepository.ts:18
+
+**User Acknowledgment**: ✅ Acknowledged and proceeded
+
+**Status**: ✅ Passed (critical fixed, important acknowledged)
+```
+
+**Validation Result**:
+- If Critical violations fixed: ✅ Continue
+- If Important violations: Ask user to acknowledge
+- If user acknowledges: ✅ Continue
+- If user requests review: Pause for review
+
 ### 7. Post-Implementation Checklist
 
 **Purpose**: Ensure runtime readiness with automatic fixes and full blocking enforcement.

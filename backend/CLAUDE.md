@@ -1203,6 +1203,23 @@ The validator enforces strict TypeScript quality rules:
 
 **TypeScript Quality Scripts**: `npm run check:typescript-quality` runs all checks (check:any, check:types, check:casting)
 
+✅ **Code Pattern Quality**
+
+The validator enforces layer-specific code patterns with tiered severity:
+
+**Critical Patterns** (Blocking):
+- **Zod deprecated APIs**: Auto-fixes `z.string().uuid()` → `z.uuid()` (Zod v4 API)
+- Uses current API versions, not deprecated methods
+
+**Important Patterns** (Warning):
+- **Handler explicitness**: Prefers explicit field mapping in `createSuccessResponse({ id: data.id, email: data.email })` over implicit `createSuccessResponse(data)`
+- **Infrastructure types**: Uses Drizzle schema types (`Promise<User | null>`) instead of inline types (`Promise<{ id: string }>`)
+
+**Extensible System**:
+- Pattern detection registry for easy addition of new patterns
+- Layer-specific documentation: core-layer, infrastructure, http-layer patterns
+- Tiered enforcement: Critical (block), Important (warn), Style (info)
+
 ✅ **Code Quality**
 
 - ESLint passes

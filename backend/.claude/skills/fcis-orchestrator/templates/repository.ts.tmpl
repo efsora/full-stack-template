@@ -6,6 +6,11 @@
 // - Always add explicit parameter and return types
 // - Avoid type casting unless absolutely necessary (tx as typeof db is acceptable)
 // - Use patterns from existing repositories
+//
+// Code Pattern Quality:
+// - ALWAYS use Drizzle schema types (User, NewUser) imported from #db/schema
+// - NEVER use inline types like Promise<{ id: string; email: string }>
+// - Schema types are single source of truth, auto-update when schema changes
 
 import { db } from "#db/client";
 import { {{tables}} } from "#db/schema";
