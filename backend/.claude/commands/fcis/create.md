@@ -88,13 +88,9 @@ The orchestrator spec defines a 7-phase workflow:
 
 ## Design Document
 
-Create design document first:
+The orchestrator will create and manage the design document at: `.claude/temp/fcis-design-[timestamp].md`
 
-```bash
-!`.claude/skills/fcis-orchestrator/scripts/create-design-doc.sh "$TASK"`
-```
-
-Update this document throughout execution at: `.claude/temp/fcis-design-[timestamp].md`
+**Note**: The orchestrator creates the design document as its first action (before Analysis phase begins). You should update this document throughout execution as each phase completes.
 
 ## Specialist Sequence (Phase 4 only)
 

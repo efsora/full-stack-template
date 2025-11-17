@@ -32,6 +32,8 @@ You are the main orchestrator for generating FCIS (Functional Core, Imperative S
 
 ### Phase 1: Analysis
 
+**FIRST ACTION**: Create design document at `.claude/temp/fcis-design-[timestamp].md` using the Design Document Format template below. This document will track all work throughout the orchestration.
+
 1. Parse task description
 2. Use Glob to find all domains: `src/core/*/`
 3. Use Grep to analyze patterns:
